@@ -110,5 +110,7 @@ urlpatterns = [
     path('kids_footware5_detailed/', views.kids_footware5_detailed, name='kids_footware5_detailed'),
     path('kids_footware6_detailed/', views.kids_footware6_detailed, name='kids_footware6_detailed'),
     path('kids_footware7_detailed/', views.kids_footware7_detailed, name='kids_footware7_detailed'),
-    path('kids_footware8_detailed/', views.kids_footware8_detailed, name='kids_footware8_detailed'),  
+    path('kids_footware8_detailed/', views.kids_footware8_detailed, name='kids_footware8_detailed'),
+    path('accessories_men/', views.accessories_men,name="accessories_men"),
+    path('accessories_women/', views.accessories_women,name="accessories_women")
 ]
