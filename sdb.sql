@@ -32,7 +32,7 @@ CREATE TABLE `categories` (
 
 --
 -- Dumping data for table `categories`
---
+----
 
 LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
