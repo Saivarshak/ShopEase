@@ -1,6 +1,19 @@
 from django.shortcuts import render
 from .models import Product
 
+
+
+
+from rest_framework import viewsets
+from .models import Product
+from .serializers import ProductSerializer
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+
+
 def home(request):
     products = Product.objects.all()
     return render(request, 'home.html', {'products': products})
@@ -302,3 +315,6 @@ def accessories_men(request):
 
 def accessories_women(request):
     return render(request, 'accessories-men.html')
+
+def cart(request):
+    return render(request, 'cart.html')
