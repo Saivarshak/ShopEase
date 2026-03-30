@@ -1,130 +1,67 @@
-"""
-URL configuration for shopease project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.urls import path
+from django.urls import path, include
 from . import views
 
+# Optional: DRF API router
+from rest_framework import routers
 
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import ProductViewSet
-
-router = DefaultRouter()
-router.register('products', ProductViewSet)
-
-urlpatterns = [
-    path('api/', include(router.urls)),
-]
-
+router = routers.DefaultRouter()
+# Only enable this if ProductViewSet exists
+router.register('products', views.ProductViewSet)
 
 urlpatterns = [
+    # DRF API
+    path('api/', include(router.urls)),     
+
+    # Home page
     path('', views.home, name='home'),
-    path('category-men/', views.category_men, name='category_men'),
-    path('category-women/', views.category_women, name='category_women'),
-    path('category-kids/', views.category_kids, name='category_kids'),
-    path('login/',views.login,name='login'),
+    path('search/', views.search_results, name='search_results'),
+    
+    path('mens_tshirts', views.mens_tshirts, name='mens_tshirts_legacy'),
     path('mens_tshirts/', views.mens_tshirts, name='mens_tshirts'),
+    path('mens_tshirts/<int:product_id>/', views.mens_tshirt_detail, name='mens_tshirt_detail'),
     path('mens_shirts/', views.mens_shirts, name='mens_shirts'),
     path('mens_jeans/', views.mens_jeans, name='mens_jeans'),
-    path('womens_ethnicware/', views.womens_ethnicware, name='womens_ethnicware'), 
+    path('mens_jeans/<int:product_id>/', views.mens_jeans_detail, name='mens_jeans_detail'),
+    path('accessories_men/', views.accessories_men, name='accessories_men'),
+    path('accessories_women/', views.accessories_women, name='accessories_women'),
+    path('womens_ethnicware/', views.womens_ethnicware, name='womens_ethnicware'),
     path('womens_westernware/', views.womens_westernware, name='womens_westernware'),
     path('womens_footwear/', views.womens_footwear, name='womens_footwear'),
     path('kids_tshirts/', views.kids_tshirts, name='kids_tshirts'),
     path('kids_dresses/', views.kids_dresses, name='kids_dresses'),
     path('kids_toys/', views.kids_toys, name='kids_toys'),
     path('kids_footwear/', views.kids_footwear, name='kids_footwear'),
-    path('mens_shirt1_detailed/', views.mens_shirt1_detailed, name='mens_shirt1_detailed'),
-    path('mens_shirt2_detailed/', views.mens_shirt2_detailed, name='mens_shirt2_detailed'), 
-    path('mens_shirt3_detailed/', views.mens_shirt3_detailed, name='mens_shirt3_detailed'),
-    path('mens_shirt4_detailed/', views.mens_shirt4_detailed, name='mens_shirt4_detailed'), 
-    path('mens_shirt5_detailed/', views.mens_shirt5_detailed, name='mens_shirt5_detailed'), 
-    path('mens_shirt6_detailed/', views.mens_shirt6_detailed, name='mens_shirt6_detailed'),
-    path('mens_shirt7_detailed/', views.mens_shirt7_detailed, name='mens_shirt7_detailed'),
-    path('mens_shirt8_detailed/', views.mens_shirt8_detailed, name='mens_shirt8_detailed'),
-    path('mens_tshirt1_detailed/', views.mens_tshirt1_detailed, name='mens_tshirt1_detailed'),
-    path('mens_tshirt2_detailed/', views.mens_tshirt2_detailed, name='mens_tshirt2_detailed'),
-    path('mens_tshirt3_detailed/', views.mens_tshirt3_detailed, name='mens_tshirt3_detailed'),
-    path('mens_tshirt4_detailed/', views.mens_tshirt4_detailed, name='mens_tshirt4_detailed'),
-    path('mens_tshirt5_detailed/', views.mens_tshirt5_detailed, name='mens_tshirt5_detailed'),
-    path('mens_tshirt6_detailed/', views.mens_tshirt6_detailed, name='mens_tshirt6_detailed'),
-    path('mens_tshirt7_detailed/', views.mens_tshirt7_detailed, name='mens_tshirt7_detailed'),
-    path('mens_tshirt8_detailed/', views.mens_tshirt8_detailed, name='mens_tshirt8_detailed'),
-    path('mens_jeans1_detailed/', views.mens_jeans1_detailed, name='mens_jeans1_detailed'),
-    path('mens_jeans2_detailed/', views.mens_jeans2_detailed, name='mens_jeans2_detailed'),
-    path('mens_jeans3_detailed/', views.mens_jeans3_detailed, name='mens_jeans3_detailed'),
-    path('mens_jeans4_detailed/', views.mens_jeans4_detailed, name='mens_jeans4_detailed'),
-    path('mens_jeans5_detailed/', views.mens_jeans5_detailed, name='mens_jeans5_detailed'),
-    path('mens_jeans6_detailed/', views.mens_jeans6_detailed, name='mens_jeans6_detailed'),
-    path('womens_ethnicware1_detailed/', views.womens_ethnicware1_detailed, name='womens_ethnicware1_detailed'),
-    path('womens_ethnicware2_detailed/', views.womens_ethnicware2_detailed, name='womens_ethnicware2_detailed'),
-    path('womens_ethnicware3_detailed/', views.womens_ethnicware3_detailed, name='womens_ethnicware3_detailed'),
-    path('womens_ethnicware4_detailed/', views.womens_ethnicware4_detailed, name='womens_ethnicware4_detailed'),
-    path('womens_ethnicware5_detailed/', views.womens_ethnicware5_detailed, name='womens_ethnicware5_detailed'),
-    path('womens_ethnicware6_detailed/', views.womens_ethnicware6_detailed, name='womens_ethnicware6_detailed'),
-    path('womens_ethnicware7_detailed/', views.womens_ethnicware7_detailed, name='womens_ethnicware7_detailed'),
-    path('womens_ethnicware8_detailed/', views.womens_ethnicware8_detailed, name='womens_ethnicware8_detailed'),
-    path('womens_westernware1_detailed/', views.womens_westernware1_detailed, name='womens_westernware1_detailed'),
-    path('womens_westernware2_detailed/', views.womens_westernware2_detailed, name='womens_westernware2_detailed'),
-    path('womens_westernware3_detailed/', views.womens_westernware3_detailed, name='womens_westernware3_detailed'),
-    path('womens_westernware4_detailed/', views.womens_westernware4_detailed, name='womens_westernware4_detailed'),
-    path('womens_westernware5_detailed/', views.womens_westernware5_detailed, name='womens_westernware5_detailed'),
-    path('womens_westernware6_detailed/', views.womens_westernware6_detailed, name='womens_westernware6_detailed'),
-    path('womens_westernware7_detailed/', views.womens_westernware7_detailed, name='womens_westernware7_detailed'),
-    path('womens_westernware8_detailed/', views.womens_westernware8_detailed, name='womens_westernware8_detailed'),
-    path('womens_footwear1_detailed/', views.womens_footwear1_detailed, name='womens_footwear1_detailed'),
-    path('womens_footwear2_detailed/', views.womens_footwear2_detailed, name='womens_footwear2_detailed'),
-    path('womens_footwear3_detailed/', views.womens_footwear3_detailed, name='womens_footwear3_detailed'),
-    path('womens_footwear4_detailed/', views.womens_footwear4_detailed, name='womens_footwear4_detailed'),
-    path('womens_footwear5_detailed/', views.womens_footwear5_detailed, name='womens_footwear5_detailed'),
-    path('womens_footwear6_detailed/', views.womens_footwear6_detailed, name='womens_footwear6_detailed'),
-    path('womens_footwear7_detailed/', views.womens_footwear7_detailed, name='womens_footwear7_detailed'),
-    path('womens_footwear8_detailed/', views.womens_footwear8_detailed, name='womens_footwear8_detailed'),
-    path('kids_tshirt1_detailed/', views.kids_tshirt1_detailed, name='kids_tshirt1_detailed'),
-    path('kids_tshirt2_detailed/', views.kids_tshirt2_detailed, name='kids_tshirt2_detailed'),
-    path('kids_tshirt3_detailed/', views.kids_tshirt3_detailed, name='kids_tshirt3_detailed'),
-    path('kids_tshirt4_detailed/', views.kids_tshirt4_detailed, name='kids_tshirt4_detailed'),
-    path('kids_tshirt5_detailed/', views.kids_tshirt5_detailed, name='kids_tshirt5_detailed'),
-    path('kids_tshirt6_detailed/', views.kids_tshirt6_detailed, name='kids_tshirt6_detailed'),
-    path('kids_tshirt7_detailed/', views.kids_tshirt7_detailed, name='kids_tshirt7_detailed'),
-    path('kids_tshirt8_detailed/', views.kids_tshirt8_detailed, name='kids_tshirt8_detailed'),
-    path('kids_dress1_detailed/', views.kids_dress1_detailed, name='kids_dress1_detailed'),
-    path('kids_dress2_detailed/', views.kids_dress2_detailed, name='kids_dress2_detailed'),
-    path('kids_dress3_detailed/', views.kids_dress3_detailed, name='kids_dress3_detailed'),
-    path('kids_dress4_detailed/', views.kids_dress4_detailed, name='kids_dress4_detailed'),
-    path('kids_dress5_detailed/', views.kids_dress5_detailed, name='kids_dress5_detailed'),
-    path('kids_dress6_detailed/', views.kids_dress6_detailed, name='kids_dress6_detailed'),
-    path('kids_dress7_detailed/', views.kids_dress7_detailed, name='kids_dress7_detailed'),
-    path('kids_dress8_detailed/', views.kids_dress8_detailed, name='kids_dress8_detailed'),
-    path('kids_toys1_detailed/', views.kids_toys1_detailed, name='kids_toys1_detailed'),
-    path('kids_toys2_detailed/', views.kids_toys2_detailed, name='kids_toys2_detailed'),
-    path('kids_toys3_detailed',  views.kids_toys3_detailed, name='kids_toys3_detailed'),
-    path('kids_toys4_detailed/', views.kids_toys4_detailed, name='kids_toys4_detailed'),
-    path('kids_toys5_detailed/', views.kids_toys5_detailed, name='kids_toys5_detailed'),
-    path('kids_toys6_detailed/', views.kids_toys6_detailed, name='kids_toys6_detailed'),
-    path('kids_toys7_detailed/', views.kids_toys7_detailed, name='kids_toys7_detailed'),
-    path('kids_toys8_detailed/', views.kids_toys8_detailed, name='kids_toys8_detailed'),
-    path('kids_footware1_detailed/', views.kids_footware1_detailed, name='kids_footware1_detailed'),
-    path('kids_footware2_detailed/', views.kids_footware2_detailed, name='kids_footware2_detailed'),
-    path('kids_footware3_detailed/', views.kids_footware3_detailed, name='kids_footware3_detailed'),
-    path('kids_footware4_detailed/', views.kids_footware4_detailed, name='kids_footware4_detailed'),
-    path('kids_footware5_detailed/', views.kids_footware5_detailed, name='kids_footware5_detailed'),
-    path('kids_footware6_detailed/', views.kids_footware6_detailed, name='kids_footware6_detailed'),
-    path('kids_footware7_detailed/', views.kids_footware7_detailed, name='kids_footware7_detailed'),
-    path('kids_footware8_detailed/', views.kids_footware8_detailed, name='kids_footware8_detailed'),
-    path('accessories_men/', views.accessories_men,name="accessories_men"),
-    path('accessories_women/', views.accessories_women,name="accessories_women"),
-    path('cart/', views.cart, name='cart')
+    path('catalog/product/<int:product_id>/', views.catalog_product_detail, name='catalog_product_detail'),
+    path('mens_shirt1_detailed/', views.product_detail, {'product_id': 27}, name='mens_shirt1_detailed'),
+    
+    # Login and Cart
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register'),
+    path('logout/', views.logout_view, name='logout'),
+    path('admin-access/', views.admin_access, name='admin_access'),
+    path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-panel/products/add/', views.admin_product_form, name='admin_product_add'),
+    path('admin-panel/products/<int:product_id>/edit/', views.admin_product_form, name='admin_product_edit'),
+    path('admin-panel/products/<int:product_id>/delete/', views.admin_product_delete, name='admin_product_delete'),
+    path('cart/', views.cart, name='cart'),
+    path('payment/', views.payment_gateway, name='payment_gateway'),
+    path('place-order/', views.place_order, name='place_order'),
+    path('orders/', views.orders, name='orders'),
+    path('orders/<int:order_id>/success/', views.order_success, name='order_success'),
+    path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/remove/<int:cart_item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('buy-now/<int:product_id>/', views.buy_now, name='buy_now'),
+
+    # Dynamic category pages
+    path('category/<str:category_name>/', views.category_view, name='category'),
+    
+
+    # Shortcut URLs for Men/Women/Kids
+    path('category_men/', views.category_view, {'category_name': 'men'}, name='category_men'),
+    path('category_women/', views.category_view, {'category_name': 'women'}, name='category_women'),
+    path('category_kids/', views.category_view, {'category_name': 'kids'}, name='category_kids'),
+
+    # Dynamic product detail
+    path('product/<int:product_id>/', views.product_detail, name='product_detail'),
 ]
+

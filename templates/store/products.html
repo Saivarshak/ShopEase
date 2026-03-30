@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product List</title>
+    <style>
+        body { font-family: Arial; }
+        .container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .price { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<h2>Products</h2>
+
+<div class="container" id="productContainer"></div>
+
+<script>
+    fetch("http://127.0.0.1:8000/api/products/")
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById("productContainer");
+
+            data.forEach(product => {
+                container.innerHTML += `
+                    <div class="card">
+                        <h3>${product.product_name}</h3>
+                        <p><strong>Brand:</strong> ${product.brand}</p>
+                        <p>${product.description}</p>
+                        <p class="price">₹ ${product.price}</p>
+                        <p>Discount: ${product.discount_percent}%</p>
+                    </div>
+                `;
+            });
+        })
+        .catch(error => console.error("Error:", error));
+</script>
+
+</body>
+</html>

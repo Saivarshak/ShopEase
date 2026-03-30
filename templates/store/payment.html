@@ -1,0 +1,381 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Gateway</title>
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(135deg, #eef4ff 0%, #f8fbff 50%, #fff6ea 100%);
+  color: #162033;
+}
+
+.header {
+  background: #101828;
+  color: white;
+  padding: 16px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header a {
+  color: white;
+  text-decoration: none;
+}
+
+.wrapper {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px;
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr;
+  gap: 24px;
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 22px;
+  box-shadow: 0 18px 48px rgba(16, 24, 40, 0.08);
+}
+
+.form-panel {
+  padding: 28px;
+}
+
+.summary-panel {
+  padding: 24px;
+  height: fit-content;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 32px;
+}
+
+.subtitle {
+  margin: 0 0 24px;
+  color: #667085;
+}
+
+.section-title {
+  margin: 0 0 14px;
+  font-size: 18px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field.full {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.field input,
+.field select {
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  outline: none;
+  background: white;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: #7c5cff;
+  box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.12);
+}
+
+.payment-methods {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.method {
+  border: 1px solid #d0d5dd;
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+  background: white;
+  font-weight: 600;
+}
+
+.cta {
+  margin-top: 24px;
+  border: none;
+  width: 100%;
+  padding: 15px 18px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0ea5e9, #2563eb);
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cta:hover {
+  filter: brightness(1.05);
+}
+
+.order-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid #eaecf0;
+}
+
+.order-item:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.order-item img {
+  width: 74px;
+  height: 74px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #f5f5f5;
+}
+
+.order-name {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.muted {
+  color: #667085;
+  font-size: 14px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+  font-size: 15px;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #eaecf0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.badge {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #ecfdf3;
+  color: #027a48;
+  font-size: 14px;
+}
+
+.scanner-card {
+  margin-top: 22px;
+  border-radius: 20px;
+  background: #0f172a;
+  color: white;
+  padding: 18px;
+}
+
+.scanner-card img {
+  width: 100%;
+  max-width: 320px;
+  display: block;
+  margin: 16px auto 0;
+  border-radius: 18px;
+  background: white;
+}
+
+.scanner-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.scanner-subtitle {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-methods {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>Secure Payment</div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    {% include 'store/partials/profile_badge.html' %}
+    <a href="{% url 'cart' %}">Back to Cart</a>
+  </div>
+</div>
+
+<div class="wrapper">
+  <div class="panel form-panel">
+    <h1 class="title">Payment Gateway</h1>
+    <p class="subtitle">Complete your order with shipping and payment details.</p>
+    {% if messages %}
+      {% for message in messages %}
+        <div class="badge" style="background:#fff7ed;color:#b54708;">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" action="{% url 'place_order' %}">
+      {% csrf_token %}
+
+      <h2 class="section-title">Payment Method</h2>
+      <div class="payment-methods">
+        <label class="method"><input type="radio" name="payment_method" value="Card" checked> Card</label>
+        <label class="method"><input type="radio" name="payment_method" value="UPI"> UPI</label>
+        <label class="method"><input type="radio" name="payment_method" value="Net Banking"> Net Banking</label>
+      </div>
+
+      <h2 class="section-title">Billing Details</h2>
+      <div class="grid">
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" name="full_name" value="{{ default_full_name }}" placeholder="Enter your full name" required>
+        </div>
+        <div class="field">
+          <label>Phone Number</label>
+          <input type="text" name="phone_number" placeholder="Enter mobile number" required>
+        </div>
+        <div class="field full">
+          <label>Email</label>
+          <input type="email" name="email" value="{{ default_email }}" placeholder="Enter email address" required>
+        </div>
+        <div class="field full">
+          <label>Address</label>
+          <input type="text" name="address" placeholder="Flat / House / Street" required>
+        </div>
+        <div class="field">
+          <label>City</label>
+          <input type="text" name="city" placeholder="Enter city" required>
+        </div>
+        <div class="field">
+          <label>State</label>
+          <input type="text" name="state" placeholder="Enter state" required>
+        </div>
+        <div class="field">
+          <label>Pincode</label>
+          <input type="text" name="pincode" placeholder="Enter pincode" required>
+        </div>
+        <div class="field">
+          <label>Country</label>
+          <select name="country">
+            <option selected>India</option>
+            <option>United States</option>
+            <option>United Kingdom</option>
+          </select>
+        </div>
+      </div>
+
+      <h2 class="section-title">Card Details</h2>
+      <div class="grid">
+        <div class="field full">
+          <label>Card Number</label>
+          <input type="text" placeholder="1234 5678 9012 3456">
+        </div>
+        <div class="field">
+          <label>Expiry</label>
+          <input type="text" placeholder="MM/YY">
+        </div>
+        <div class="field">
+          <label>CVV</label>
+          <input type="password" placeholder="***">
+        </div>
+        <div class="field full">
+          <label>Name on Card</label>
+          <input type="text" placeholder="Card holder name">
+        </div>
+      </div>
+
+      <button class="cta" type="submit">Pay Rs. {{ subtotal }}</button>
+    </form>
+  </div>
+
+  <div class="panel summary-panel">
+    <h2 class="section-title">Order Summary</h2>
+
+    {% if cart_items %}
+      {% for item in cart_items %}
+        <div class="order-item">
+          <img src="{% static item.image_path %}" alt="{{ item.product.product_name }}">
+          <div>
+            <div class="order-name">{{ item.product.product_name }}</div>
+            <div class="muted">Qty: {{ item.quantity }}</div>
+            <div class="muted">Rs. {{ item.line_total }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="muted">No items available for payment.</div>
+    {% endif %}
+
+    <div class="summary-row">
+      <span>Items</span>
+      <span>{{ total_items }}</span>
+    </div>
+    <div class="summary-row">
+      <span>Shipping</span>
+      <span>Free</span>
+    </div>
+    <div class="summary-total">
+      <span>Total</span>
+      <span>Rs. {{ subtotal }}</span>
+    </div>
+
+    <div class="badge">
+      Your order details come from the backend, and the QR below is your real scanner image loaded from the project backend.
+    </div>
+
+    <div class="scanner-card">
+      <p class="scanner-title">Scan & Pay with {{ payment_provider_name }}</p>
+      <p class="scanner-subtitle">Open the PhonePe app, scan this QR, and complete the payment for this order.</p>
+      <img src="{% static payment_qr_image %}" alt="{{ payment_provider_name }} QR">
+      <p class="scanner-subtitle" style="text-align:center;margin-top:14px;">Receiver: {{ payment_receiver_name }}</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

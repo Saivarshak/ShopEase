@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f6f8fb; color: #111827; }
+    .header { background: #111827; color: white; padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .header a { color: white; text-decoration: none; }
+    .wrap { max-width: 1100px; margin: 36px auto; padding: 0 20px; }
+    .order-card { background: white; border-radius: 18px; padding: 24px; box-shadow: 0 14px 40px rgba(17, 24, 39, 0.08); margin-bottom: 18px; }
+    .top { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+    .title { font-size: 22px; font-weight: 700; }
+    .muted { color: #667085; }
+    .item { display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid #eaecf0; }
+    .empty { background: white; border-radius: 18px; padding: 36px; text-align: center; box-shadow: 0 14px 40px rgba(17, 24, 39, 0.08); }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>My Orders</div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      {% include 'store/partials/profile_badge.html' %}
+      <a href="{% url 'home' %}">Home</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    {% if orders %}
+      {% for order in orders %}
+        <div class="order-card">
+          <div class="top">
+            <div>
+              <div class="title">Order #{{ order.order_id }}</div>
+              <div class="muted">{{ order.created_at }} | {{ order.status }} | {{ order.payment_method }}</div>
+            </div>
+            <div class="title">Rs. {{ order.subtotal }}</div>
+          </div>
+          {% for item in order.items.all %}
+            <div class="item">
+              <div>{{ item.product.product_name }}{% if item.selected_size %} ({{ item.selected_size }}){% endif %} x {{ item.quantity }}</div>
+              <div>Rs. {{ item.line_total }}</div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">
+        <h2>No orders yet</h2>
+        <p class="muted">Once you place an order from the payment page, it will appear here.</p>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f3f6fb; color: #111827; }
+    .header { background: #111827; color: white; padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .header a { color: white; text-decoration: none; }
+    .wrap { max-width: 1200px; margin: 32px auto; padding: 0 20px; }
+    .topbar { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .btn { display: inline-block; text-decoration: none; border: none; border-radius: 999px; padding: 12px 18px; font-weight: 700; cursor: pointer; }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-secondary { background: #e5e7eb; color: #111827; }
+    .table-card { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 14px 40px rgba(17, 24, 39, 0.08); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 14px 12px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: middle; }
+    th { color: #475467; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
+    img.product { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; background: #f3f4f6; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-edit { background: #dbeafe; color: #1d4ed8; }
+    .btn-delete { background: #fee2e2; color: #b91c1c; }
+    .empty { text-align: center; padding: 32px; color: #667085; }
+    .message { margin-bottom: 16px; padding: 14px; border-radius: 12px; background: #ecfdf3; color: #027a48; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>Shop Admin Panel</div>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <a href="{% url 'home' %}">Home</a>
+      <a href="{% url 'logout' %}">Logout</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="message">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="topbar">
+      <div>
+        <h1 style="margin:0;">Manage Products</h1>
+        <p style="margin:6px 0 0;color:#667085;">Add, edit, and remove products for men, women, and kids.</p>
+      </div>
+      <a href="{% url 'admin_product_add' %}" class="btn btn-primary">Add Product</a>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Subcategory</th>
+            <th>SKU</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in products %}
+            <tr>
+              <td><img class="product" src="{% static row.image_path %}" alt="{{ row.product.product_name }}"></td>
+              <td>{{ row.product.product_name }}</td>
+              <td>{{ row.product.category.category_name }}</td>
+              <td>{{ row.product.subcategory.subcategory_name }}</td>
+              <td>{{ row.product.sku }}</td>
+              <td>Rs. {{ row.product.offer_price }}</td>
+              <td>{{ row.total_stock }}</td>
+              <td>{% if row.product.is_active %}Active{% else %}Inactive{% endif %}</td>
+              <td>
+                <div class="actions">
+                  <a href="{% url 'admin_product_edit' row.product.product_id %}" class="btn btn-edit">Edit</a>
+                  <form method="post" action="{% url 'admin_product_delete' row.product.product_id %}" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this product?')">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="9" class="empty">No products available yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

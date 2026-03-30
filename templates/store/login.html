@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-Commerce Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-image: url('https://res.cloudinary.com/ds8lgedtc/image/upload/v1753773801/black-friday-sales-sign-neon-light_fauoc5.jpg');
+    }
+    .container {
+      display: flex;
+      width: 50%;
+      max-width: 1200px;
+      background: lightblue;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      margin-left: 100px;
+    }
+    .image-section {
+      flex: 1;
+      background: url('https://static.vecteezy.com/system/resources/previews/014/471/815/original/shopping-cart-business-icon-flat-cartoon-for-the-business-idea-web-design-illustration-free-vector.jpg') no-repeat center center/cover;
+    }
+    .form-section {
+      flex: 1;
+      padding: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.92);
+    }
+    .form-section h2 { margin-bottom: 20px; font-size: 32px; color: black; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 14px; color: #555; }
+    .form-group input {
+      width: 100%;
+      padding: 10px 15px;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+    .btn-login {
+      background-color: #007bff;
+      color: white;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn-login:hover { background-color: #0056b3; }
+    .message {
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #fee4e2;
+      color: #b42318;
+      font-size: 14px;
+    }
+    .logo {
+      position: absolute;
+      top: 0;
+      left: 70px;
+      height: 220px;
+      width: 220px;
+    }
+    @media (max-width: 992px) {
+      .container { flex-direction: column; margin: 0 auto; width: 90%; }
+      .image-section { height: 200px; }
+      .form-section { padding: 30px; }
+      .logo { position: static; display: block; margin: 0 auto 20px auto; height: 120px; width: 120px; }
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <img src="{% static 'images/logo1.png' %}" alt="Logo" class="logo"/>
+  </div>
+  <div class="container">
+    <div class="image-section"></div>
+
+    <form class="form-section" method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next_url }}">
+      <h2>Welcome Back!</h2>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="message">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required />
+      </div>
+      <button type="submit" class="btn-login">Login</button>
+      <p style="margin-top:16px;text-align:center;">
+        New user? <a href="{% url 'register' %}?next={{ next_url }}" style="color:#007bff;text-decoration:none;">Create account</a>
+      </p>
+    </form>
+  </div>
+</body>
+</html>

@@ -64,6 +64,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'store.context_processors.user_profile',
             ],
         },
     },
@@ -85,7 +86,6 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -129,6 +129,9 @@ STATICFILES_DIRS = [
 
 # For production (when using collectstatic)
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# End sessions when the browser closes so auth testing is easier during development.
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

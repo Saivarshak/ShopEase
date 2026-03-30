@@ -1,0 +1,199 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ShopEase - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind Custom Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandPink: '#bd2a67ff',
+            brandCoral: '#f73939c8',
+            brandDark: '#2f2f2f',
+            brandMuted: '#5e5d5dff',
+            brandLight: '#fdfdfd',
+            beige: '#dbbe9c'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    #featured-products {
+      scroll-margin-top: 110px;
+    }
+
+    #search-results {
+      scroll-margin-top: 110px;
+    }
+  </style>
+</head>
+
+<body class="text-brandDark w-screen overflow-x-hidden" 
+      style="background-image: url('{% static background_image %}');
+             background-size: cover;
+             background-attachment: fixed;
+             background-position: center;
+             background-repeat: no-repeat;">
+      
+
+ <!-- Header -->
+<header class="py-6 border-b shadow-sm ">
+  <div class="w-full px-6 md:px-10 flex justify-between items-center">
+    
+    <!-- Left: Logo -->  
+    <div class="flex items-center">
+      <a href="/">
+        <img src="{% static logo_image %}" alt="ShopEase Logo"
+             class="h-20 md:h-20 w-auto" />
+      </a>
+    </div>
+
+    <!-- Center: Search Bar -->
+    <form method="get" action="{% url 'search_results' %}" class="hidden md:flex flex-1 justify-center px-6">
+      <input type="text" name="q" value="{{ search_query }}" class="w-64 lg:w-96 px-4 py-2 border rounded-l-md focus:outline-none"
+             placeholder="{{ search_placeholder }}" />
+      <button type="submit" class="px-4 py-2 bg-brandPink text-white rounded-r-md hover:bg-pink-700">{{ search_button_text }}</button>
+    </form>
+
+    <!-- Right: Navigation -->
+    <div class="hidden md:flex items-center space-x-4">
+      <a href="{{ nav_home_url }}" class="bg-brandPink hover:bg-pink-700 text-white px-4 py-2 rounded-full font-medium transition">{{ nav_home_text }}</a>
+      <a href="{{ nav_products_url }}" class="bg-brandPink hover:bg-pink-700 text-white px-4 py-2 rounded-full font-medium transition">{{ nav_products_text }}</a>
+      <a href="{{ nav_contact_url }}" class="bg-brandPink hover:bg-pink-700 text-white px-4 py-2 rounded-full font-medium transition">{{ nav_contact_text }}</a>
+      {% if request.user.is_authenticated %}
+      <a href="{% url 'logout' %}" class="bg-brandPink hover:bg-pink-700 text-white px-4 py-2 rounded-full font-medium transition">Logout</a>
+      {% else %}
+      <a href="{{ nav_login_url }}" class="bg-brandPink hover:bg-pink-700 text-white px-4 py-2 rounded-full font-medium transition">{{ nav_login_text }}</a>
+      {% endif %}
+      {% include 'store/partials/profile_badge.html' %}
+      <a href="{% url 'cart' %}" class="ml-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-cart text-brandDark" viewBox="0 0 16 16">
+          <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <div class="md:hidden flex items-center">
+      <button id="menu-btn" class="text-brandDark focus:outline-none">
+        ☰
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="menu" class="hidden md:hidden px-6 py-4 shadow-md">
+    <form method="get" action="{% url 'search_results' %}">
+      <input type="text" name="q" value="{{ search_query }}" class="w-full px-4 py-2 mb-3 border rounded-md focus:outline-none"
+             placeholder="{{ search_placeholder }}" />
+    </form>
+    <div class="flex flex-col space-y-3">
+      <a href="{{ nav_home_url }}" class="bg-brandPink hover:bg-pink-700 text-white px-4 py-2 rounded-md text-center">{{ nav_home_text }}</a>
+      <a href="{{ nav_products_url }}" class="bg-brandPink hover:bg-pink-700 text-white px-4 py-2 rounded-md text-center">{{ nav_products_text }}</a>
+      <a href="{{ nav_contact_url }}" class="bg-brandPink hover:bg-pink-700 text-white px-4 py-2 rounded-md text-center">{{ nav_contact_text }}</a>
+      {% if request.user.is_authenticated %}
+      <a href="{% url 'logout' %}" class="bg-brandPink hover:bg-pink-700 text-white px-4 py-2 rounded-md text-center">Logout</a>
+      {% else %}
+      <a href="{{ nav_login_url }}" class="bg-brandPink hover:bg-pink-700 text-white px-4 py-2 rounded-md text-center">{{ nav_login_text }}</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+  <!-- Hero Section -->
+  <section class="py-20 px-6 md:px-20 text-center bg-cover bg-center mt-20"
+           style="background-image: url('{% static hero_banner_image %}');">
+    <div class="bg-white/80 shadow-lg rounded-2xl max-w-3xl mx-auto p-10">
+      <h2 class="text-xl text-brandMuted">{{ hero_subtitle }}</h2>
+      <h1 class="text-4xl md:text-5xl font-bold mt-4">
+        {{ hero_title }} <span class="text-brandCoral italic">{{ hero_highlight }}</span> Delivers
+      </h1>
+      <p class="mt-4 text-brandMuted text-lg">{{ hero_tagline }}</p>
+      <div class="mt-8">
+        <a href="{{ hero_button_url }}" class="bg-brandCoral text-white px-6 py-3 rounded-full text-lg hover:bg-orange-500 transition">
+          {{ hero_button_text }}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="w-full px-6 md:px-10 py-16 mt-8">
+    <h3 class="text-3xl font-semibold text-center text-brandDark  mb-12">{{ category_section_title }}</h3>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
+      {% for category in categories_context %}
+      <a href="{% url category.route_name %}" class="block">
+        <div class="rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105">
+          <img src="{% static category.image_path %}" alt="{{ category.name }}" class="w-full h-64 object-cover" />
+          <div class="bg-white p-5 text-center">
+            <h4 class="text-2xl font-semibold text-brandDark">{{ category.name }}</h4>
+            <p class="text-brandMuted mt-2">{{ category.description }}</p>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section id="featured-products" class="w-full px-6 md:px-10 py-16">
+  <h3 class="text-3xl font-semibold text-center text-brandDark mb-12">{{ featured_section_title }}</h3>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    {% for item in featured_products %}
+      <a href="{% url 'product_detail' item.product.product_id %}" class="block">
+        <div class="rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105 bg-white">
+          <img src="{% static item.image_path %}" alt="{{ item.product.product_name }}" class="w-full h-64 object-cover" />
+          <div class="p-5 text-center">
+            <h4 class="text-xl font-semibold text-brandDark">{{ item.product.product_name }}</h4>
+            <p class="text-brandMuted mt-2">{{ item.product.brand }}</p>
+            <p class="text-brandCoral font-bold mt-2">Rs. {{ item.product.offer_price }}</p>
+          </div>
+        </div>
+      </a>
+    {% empty %}
+      <p class="text-center col-span-full text-brandMuted">No products available.</p>
+    {% endfor %}
+  </div>
+</section>
+
+
+
+  <!-- Footer -->
+  <footer class="bg-beige py-6 border-t mt-12">
+    <div class="w-full px-10 text-center text-sm text-brandMuted">
+      &copy; 2025 <strong class="text-brandDark">{{ footer_brand_text }}</strong>. {{ footer_text }} | Built by <span class="text-brandCoral font-semibold">{{ footer_builder_text }}</span>
+    </div>
+  </footer>
+
+  <!-- Script for Mobile Menu Toggle -->
+  <script>
+    const menuBtn = document.getElementById("menu-btn");
+    const menu = document.getElementById("menu");
+    menuBtn.addEventListener("click", () => {
+      menu.classList.toggle("hidden");
+    });
+  </script>
+
+</body>
+</html>

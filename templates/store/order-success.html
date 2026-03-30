@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Placed</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f6f8fb; color: #111827; }
+    .header { background: #111827; color: white; padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .header a { color: white; text-decoration: none; }
+    .wrap { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .card { background: white; border-radius: 18px; padding: 28px; box-shadow: 0 14px 40px rgba(17, 24, 39, 0.08); }
+    .badge { display: inline-block; background: #ecfdf3; color: #027a48; padding: 8px 12px; border-radius: 999px; font-weight: 700; }
+    .title { font-size: 34px; margin: 18px 0 8px; }
+    .muted { color: #667085; }
+    .item { display: flex; justify-content: space-between; padding: 14px 0; border-top: 1px solid #eaecf0; }
+    .actions { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+    .btn { text-decoration: none; border-radius: 999px; padding: 12px 18px; font-weight: 700; }
+    .btn-primary { background: #111827; color: white; }
+    .btn-secondary { background: #e5e7eb; color: #111827; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>Order Confirmed</div>
+    <a href="{% url 'home' %}">Home</a>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="badge">Order Placed</div>
+      <h1 class="title">Thank you, {{ order.full_name }}.</h1>
+      <p class="muted">Your order #{{ order.order_id }} has been placed successfully.</p>
+      <p class="muted">Payment method: {{ order.payment_method }} | Status: {{ order.status }}</p>
+      <p class="muted">Shipping to: {{ order.address }}, {{ order.city }}, {{ order.state }} - {{ order.pincode }}, {{ order.country }}</p>
+
+      {% for item in order.items.all %}
+        <div class="item">
+          <div>{{ item.product.product_name }} x {{ item.quantity }}</div>
+          <div>Rs. {{ item.line_total }}</div>
+        </div>
+      {% endfor %}
+
+      <div class="item" style="font-weight:700;">
+        <div>Total Items: {{ order.total_items }}</div>
+        <div>Rs. {{ order.subtotal }}</div>
+      </div>
+
+      <div class="actions">
+        <a class="btn btn-primary" href="{% url 'orders' %}">View Orders</a>
+        <a class="btn btn-secondary" href="{% url 'home' %}">Continue Shopping</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
