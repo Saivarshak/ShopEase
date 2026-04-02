@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "shopeasy/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "shopeasy/wsgi.py"
+    }
+  ]
+}
