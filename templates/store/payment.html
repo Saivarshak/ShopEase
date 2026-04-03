@@ -9,8 +9,8 @@
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(135deg, #eef4ff 0%, #f8fbff 50%, #fff6ea 100%);
-  color: #162033;
+  background: #f7f7f7;
+  color: #101828;
 }
 
 .header {
@@ -101,8 +101,8 @@ body {
 
 .field input:focus,
 .field select:focus {
-  border-color: #7c5cff;
-  box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.12);
+  border-color: #111827;
+  box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.08);
 }
 
 .payment-methods {
@@ -121,13 +121,17 @@ body {
   font-weight: 600;
 }
 
+.method input {
+  margin-right: 8px;
+}
+
 .cta {
   margin-top: 24px;
   border: none;
   width: 100%;
   padding: 15px 18px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #0ea5e9, #2563eb);
+  background: #111827;
   color: white;
   font-size: 16px;
   font-weight: 700;
@@ -135,7 +139,12 @@ body {
 }
 
 .cta:hover {
-  filter: brightness(1.05);
+  background: #000;
+}
+
+.cta:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .order-item {
@@ -189,38 +198,43 @@ body {
   margin-top: 18px;
   padding: 14px;
   border-radius: 16px;
-  background: #ecfdf3;
-  color: #027a48;
+  background: #f2f4f7;
+  color: #344054;
   font-size: 14px;
 }
 
-.scanner-card {
+.gateway-card {
   margin-top: 22px;
   border-radius: 20px;
-  background: #0f172a;
+  background: #111827;
   color: white;
   padding: 18px;
 }
 
-.scanner-card img {
-  width: 100%;
-  max-width: 320px;
-  display: block;
-  margin: 16px auto 0;
-  border-radius: 18px;
-  background: white;
-}
-
-.scanner-title {
+.gateway-title {
   font-size: 20px;
   font-weight: 700;
   margin: 0;
 }
 
-.scanner-subtitle {
+.gateway-subtitle {
   margin-top: 6px;
   color: rgba(255, 255, 255, 0.8);
   font-size: 14px;
+}
+
+.qr-frame {
+  margin: 18px auto 0;
+  max-width: 360px;
+  background: white;
+  border-radius: 22px;
+  padding: 14px;
+}
+
+.qr-frame img {
+  width: 100%;
+  display: block;
+  border-radius: 14px;
 }
 
 @media (max-width: 900px) {
@@ -259,14 +273,12 @@ body {
       {% endfor %}
     {% endif %}
 
-    <form method="post" action="{% url 'place_order' %}">
+    <form method="post" action="{% url 'verify_razorpay_payment' %}" id="razorpayPaymentForm">
       {% csrf_token %}
 
       <h2 class="section-title">Payment Method</h2>
       <div class="payment-methods">
-        <label class="method"><input type="radio" name="payment_method" value="Card" checked> Card</label>
-        <label class="method"><input type="radio" name="payment_method" value="UPI"> UPI</label>
-        <label class="method"><input type="radio" name="payment_method" value="Net Banking"> Net Banking</label>
+        <label class="method"><input type="radio" name="payment_method" value="Razorpay Link" checked> UPI QR / Payment Link</label>
       </div>
 
       <h2 class="section-title">Billing Details</h2>
@@ -277,7 +289,7 @@ body {
         </div>
         <div class="field">
           <label>Phone Number</label>
-          <input type="text" name="phone_number" placeholder="Enter mobile number" required>
+          <input type="text" name="phone_number" value="{{ default_phone_number }}" placeholder="Enter mobile number" required>
         </div>
         <div class="field full">
           <label>Email</label>
@@ -309,27 +321,14 @@ body {
         </div>
       </div>
 
-      <h2 class="section-title">Card Details</h2>
-      <div class="grid">
-        <div class="field full">
-          <label>Card Number</label>
-          <input type="text" placeholder="1234 5678 9012 3456">
-        </div>
-        <div class="field">
-          <label>Expiry</label>
-          <input type="text" placeholder="MM/YY">
-        </div>
-        <div class="field">
-          <label>CVV</label>
-          <input type="password" placeholder="***">
-        </div>
-        <div class="field full">
-          <label>Name on Card</label>
-          <input type="text" placeholder="Card holder name">
-        </div>
-      </div>
+      <input type="hidden" name="local_order_id" id="localOrderIdInput">
+      <input type="hidden" name="razorpay_order_id" id="razorpayOrderIdInput" value="{{ razorpay_order_id }}">
+      <input type="hidden" name="razorpay_payment_id" id="razorpayPaymentIdInput">
+      <input type="hidden" name="razorpay_signature" id="razorpaySignatureInput">
 
-      <button class="cta" type="submit">Pay Rs. {{ subtotal }}</button>
+      <button class="cta" type="button" id="razorpayCheckoutButton">
+        Pay Rs. {{ subtotal }} with Razorpay
+      </button>
     </form>
   </div>
 
@@ -364,18 +363,51 @@ body {
       <span>Rs. {{ subtotal }}</span>
     </div>
 
-    <div class="badge">
-      Your order details come from the backend, and the QR below is your real scanner image loaded from the project backend.
+    <div class="badge" id="paymentInfoBadge">
+      Open your payment link or scan the QR. After payment, come back and confirm the order from this page.
     </div>
 
-    <div class="scanner-card">
-      <p class="scanner-title">Scan & Pay with {{ payment_provider_name }}</p>
-      <p class="scanner-subtitle">Open the PhonePe app, scan this QR, and complete the payment for this order.</p>
-      <img src="{% static payment_qr_image %}" alt="{{ payment_provider_name }} QR">
-      <p class="scanner-subtitle" style="text-align:center;margin-top:14px;">Receiver: {{ payment_receiver_name }}</p>
+    <div class="gateway-card" id="manualPaymentCard">
+      <p class="gateway-title">{{ manual_payment_provider_name }}</p>
+      <p class="gateway-subtitle">Use the UPI app link, your payment link, or scan the QR below. After payment, come back and confirm the order from this page.</p>
+      <a href="{{ upi_payment_link }}" style="display:inline-block;margin-top:16px;padding:12px 18px;border-radius:999px;background:white;color:#111827;text-decoration:none;font-weight:700;">Open UPI App</a>
+      <a href="{{ manual_payment_link }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:12px;padding:12px 18px;border-radius:999px;background:#f2f4f7;color:#111827;text-decoration:none;font-weight:700;">Open Payment Link</a>
+      <p class="gateway-subtitle" style="margin-top:14px;">UPI ID: {{ upi_id }}</p>
+      <p class="gateway-subtitle" style="word-break:break-all;">{{ manual_payment_link }}</p>
+      <div class="qr-frame">
+        <img src="{% static payment_qr_image %}" alt="Payment QR">
+      </div>
     </div>
   </div>
 </div>
 
+<script>
+  const paymentForm = document.getElementById('razorpayPaymentForm');
+  const checkoutButton = document.getElementById('razorpayCheckoutButton');
+  const manualPaymentLink = "{{ manual_payment_link|escapejs }}";
+  const upiPaymentLink = "{{ upi_payment_link|escapejs }}";
+  let manualPaymentStarted = false;
+
+  if (checkoutButton) {
+    checkoutButton.addEventListener('click', function () {
+      if (!paymentForm.reportValidity()) {
+        return;
+      }
+
+      if (!manualPaymentStarted) {
+        window.location.href = upiPaymentLink;
+        setTimeout(() => {
+          window.open(manualPaymentLink, '_blank', 'noopener,noreferrer');
+        }, 800);
+        manualPaymentStarted = true;
+        checkoutButton.innerText = 'I Have Paid via Payment Link';
+        return;
+      }
+
+      paymentForm.action = "{% url 'place_order' %}";
+      paymentForm.submit();
+    });
+  }
+</script>
 </body>
 </html>

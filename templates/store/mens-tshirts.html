@@ -145,7 +145,7 @@
       <div class="card-content">
         <h3>{{ card.product_name }}</h3>
         <span class="price">Rs. {{ card.offer_price }}</span>
-        <a href="{% url 'mens_tshirt_detail' card.product_id %}" class="btn">View Product</a>
+            <a href="{% url 'catalog_product_detail' card.product_id %}" class="btn">View Product</a>
       </div>
     </div>  
     {% empty %}

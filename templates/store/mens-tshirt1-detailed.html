@@ -322,7 +322,7 @@
           <span id="quantity">1</span>
           <button id="increase">+</button>
         </div>
-        <p>Available stock: {{ total_stock|default:variant.quantity|default:"0" }}</p>
+        <p>Available stock: {{ total_stock|default:"0" }}</p>
       </div>
 
       <p>{{ product.description }}</p>
@@ -356,7 +356,7 @@
 
 <script>
   let quantity = 1;
-  const maxStock = parseInt("{{ total_stock|default:variant.quantity|default:'0' }}", 10) || 0;
+  const maxStock = parseInt("{{ total_stock|default:'0' }}", 10) || 0;
   const increaseBtn = document.getElementById("increase");
   const decreaseBtn = document.getElementById("decrease");
   const quantityDisplay = document.getElementById("quantity");

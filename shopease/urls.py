@@ -14,10 +14,14 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import redirect
+
+
+def redirect_admin(request):
+    return redirect('admin_access')
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', redirect_admin),
     path('', include('store.urls')),  # <-- includes the app URLs
 ]

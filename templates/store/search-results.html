@@ -53,7 +53,7 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
         {% for item in searched_products %}
-          <a href="{% url 'product_detail' item.product.product_id %}" class="block">
+      <a href="{% url 'catalog_product_detail' item.product.product_id %}" class="block">
             <div class="rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105 bg-white">
               <img src="{% static item.image_path %}" alt="{{ item.product.product_name }}" class="w-full h-64 object-cover" />
               <div class="p-5 text-center">

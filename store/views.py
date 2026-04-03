@@ -1,5 +1,8 @@
 from pathlib import Path
 from decimal import Decimal, InvalidOperation
+import hashlib
+import hmac
+import time
 
 from django.conf import settings
 from django.contrib import messages
@@ -8,9 +11,11 @@ from django.contrib.auth.models import User
 from django.db import connection, transaction
 from django.db.utils import OperationalError, ProgrammingError
 from django.db.models import Q
+from django.http import JsonResponse
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.text import slugify
+import requests
 from .models import (
     Product,
     Category,
@@ -99,6 +104,73 @@ def _get_product_image_path(product, variant):
     return fallback_image
 
 
+def _get_razorpay_credentials():
+    key_id = (getattr(settings, 'RAZORPAY_KEY_ID', '') or '').strip()
+    key_secret = (getattr(settings, 'RAZORPAY_KEY_SECRET', '') or '').strip()
+    return key_id, key_secret
+
+
+def _is_razorpay_configured():
+    key_id, key_secret = _get_razorpay_credentials()
+    return bool(key_id and key_secret)
+
+
+def _build_razorpay_receipt(user_id):
+    return f"rcpt_{user_id}_{int(time.time())}"[:40]
+
+
+def _create_razorpay_order(amount_paise, receipt, notes=None):
+    key_id, key_secret = _get_razorpay_credentials()
+    if not key_id or not key_secret:
+        raise ValueError('Razorpay keys are not configured.')
+
+    response = requests.post(
+        'https://api.razorpay.com/v1/orders',
+        auth=(key_id, key_secret),
+        json={
+            'amount': amount_paise,
+            'currency': 'INR',
+            'receipt': receipt,
+            'notes': notes or {},
+        },
+        timeout=20,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def _fetch_razorpay_payment(payment_id):
+    key_id, key_secret = _get_razorpay_credentials()
+    if not key_id or not key_secret:
+        raise ValueError('Razorpay keys are not configured.')
+
+    response = requests.get(
+        f'https://api.razorpay.com/v1/payments/{payment_id}',
+        auth=(key_id, key_secret),
+        timeout=20,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def _friendly_razorpay_error(exc):
+    message = str(exc)
+    lowered = message.lower()
+    if 'failed to establish a new connection' in lowered or 'unable to connect to proxy' in lowered or 'max retries exceeded' in lowered:
+        return 'The server could not reach Razorpay right now. Please check internet or firewall access on this machine, or use the Razorpay Link / QR payment option.'
+    return message
+
+
+def _verify_razorpay_signature(order_id, payment_id, signature):
+    _, key_secret = _get_razorpay_credentials()
+    generated_signature = hmac.new(
+        key_secret.encode(),
+        f'{order_id}|{payment_id}'.encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(generated_signature, signature)
+
+
 def _get_category_image_path(category):
     fallback_by_category = {
         'mens': 'images/men.png',
@@ -161,15 +233,15 @@ def _build_product_cards(products):
         if not valid_images:
             valid_images = [_get_product_image_path(product, variant)]
 
-        for index, image_path in enumerate(valid_images, start=1):
-            image_cards.append({
-                'product_id': product.product_id,
-                'product_name': product.product_name,
-                'brand': product.brand,
-                'offer_price': product.offer_price,
-                'image_path': image_path,
-                'card_name': f'{product.product_name} view {index}',
-            })
+        primary_image = valid_images[0] if valid_images else _get_product_image_path(product, variant)
+        image_cards.append({
+            'product_id': product.product_id,
+            'product_name': product.product_name,
+            'brand': product.brand,
+            'offer_price': product.offer_price,
+            'image_path': primary_image,
+            'card_name': product.product_name,
+        })
 
     return image_cards
 
@@ -554,15 +626,15 @@ def mens_tshirts(request):
         if not valid_images:
             valid_images = [image_path for image_path in fallback_images if image_path]
 
-        for index, image_path in enumerate(valid_images, start=1):
-            image_cards.append({
-                'product_id': product.product_id,
-                'product_name': product.product_name,
-                'brand': product.brand,
-                'offer_price': product.offer_price,
-                'image_path': image_path,
-                'card_name': f'{product.product_name} view {index}',
-            })
+        primary_image = valid_images[0] if valid_images else _get_product_image_path(product, variant)
+        image_cards.append({
+            'product_id': product.product_id,
+            'product_name': product.product_name,
+            'brand': product.brand,
+            'offer_price': product.offer_price,
+            'image_path': primary_image,
+            'card_name': product.product_name,
+        })
 
     return render(request, 'store/mens-tshirts.html', {
         'image_cards': image_cards,
@@ -579,17 +651,7 @@ def mens_tshirt_detail(request, product_id):
         subcategory__subcategory_name__iexact='t-shirts',
         is_active=True,
     )
-    variant = ProductVariant.objects.filter(product=product).first()
-    return render(request, 'store/mens-tshirt1-detailed.html', {
-        'product': product,
-        'variant': variant,
-        'total_stock': _get_total_stock(product),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'detail_fallback_front': _get_page_asset('mens_tshirt_detail', 'fallback_front', 'images/T-shirt.jpg'),
-        'detail_fallback_side': _get_page_asset('mens_tshirt_detail', 'fallback_side', 'images/T-shirt side.jpg'),
-        'detail_fallback_back': _get_page_asset('mens_tshirt_detail', 'fallback_back', 'images/T-shirt back.jpg'),
-        'detail_fallback_close': _get_page_asset('mens_tshirt_detail', 'fallback_close', 'images/T-shirt close.jpg'),
-    })
+    return redirect('catalog_product_detail', product_id=product.product_id)
 
 
 def mens_jeans(request):
@@ -622,15 +684,15 @@ def mens_jeans(request):
         if not valid_images:
             valid_images = [image_path for image_path in fallback_images if image_path]
 
-        for index, image_path in enumerate(valid_images, start=1):
-            image_cards.append({
-                'product_id': product.product_id,
-                'product_name': product.product_name,
-                'brand': product.brand,
-                'offer_price': product.offer_price,
-                'image_path': image_path,
-                'card_name': f'{product.product_name} view {index}',
-            })
+        primary_image = valid_images[0] if valid_images else _get_product_image_path(product, variant)
+        image_cards.append({
+            'product_id': product.product_id,
+            'product_name': product.product_name,
+            'brand': product.brand,
+            'offer_price': product.offer_price,
+            'image_path': primary_image,
+            'card_name': product.product_name,
+        })
 
     return render(request, 'store/mens-Jeans.html', {
         'image_cards': image_cards,
@@ -647,17 +709,7 @@ def mens_jeans_detail(request, product_id):
         subcategory__subcategory_name__iexact='jeans',
         is_active=True,
     )
-    variant = ProductVariant.objects.filter(product=product).first()
-    return render(request, 'store/mens-jeans1-detailed.html', {
-        'product': product,
-        'variant': variant,
-        'total_stock': _get_total_stock(product),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'detail_fallback_front': _get_page_asset('mens_jeans_detail', 'fallback_front', 'images/mens_jeans.png'),
-        'detail_fallback_side': _get_page_asset('mens_jeans_detail', 'fallback_side', 'images/mens_jeans.png'),
-        'detail_fallback_back': _get_page_asset('mens_jeans_detail', 'fallback_back', 'images/mens_jeans.png'),
-        'detail_fallback_close': _get_page_asset('mens_jeans_detail', 'fallback_close', 'images/mens_jeans.png'),
-    })
+    return redirect('catalog_product_detail', product_id=product.product_id)
 
 
 def accessories_men(request):
@@ -905,6 +957,10 @@ def payment_gateway(request):
 
     cart_data = _get_effective_cart_data(request)
     cart_items, subtotal, total_items = _build_cart_summary(cart_data)
+    razorpay_error = ''
+
+    if not _is_razorpay_configured():
+        razorpay_error = 'Razorpay keys are not configured yet. Add your key ID and secret to enable checkout.'
 
     return render(request, 'store/payment.html', {
         'cart_items': cart_items,
@@ -913,9 +969,19 @@ def payment_gateway(request):
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
         'default_email': request.user.email,
         'default_full_name': request.user.get_full_name() or request.user.username,
-        'payment_qr_image': _get_page_asset('payment_gateway', 'scanner_qr', 'images/paymeny.jpeg'),
-        'payment_receiver_name': 'PILLA L S VARSHAK',
-        'payment_provider_name': 'PhonePe',
+        'default_phone_number': '8247624897',
+        'payment_provider_name': 'Razorpay',
+        'manual_payment_link': 'https://razorpay.me/@varshakshopeasy',
+        'upi_payment_link': 'upi://pay?pa=8247624897-3@ybl&pn=VarshakShopeasy&cu=INR',
+        'upi_id': '8247624897-3@ybl',
+        'manual_payment_provider_name': 'Razorpay Payment Link',
+        'payment_qr_image': _get_page_asset('payment_gateway', 'scanner_qr', 'images/QrCode.jpeg'),
+        'razorpay_enabled': _is_razorpay_configured(),
+        'razorpay_key_id': getattr(settings, 'RAZORPAY_KEY_ID', ''),
+        'razorpay_order_id': '',
+        'razorpay_amount_paise': int((subtotal * Decimal('100')).quantize(Decimal('1'))) if subtotal else 0,
+        'razorpay_currency': 'INR',
+        'razorpay_error': razorpay_error,
     })
 
 
@@ -1041,13 +1107,218 @@ def place_order(request):
     return redirect('order_success', order_id=order.order_id)
 
 
+@transaction.atomic
+def verify_razorpay_payment(request):
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('login')}?next=/payment/")
+
+    if request.method != 'POST':
+        return redirect('payment_gateway')
+
+    cart_data = _get_effective_cart_data(request)
+    cart_items, subtotal, total_items = _build_cart_summary(cart_data)
+
+    if not cart_items:
+        messages.error(request, 'Your cart is empty.')
+        return redirect('cart')
+
+    full_name = (request.POST.get('full_name') or '').strip()
+    phone_number = (request.POST.get('phone_number') or '').strip()
+    email = (request.POST.get('email') or '').strip()
+    address = (request.POST.get('address') or '').strip()
+    city = (request.POST.get('city') or '').strip()
+    state = (request.POST.get('state') or '').strip()
+    pincode = (request.POST.get('pincode') or '').strip()
+    country = (request.POST.get('country') or 'India').strip() or 'India'
+    local_order_id = (request.POST.get('local_order_id') or '').strip()
+    razorpay_order_id = (request.POST.get('razorpay_order_id') or '').strip()
+    razorpay_payment_id = (request.POST.get('razorpay_payment_id') or '').strip()
+    razorpay_signature = (request.POST.get('razorpay_signature') or '').strip()
+
+    required_values = [
+        full_name, phone_number, email, address, city, state, pincode,
+        local_order_id, razorpay_order_id, razorpay_payment_id, razorpay_signature,
+    ]
+    if any(not value for value in required_values):
+        messages.error(request, 'Payment verification details are missing. Please try again.')
+        return redirect('payment_gateway')
+
+    if not _is_razorpay_configured():
+        messages.error(request, 'Razorpay is not configured on the backend yet.')
+        return redirect('payment_gateway')
+
+    if not _verify_razorpay_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature):
+        messages.error(request, 'Payment signature verification failed.')
+        return redirect('payment_gateway')
+
+    try:
+        payment_data = _fetch_razorpay_payment(razorpay_payment_id)
+    except requests.RequestException:
+        messages.error(request, 'Unable to confirm the payment with Razorpay right now. Please try again.')
+        return redirect('payment_gateway')
+
+    expected_amount = int((subtotal * Decimal('100')).quantize(Decimal('1')))
+    payment_status = (payment_data.get('status') or '').lower()
+    payment_amount = int(payment_data.get('amount') or 0)
+    payment_order_id = payment_data.get('order_id') or ''
+
+    if payment_order_id != razorpay_order_id or payment_amount != expected_amount or payment_status not in {'authorized', 'captured'}:
+        messages.error(request, 'Payment could not be validated against the order details.')
+        return redirect('payment_gateway')
+
+    order = get_object_or_404(
+        Order,
+        order_id=local_order_id,
+        user=request.user,
+        razorpay_order_id=razorpay_order_id,
+    )
+
+    order.full_name = full_name
+    order.phone_number = phone_number
+    order.email = email
+    order.address = address
+    order.city = city
+    order.state = state
+    order.pincode = pincode
+    order.country = country
+    order.payment_method = 'Razorpay'
+    order.payment_status = payment_status.title()
+    order.currency = payment_data.get('currency') or 'INR'
+    order.razorpay_payment_id = razorpay_payment_id
+    order.razorpay_signature = razorpay_signature
+    order.status = 'Placed'
+    order.subtotal = subtotal
+    order.total_items = total_items
+    order.save(update_fields=[
+        'full_name', 'phone_number', 'email', 'address', 'city', 'state',
+        'pincode', 'country', 'payment_method', 'payment_status', 'currency',
+        'razorpay_payment_id', 'razorpay_signature', 'status', 'subtotal',
+        'total_items',
+    ])
+
+    CartItem.objects.filter(user=request.user).delete()
+    _set_session_cart(request, {})
+    messages.success(request, f'Payment verified and order #{order.order_id} placed successfully.')
+    return redirect('order_success', order_id=order.order_id)
+
+
+@transaction.atomic
+def create_razorpay_checkout(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'message': 'Login required.'}, status=401)
+
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'message': 'Invalid request method.'}, status=405)
+
+    if not _is_razorpay_configured():
+        return JsonResponse({'ok': False, 'message': 'Razorpay is not configured on the backend yet.'}, status=400)
+
+    cart_data = _get_effective_cart_data(request)
+    cart_items, subtotal, total_items = _build_cart_summary(cart_data)
+
+    if not cart_items:
+        return JsonResponse({'ok': False, 'message': 'Your cart is empty.'}, status=400)
+
+    full_name = (request.POST.get('full_name') or '').strip()
+    phone_number = (request.POST.get('phone_number') or '').strip()
+    email = (request.POST.get('email') or '').strip()
+    address = (request.POST.get('address') or '').strip()
+    city = (request.POST.get('city') or '').strip()
+    state = (request.POST.get('state') or '').strip()
+    pincode = (request.POST.get('pincode') or '').strip()
+    country = (request.POST.get('country') or 'India').strip() or 'India'
+
+    required_values = [full_name, phone_number, email, address, city, state, pincode]
+    if any(not value for value in required_values):
+        return JsonResponse({'ok': False, 'message': 'Please fill in all billing details.'}, status=400)
+
+    amount_paise = int((subtotal * Decimal('100')).quantize(Decimal('1')))
+
+    order = Order.objects.create(
+        user=request.user,
+        full_name=full_name,
+        phone_number=phone_number,
+        email=email,
+        address=address,
+        city=city,
+        state=state,
+        pincode=pincode,
+        country=country,
+        payment_method='Razorpay',
+        payment_status='Created',
+        currency='INR',
+        subtotal=subtotal,
+        total_items=total_items,
+        status='Pending Payment',
+    )
+
+    for item in cart_items:
+        OrderItem.objects.create(
+            order=order,
+            product=item['product'],
+            selected_size=item.get('selected_size'),
+            quantity=item['quantity'],
+            unit_price=item['product'].offer_price,
+            line_total=item['line_total'],
+        )
+
+    try:
+        razorpay_order = _create_razorpay_order(
+            amount_paise=amount_paise,
+            receipt=_build_razorpay_receipt(request.user.id),
+            notes={
+                'user_id': str(request.user.id),
+                'local_order_id': str(order.order_id),
+                'email': email,
+            },
+        )
+    except (requests.RequestException, ValueError) as exc:
+        order.payment_status = 'Failed'
+        order.status = 'Payment Failed'
+        order.save(update_fields=['payment_status', 'status'])
+        return JsonResponse({'ok': False, 'message': _friendly_razorpay_error(exc)}, status=400)
+
+    order.razorpay_order_id = razorpay_order.get('id')
+    order.save(update_fields=['razorpay_order_id'])
+
+    return JsonResponse({
+        'ok': True,
+        'local_order_id': order.order_id,
+        'razorpay_order_id': razorpay_order.get('id', ''),
+        'amount': amount_paise,
+        'currency': razorpay_order.get('currency', 'INR'),
+        'key_id': getattr(settings, 'RAZORPAY_KEY_ID', ''),
+        'customer': {
+            'name': full_name,
+            'email': email,
+            'contact': phone_number,
+        },
+    })
+
+
 def order_success(request, order_id):
     if not request.user.is_authenticated:
         return redirect(f"{reverse('login')}?next=/orders/{order_id}/success/")
 
     order = get_object_or_404(Order.objects.prefetch_related('items__product'), order_id=order_id, user=request.user)
+    order_items = []
+    for item in order.items.all():
+        variant = ProductVariant.objects.filter(
+            product=item.product,
+            size__iexact=item.selected_size,
+        ).first() if item.selected_size else ProductVariant.objects.filter(product=item.product).first()
+        order_items.append({
+            'product': item.product,
+            'selected_size': item.selected_size,
+            'quantity': item.quantity,
+            'unit_price': item.unit_price,
+            'line_total': item.line_total,
+            'image_path': _get_product_image_path(item.product, variant),
+        })
+
     return render(request, 'store/order-success.html', {
         'order': order,
+        'order_items': order_items,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
     })
 
@@ -1352,15 +1623,15 @@ def mens_shirts(request):
         if not valid_images:
             valid_images = [_get_product_image_path(product, variant)]
 
-        for index, image_path in enumerate(valid_images, start=1):
-            image_cards.append({
-                'product_id': product.product_id,
-                'product_name': product.product_name,
-                'brand': product.brand,
-                'offer_price': product.offer_price,
-                'image_path': image_path,
-                'card_name': f'{product.product_name} view {index}',
-            })
+        primary_image = valid_images[0] if valid_images else _get_product_image_path(product, variant)
+        image_cards.append({
+            'product_id': product.product_id,
+            'product_name': product.product_name,
+            'brand': product.brand,
+            'offer_price': product.offer_price,
+            'image_path': primary_image,
+            'card_name': product.product_name,
+        })
 
     return render(request, 'store/mens-shirts.html', {
         'image_cards': image_cards,
