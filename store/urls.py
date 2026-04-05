@@ -14,6 +14,7 @@ urlpatterns = [
 
     # Home page
     path('', views.home, name='home'),
+    path('contact-us/', views.contact_us, name='contact_us'),
     path('search/', views.search_results, name='search_results'),
     
     path('mens_tshirts', views.mens_tshirts, name='mens_tshirts_legacy'),
@@ -45,13 +46,16 @@ urlpatterns = [
     path('admin-panel/products/<int:product_id>/delete/', views.admin_product_delete, name='admin_product_delete'),
     path('cart/', views.cart, name='cart'),
     path('payment/', views.payment_gateway, name='payment_gateway'),
+    path('payment/start/', views.start_payment_gateway, name='start_payment_gateway'),
     path('payment/create/', views.create_razorpay_checkout, name='create_razorpay_checkout'),
-    path('place-order/', views.place_order, name='place_order'),
     path('payment/verify/', views.verify_razorpay_payment, name='verify_razorpay_payment'),
+    path('payment/callback/', views.razorpay_payment_link_callback, name='razorpay_payment_link_callback'),
+    path('place-order/', views.place_order, name='place_order'),
     path('orders/', views.orders, name='orders'),
     path('orders/<int:order_id>/success/', views.order_success, name='order_success'),
     path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/remove/<int:cart_item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('cart/remove/session/<path:item_key>/', views.remove_session_cart_item, name='remove_session_cart_item'),
     path('buy-now/<int:product_id>/', views.buy_now, name='buy_now'),
 
     # Dynamic category pages

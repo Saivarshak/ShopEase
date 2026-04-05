@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payment Gateway</title>
+<title>Payment Details</title>
 <style>
 body {
   margin: 0;
@@ -105,26 +105,6 @@ body {
   box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.08);
 }
 
-.payment-methods {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.method {
-  border: 1px solid #d0d5dd;
-  border-radius: 14px;
-  padding: 14px;
-  text-align: center;
-  background: white;
-  font-weight: 600;
-}
-
-.method input {
-  margin-right: 8px;
-}
-
 .cta {
   margin-top: 24px;
   border: none;
@@ -203,38 +183,57 @@ body {
   font-size: 14px;
 }
 
-.gateway-card {
-  margin-top: 22px;
-  border-radius: 20px;
-  background: #111827;
-  color: white;
-  padding: 18px;
+.payment-widget {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid rgba(17, 24, 39, 0.1);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+  position: relative;
 }
 
-.gateway-title {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0;
+.payment-widget h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
 }
 
-.gateway-subtitle {
-  margin-top: 6px;
-  color: rgba(255, 255, 255, 0.8);
+.payment-widget p {
+  margin: 0 0 14px;
+  color: #667085;
   font-size: 14px;
 }
 
-.qr-frame {
-  margin: 18px auto 0;
-  max-width: 360px;
-  background: white;
-  border-radius: 22px;
-  padding: 14px;
+.payment-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+  color: #111827;
+  font-weight: 700;
+  text-decoration: none;
 }
 
-.qr-frame img {
-  width: 100%;
-  display: block;
-  border-radius: 14px;
+.razorpay-button-shell {
+  position: relative;
+}
+
+.razorpay-button-shell.is-disabled {
+  opacity: 0.55;
+}
+
+.razorpay-button-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: rgba(248, 250, 252, 0.55);
+  border-radius: 12px;
+  cursor: not-allowed;
+}
+
+.helper-text {
+  margin-top: 12px;
+  color: #667085;
+  font-size: 13px;
 }
 
 @media (max-width: 900px) {
@@ -244,10 +243,6 @@ body {
   }
 
   .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .payment-methods {
     grid-template-columns: 1fr;
   }
 }
@@ -265,21 +260,32 @@ body {
 
 <div class="wrapper">
   <div class="panel form-panel">
-    <h1 class="title">Payment Gateway</h1>
-    <p class="subtitle">Complete your order with shipping and payment details.</p>
+    <h1 class="title">Payment Details</h1>
+    <p class="subtitle">Complete your billing details, then continue with the Razorpay payment option below.</p>
     {% if messages %}
       {% for message in messages %}
         <div class="badge" style="background:#fff7ed;color:#b54708;">{{ message }}</div>
       {% endfor %}
     {% endif %}
+    {% if razorpay_configuration_error %}
+      <div class="badge" style="background:#fef3f2;color:#b42318;">
+        Razorpay mode: {{ razorpay_mode|upper }}. {{ razorpay_configuration_error }}
+      </div>
+    {% else %}
+      <div class="badge" style="background:#ecfdf3;color:#027a48;">
+        Razorpay mode: {{ razorpay_mode|upper }}.
+        {% if razorpay_mode == 'live' %}
+          Real payments are enabled with configured live credentials.
+        {% else %}
+          Test payments are enabled. Switch to live credentials before accepting real money.
+        {% endif %}
+      </div>
+    {% endif %}
 
-    <form method="post" action="{% url 'verify_razorpay_payment' %}" id="razorpayPaymentForm">
+    <form method="post" action="{% url 'start_payment_gateway' %}" id="paymentForm">
       {% csrf_token %}
 
-      <h2 class="section-title">Payment Method</h2>
-      <div class="payment-methods">
-        <label class="method"><input type="radio" name="payment_method" value="Razorpay Link" checked> UPI QR / Payment Link</label>
-      </div>
+      <input type="hidden" name="payment_method" value="Razorpay Payment Button">
 
       <h2 class="section-title">Billing Details</h2>
       <div class="grid">
@@ -321,15 +327,27 @@ body {
         </div>
       </div>
 
-      <input type="hidden" name="local_order_id" id="localOrderIdInput">
-      <input type="hidden" name="razorpay_order_id" id="razorpayOrderIdInput" value="{{ razorpay_order_id }}">
-      <input type="hidden" name="razorpay_payment_id" id="razorpayPaymentIdInput">
-      <input type="hidden" name="razorpay_signature" id="razorpaySignatureInput">
-
-      <button class="cta" type="button" id="razorpayCheckoutButton">
-        Pay Rs. {{ subtotal }} with Razorpay
-      </button>
     </form>
+
+    {% if razorpay_payment_button_id %}
+      <div class="payment-widget">
+        <h3>Pay Securely with Razorpay</h3>
+        <p>Use the Razorpay payment button below to complete your payment.</p>
+        <div class="razorpay-button-shell is-disabled" id="razorpayButtonShell">
+          <div class="razorpay-button-overlay" id="razorpayButtonOverlay"></div>
+          <form>
+            <script
+              src="https://checkout.razorpay.com/v1/payment-button.js"
+              data-payment_button_id="{{ razorpay_payment_button_id }}"
+              async>
+            </script>
+          </form>
+        </div>
+        <div class="helper-text" id="paymentHelperText">
+          Fill in all billing details to enable the Razorpay payment button.
+        </div>
+      </div>
+    {% endif %}
   </div>
 
   <div class="panel summary-panel">
@@ -364,50 +382,51 @@ body {
     </div>
 
     <div class="badge" id="paymentInfoBadge">
-      Open your payment link or scan the QR. After payment, come back and confirm the order from this page.
-    </div>
-
-    <div class="gateway-card" id="manualPaymentCard">
-      <p class="gateway-title">{{ manual_payment_provider_name }}</p>
-      <p class="gateway-subtitle">Use the UPI app link, your payment link, or scan the QR below. After payment, come back and confirm the order from this page.</p>
-      <a href="{{ upi_payment_link }}" style="display:inline-block;margin-top:16px;padding:12px 18px;border-radius:999px;background:white;color:#111827;text-decoration:none;font-weight:700;">Open UPI App</a>
-      <a href="{{ manual_payment_link }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:12px;padding:12px 18px;border-radius:999px;background:#f2f4f7;color:#111827;text-decoration:none;font-weight:700;">Open Payment Link</a>
-      <p class="gateway-subtitle" style="margin-top:14px;">UPI ID: {{ upi_id }}</p>
-      <p class="gateway-subtitle" style="word-break:break-all;">{{ manual_payment_link }}</p>
-      <div class="qr-frame">
-        <img src="{% static payment_qr_image %}" alt="Payment QR">
-      </div>
+      Fill in your delivery details, then use Razorpay to complete the payment.
     </div>
   </div>
 </div>
-
 <script>
-  const paymentForm = document.getElementById('razorpayPaymentForm');
-  const checkoutButton = document.getElementById('razorpayCheckoutButton');
-  const manualPaymentLink = "{{ manual_payment_link|escapejs }}";
-  const upiPaymentLink = "{{ upi_payment_link|escapejs }}";
-  let manualPaymentStarted = false;
+  (function () {
+    const paymentForm = document.getElementById('paymentForm');
+    const razorpayButtonShell = document.getElementById('razorpayButtonShell');
+    const razorpayButtonOverlay = document.getElementById('razorpayButtonOverlay');
+    const paymentHelperText = document.getElementById('paymentHelperText');
 
-  if (checkoutButton) {
-    checkoutButton.addEventListener('click', function () {
-      if (!paymentForm.reportValidity()) {
-        return;
+    if (!paymentForm || !razorpayButtonShell || !razorpayButtonOverlay) {
+      return;
+    }
+
+    const billingFields = Array.from(
+      paymentForm.querySelectorAll('input[name], select[name]')
+    ).filter((field) => field.name !== 'csrfmiddlewaretoken' && field.name !== 'payment_method');
+
+    const isFieldFilled = (field) => {
+      if (field.tagName === 'SELECT') {
+        return field.value.trim() !== '';
       }
+      return field.value.trim() !== '';
+    };
 
-      if (!manualPaymentStarted) {
-        window.location.href = upiPaymentLink;
-        setTimeout(() => {
-          window.open(manualPaymentLink, '_blank', 'noopener,noreferrer');
-        }, 800);
-        manualPaymentStarted = true;
-        checkoutButton.innerText = 'I Have Paid via Payment Link';
-        return;
+    const updateRazorpayButtonState = () => {
+      const isComplete = billingFields.every(isFieldFilled);
+      razorpayButtonOverlay.style.display = isComplete ? 'none' : 'block';
+      razorpayButtonShell.classList.toggle('is-disabled', !isComplete);
+
+      if (paymentHelperText) {
+        paymentHelperText.textContent = isComplete
+          ? 'Billing details complete. You can now continue with Razorpay.'
+          : 'Fill in all billing details to enable the Razorpay payment button.';
       }
+    };
 
-      paymentForm.action = "{% url 'place_order' %}";
-      paymentForm.submit();
+    billingFields.forEach((field) => {
+      field.addEventListener('input', updateRazorpayButtonState);
+      field.addEventListener('change', updateRazorpayButtonState);
     });
-  }
+
+    updateRazorpayButtonState();
+  })();
 </script>
 </body>
 </html>

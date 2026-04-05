@@ -12,9 +12,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,7 +28,7 @@ SECRET_KEY = 'django-insecure-^twboy#75qvp%bv5#aht+2=vllt4w!!il_h6)h*ksu$kz0!6a8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'testserver']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -79,12 +81,12 @@ WSGI_APPLICATION = 'shopease.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'shopeasy',
-        'USER': 'root',
-        'PASSWORD': 'Varshak@2006',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.mysql').strip(),
+        'NAME': os.getenv('DB_NAME', 'shopeasy').strip(),
+        'USER': os.getenv('DB_USER', 'root').strip(),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'Varshak@2006').strip(),
+        'HOST': os.getenv('DB_HOST', 'localhost').strip(),
+        'PORT': os.getenv('DB_PORT', '3306').strip(),
     }
 }
 
@@ -131,7 +133,7 @@ STATICFILES_DIRS = [
 # For production (when using collectstatic)
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# End sessions when the browser closes so auth testing is easier during development.
+# End sessions when the browser closes.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Default primary key field type
@@ -139,5 +141,30 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', 'rzp_test_SYvIIeiXdsRhAD').strip()
-RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', 'X0U8Ew7JMLucqaRSO7A5rcDH').strip()
+RAZORPAY_MODE = (os.getenv('RAZORPAY_MODE', 'test') or 'test').strip().lower()
+RAZORPAY_KEY_ID = (os.getenv('RAZORPAY_KEY_ID') or '').strip()
+RAZORPAY_KEY_SECRET = (os.getenv('RAZORPAY_KEY_SECRET') or '').strip()
+RAZORPAY_PAYMENT_LINK_OVERRIDE_URL = os.getenv(
+    'RAZORPAY_PAYMENT_LINK_OVERRIDE_URL',
+    '',
+).strip()
+RAZORPAY_PAYMENT_BUTTON_ID = os.getenv(
+    'RAZORPAY_PAYMENT_BUTTON_ID',
+    'pl_SZRbR0OcZ2QdFL',
+).strip()
+RAZORPAY_PAYMENT_HANDLE_URL = os.getenv(
+    'RAZORPAY_PAYMENT_HANDLE_URL',
+    'https://razorpay.me/@varshakshopeasy',
+).strip()
+PAYMENT_CALLBACK_BASE_URL = os.getenv('PAYMENT_CALLBACK_BASE_URL', '').strip()
+
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.console.EmailBackend',
+).strip()
+EMAIL_HOST = os.getenv('EMAIL_HOST', '').strip()
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '').strip()
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '').strip()
+EMAIL_USE_TLS = (os.getenv('EMAIL_USE_TLS', 'true').strip().lower() == 'true')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@shopease.local').strip()

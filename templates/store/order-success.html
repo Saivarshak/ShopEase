@@ -167,6 +167,25 @@
       border: 1px dashed #bfd7c5;
     }
 
+    .invoice-box {
+      margin-top: 18px;
+      padding: 18px 20px;
+      border-radius: 20px;
+      background: #f5fbff;
+      border: 1px solid #cfe3f3;
+    }
+
+    .invoice-box h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .invoice-box p {
+      margin: 6px 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
     .delivery-box h3 {
       margin: 0 0 8px;
       font-size: 16px;
@@ -387,6 +406,24 @@
           <div class="delivery-box">
             <h3>Shipping Address</h3>
             <p>{{ order.address }}, {{ order.city }}, {{ order.state }} - {{ order.pincode }}, {{ order.country }}</p>
+          </div>
+
+          <div class="invoice-box">
+            <h3>Invoice Delivery</h3>
+            <p>Your invoice is ready for order #{{ order.order_id }}.</p>
+            <p>
+              Email:
+              <strong>{{ invoice_delivery_notice.email|default:order.email }}</strong>
+              {% if invoice_delivery_notice.email_sent %}
+                <span>(sent)</span>
+              {% else %}
+                <span>(saved for sharing)</span>
+              {% endif %}
+            </p>
+            <p>
+              Phone Number:
+              <strong>{{ invoice_delivery_notice.phone_number|default:order.phone_number }}</strong>
+            </p>
           </div>
 
           <div class="actions">

@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.core.mail import EmailMultiAlternatives
 from django.db import connection, transaction
 from django.db.utils import OperationalError, ProgrammingError
 from django.db.models import Q
@@ -110,9 +111,42 @@ def _get_razorpay_credentials():
     return key_id, key_secret
 
 
-def _is_razorpay_configured():
+def _get_razorpay_mode():
+    mode = (getattr(settings, 'RAZORPAY_MODE', 'test') or 'test').strip().lower()
+    return mode if mode in {'test', 'live'} else 'test'
+
+
+def _get_razorpay_configuration_error():
     key_id, key_secret = _get_razorpay_credentials()
-    return bool(key_id and key_secret)
+    mode = _get_razorpay_mode()
+
+    if not key_id or not key_secret:
+        return f'Razorpay is not configured. Add your {mode} key ID and secret in the environment.'
+
+    expected_prefix = f'rzp_{mode}_'
+    if not key_id.startswith(expected_prefix):
+        return (
+            f'Razorpay mode is set to {mode}, but the key id does not look like a {mode} key. '
+            f'Please update RAZORPAY_MODE or RAZORPAY_KEY_ID.'
+        )
+
+    return ''
+
+
+def _is_razorpay_configured():
+    return not _get_razorpay_configuration_error()
+
+
+def _get_razorpay_override_payment_link():
+    return (getattr(settings, 'RAZORPAY_PAYMENT_LINK_OVERRIDE_URL', '') or '').strip()
+
+
+def _build_payment_callback_url(request, order_id):
+    callback_path = f"{reverse('razorpay_payment_link_callback')}?local_order_id={order_id}"
+    base_url = (getattr(settings, 'PAYMENT_CALLBACK_BASE_URL', '') or '').strip().rstrip('/')
+    if base_url:
+        return f"{base_url}{callback_path}"
+    return request.build_absolute_uri(callback_path)
 
 
 def _build_razorpay_receipt(user_id):
@@ -139,6 +173,54 @@ def _create_razorpay_order(amount_paise, receipt, notes=None):
     return response.json()
 
 
+def _create_razorpay_payment_link(amount_paise, callback_url, reference_id, description, customer=None, notes=None):
+    key_id, key_secret = _get_razorpay_credentials()
+    if not key_id or not key_secret:
+        raise ValueError('Razorpay keys are not configured.')
+
+    payload = {
+        'amount': amount_paise,
+        'currency': 'INR',
+        'accept_partial': False,
+        'description': description,
+        'reference_id': reference_id,
+        'callback_url': callback_url,
+        'callback_method': 'get',
+        'notify': {
+            'sms': False,
+            'email': False,
+        },
+        'reminder_enable': False,
+        'notes': notes or {},
+    }
+
+    if customer:
+        payload['customer'] = customer
+
+    response = requests.post(
+        'https://api.razorpay.com/v1/payment_links',
+        auth=(key_id, key_secret),
+        json=payload,
+        timeout=20,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def _fetch_razorpay_payment_link(payment_link_id):
+    key_id, key_secret = _get_razorpay_credentials()
+    if not key_id or not key_secret:
+        raise ValueError('Razorpay keys are not configured.')
+
+    response = requests.get(
+        f'https://api.razorpay.com/v1/payment_links/{payment_link_id}',
+        auth=(key_id, key_secret),
+        timeout=20,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
 def _fetch_razorpay_payment(payment_id):
     key_id, key_secret = _get_razorpay_credentials()
     if not key_id or not key_secret:
@@ -159,6 +241,73 @@ def _friendly_razorpay_error(exc):
     if 'failed to establish a new connection' in lowered or 'unable to connect to proxy' in lowered or 'max retries exceeded' in lowered:
         return 'The server could not reach Razorpay right now. Please check internet or firewall access on this machine, or use the Razorpay Link / QR payment option.'
     return message
+
+
+def _is_email_configured():
+    backend = (getattr(settings, 'EMAIL_BACKEND', '') or '').strip()
+    if backend.endswith('console.EmailBackend'):
+        return True
+    return bool(
+        (getattr(settings, 'EMAIL_HOST', '') or '').strip()
+        and (getattr(settings, 'DEFAULT_FROM_EMAIL', '') or '').strip()
+    )
+
+
+def _build_invoice_email(order):
+    subject = f'ShopEase Invoice for Order #{order.order_id}'
+    text_body = (
+        f'Hello {order.full_name},\n\n'
+        f'Your payment was successful and your order has been confirmed.\n\n'
+        f'Invoice Details:\n'
+        f'Order ID: #{order.order_id}\n'
+        f'Payment Status: {order.payment_status}\n'
+        f'Payment Method: {order.payment_method}\n'
+        f'Total Amount: Rs. {order.subtotal}\n'
+        f'Phone Number: {order.phone_number}\n'
+        f'Delivery Address: {order.address}, {order.city}, {order.state} - {order.pincode}, {order.country}\n\n'
+        f'Thank you for shopping with ShopEase.'
+    )
+    html_body = (
+        f'<p>Hello {order.full_name},</p>'
+        f'<p>Your payment was successful and your order has been confirmed.</p>'
+        f'<h3>Invoice Details</h3>'
+        f'<ul>'
+        f'<li><strong>Order ID:</strong> #{order.order_id}</li>'
+        f'<li><strong>Payment Status:</strong> {order.payment_status}</li>'
+        f'<li><strong>Payment Method:</strong> {order.payment_method}</li>'
+        f'<li><strong>Total Amount:</strong> Rs. {order.subtotal}</li>'
+        f'<li><strong>Phone Number:</strong> {order.phone_number}</li>'
+        f'<li><strong>Delivery Address:</strong> {order.address}, {order.city}, {order.state} - {order.pincode}, {order.country}</li>'
+        f'</ul>'
+        f'<p>Thank you for shopping with ShopEase.</p>'
+    )
+    return subject, text_body, html_body
+
+
+def _send_order_invoice_email(order):
+    recipient = (order.email or '').strip()
+    if not recipient or not _is_email_configured():
+        return False
+
+    subject, text_body, html_body = _build_invoice_email(order)
+    message = EmailMultiAlternatives(
+        subject=subject,
+        body=text_body,
+        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', ''),
+        to=[recipient],
+    )
+    message.attach_alternative(html_body, 'text/html')
+    message.send(fail_silently=False)
+    return True
+
+
+def _store_invoice_delivery_notice(request, order, email_sent):
+    request.session['invoice_delivery_notice'] = {
+        'order_id': order.order_id,
+        'email': order.email,
+        'phone_number': order.phone_number,
+        'email_sent': bool(email_sent),
+    }
 
 
 def _verify_razorpay_signature(order_id, payment_id, signature):
@@ -247,12 +396,106 @@ def _build_product_cards(products):
 
 
 def _get_session_cart(request):
-    return request.session.get('cart', {})
+    session_cart = request.session.get('cart', {})
+    normalized_cart = {}
+
+    if not isinstance(session_cart, dict):
+        return normalized_cart
+
+    for raw_key, raw_value in session_cart.items():
+        if isinstance(raw_value, dict):
+            product_id = raw_value.get('product_id')
+            selected_size = (raw_value.get('selected_size') or '').strip() or None
+            quantity = raw_value.get('quantity', 1)
+        else:
+            product_id = raw_key
+            selected_size = None
+            quantity = raw_value
+
+        try:
+            product_id = int(product_id)
+            quantity = max(1, int(quantity))
+        except (TypeError, ValueError):
+            continue
+
+        item_key = _build_session_cart_item_key(product_id, selected_size)
+        normalized_cart[item_key] = {
+            'product_id': product_id,
+            'selected_size': selected_size,
+            'quantity': quantity,
+        }
+
+    return normalized_cart
 
 
 def _set_session_cart(request, cart_data):
-    request.session['cart'] = {str(product_id): int(quantity) for product_id, quantity in cart_data.items() if int(quantity) > 0}
+    normalized_cart = {}
+    for item_key, item_data in (cart_data or {}).items():
+        if not isinstance(item_data, dict):
+            continue
+
+        try:
+            product_id = int(item_data.get('product_id'))
+            quantity = int(item_data.get('quantity', 0))
+        except (TypeError, ValueError):
+            continue
+
+        if quantity <= 0:
+            continue
+
+        selected_size = (item_data.get('selected_size') or '').strip() or None
+        normalized_key = _build_session_cart_item_key(product_id, selected_size)
+        normalized_cart[normalized_key] = {
+            'product_id': product_id,
+            'selected_size': selected_size,
+            'quantity': quantity,
+        }
+
+    request.session['cart'] = normalized_cart
     request.session.modified = True
+
+
+def _build_session_cart_item_key(product_id, selected_size=None):
+    normalized_size = (selected_size or '').strip()
+    return f'{int(product_id)}::{normalized_size.lower()}'
+
+
+def _add_to_session_cart(request, product, quantity, selected_size=None, replace=False):
+    quantity = max(1, int(quantity))
+    if selected_size:
+        matching_variant = ProductVariant.objects.filter(product=product, size__iexact=selected_size).first()
+        available_stock = max(0, getattr(matching_variant, 'quantity', 0) or 0)
+    else:
+        available_stock = sum(ProductVariant.objects.filter(product=product).values_list('quantity', flat=True))
+
+    if available_stock == 0:
+        return False, 0
+
+    session_cart = _get_session_cart(request)
+    item_key = _build_session_cart_item_key(product.product_id, selected_size)
+    current_item = session_cart.get(item_key, {
+        'product_id': product.product_id,
+        'selected_size': selected_size,
+        'quantity': 0,
+    })
+    current_quantity = int(current_item.get('quantity', 0))
+    final_quantity = quantity if replace else current_quantity + quantity
+    final_quantity = min(final_quantity, available_stock)
+
+    session_cart[item_key] = {
+        'product_id': product.product_id,
+        'selected_size': selected_size,
+        'quantity': final_quantity,
+    }
+    _set_session_cart(request, session_cart)
+    return True, available_stock
+
+
+def _remove_session_cart_item(request, item_key):
+    session_cart = _get_session_cart(request)
+    if item_key in session_cart:
+        session_cart.pop(item_key, None)
+        _set_session_cart(request, session_cart)
 
 
 def _merge_session_cart_into_db(request, user):
@@ -260,19 +503,19 @@ def _merge_session_cart_into_db(request, user):
     if not session_cart:
         return
 
-    for product_id, quantity in session_cart.items():
-        product = Product.objects.filter(product_id=product_id, is_active=True).first()
+    for item_data in session_cart.values():
+        product = Product.objects.filter(product_id=item_data['product_id'], is_active=True).first()
         if not product:
             continue
 
         cart_item, created = CartItem.objects.get_or_create(
             user=user,
             product=product,
-            selected_size=None,
-            defaults={'quantity': max(1, int(quantity))},
+            selected_size=item_data['selected_size'],
+            defaults={'quantity': max(1, int(item_data['quantity']))},
         )
         if not created:
-            cart_item.quantity += max(1, int(quantity))
+            cart_item.quantity += max(1, int(item_data['quantity']))
             cart_item.save(update_fields=['quantity', 'updated_at'])
 
     _set_session_cart(request, {})
@@ -338,6 +581,7 @@ def _build_cart_summary(cart_data):
             total_items += item.quantity
             cart_items.append({
                 'cart_item_id': item.cart_item_id,
+                'session_item_key': None,
                 'product': product,
                 'variant': variant,
                 'selected_size': item.selected_size,
@@ -346,19 +590,26 @@ def _build_cart_summary(cart_data):
                 'line_total': line_total,
             })
     else:
-        for product_id, quantity in cart_data.items():
-            product = Product.objects.filter(product_id=product_id, is_active=True).first()
+        for item_key, item_data in cart_data.items():
+            product = Product.objects.filter(product_id=item_data['product_id'], is_active=True).first()
             if not product:
                 continue
 
-            variant = ProductVariant.objects.filter(product=product).first()
+            selected_size = item_data.get('selected_size')
+            quantity = int(item_data.get('quantity', 0))
+            variant = ProductVariant.objects.filter(
+                product=product,
+                size__iexact=selected_size,
+            ).first() if selected_size else ProductVariant.objects.filter(product=product).first()
             line_total = product.offer_price * quantity
             subtotal += line_total
             total_items += quantity
             cart_items.append({
+                'cart_item_id': None,
+                'session_item_key': item_key,
                 'product': product,
                 'variant': variant,
-                'selected_size': None,
+                'selected_size': selected_size,
                 'quantity': quantity,
                 'image_path': _get_product_image_path(product, variant),
                 'line_total': line_total,
@@ -436,7 +687,7 @@ def home(request):
         'nav_products_text': getattr(home_content, 'nav_products_text', None) or 'Products',
         'nav_products_url': getattr(home_content, 'nav_products_url', None) or '#featured-products',
         'nav_contact_text': getattr(home_content, 'nav_contact_text', None) or 'Contact Us',
-        'nav_contact_url': getattr(home_content, 'nav_contact_url', None) or '#',
+        'nav_contact_url': getattr(home_content, 'nav_contact_url', None) or reverse('contact_us'),
         'nav_login_text': getattr(home_content, 'nav_login_text', None) or 'Login',
         'nav_login_url': getattr(home_content, 'nav_login_url', None) or '/login/',
         'category_section_title': getattr(home_content, 'category_section_title', None) or 'Shop by Category',
@@ -505,12 +756,20 @@ def search_results(request):
         'nav_products_text': getattr(home_content, 'nav_products_text', None) or 'Products',
         'nav_products_url': getattr(home_content, 'nav_products_url', None) or '#featured-products',
         'nav_contact_text': getattr(home_content, 'nav_contact_text', None) or 'Contact Us',
-        'nav_contact_url': getattr(home_content, 'nav_contact_url', None) or '#',
+        'nav_contact_url': getattr(home_content, 'nav_contact_url', None) or reverse('contact_us'),
         'nav_login_text': getattr(home_content, 'nav_login_text', None) or 'Login',
         'nav_login_url': getattr(home_content, 'nav_login_url', None) or '/login/',
         'footer_text': getattr(home_content, 'footer_text', None) or 'All rights reserved.',
         'footer_brand_text': getattr(home_content, 'footer_brand_text', None) or 'ShopEase',
         'footer_builder_text': getattr(home_content, 'footer_builder_text', None) or 'MR Technologies',
+    })
+
+
+def contact_us(request):
+    return render(request, 'store/contact-us.html', {
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'phone_number': '8247624897',
+        'email_address': 'saivarshak14@gmail.com',
     })
 
 
@@ -937,9 +1196,6 @@ def register_view(request):
 
 # Cart page
 def cart(request):
-    if not request.user.is_authenticated:
-        return redirect(f"{reverse('login')}?next=/cart/")
-
     cart_data = _get_effective_cart_data(request)
     cart_items, subtotal, total_items = _build_cart_summary(cart_data)
 
@@ -948,6 +1204,7 @@ def cart(request):
         'subtotal': subtotal,
         'total_items': total_items,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'requires_login_for_checkout': not request.user.is_authenticated,
     })
 
 
@@ -957,11 +1214,6 @@ def payment_gateway(request):
 
     cart_data = _get_effective_cart_data(request)
     cart_items, subtotal, total_items = _build_cart_summary(cart_data)
-    razorpay_error = ''
-
-    if not _is_razorpay_configured():
-        razorpay_error = 'Razorpay keys are not configured yet. Add your key ID and secret to enable checkout.'
-
     return render(request, 'store/payment.html', {
         'cart_items': cart_items,
         'subtotal': subtotal,
@@ -970,60 +1222,54 @@ def payment_gateway(request):
         'default_email': request.user.email,
         'default_full_name': request.user.get_full_name() or request.user.username,
         'default_phone_number': '8247624897',
-        'payment_provider_name': 'Razorpay',
-        'manual_payment_link': 'https://razorpay.me/@varshakshopeasy',
-        'upi_payment_link': 'upi://pay?pa=8247624897-3@ybl&pn=VarshakShopeasy&cu=INR',
-        'upi_id': '8247624897-3@ybl',
-        'manual_payment_provider_name': 'Razorpay Payment Link',
-        'payment_qr_image': _get_page_asset('payment_gateway', 'scanner_qr', 'images/QrCode.jpeg'),
-        'razorpay_enabled': _is_razorpay_configured(),
-        'razorpay_key_id': getattr(settings, 'RAZORPAY_KEY_ID', ''),
-        'razorpay_order_id': '',
-        'razorpay_amount_paise': int((subtotal * Decimal('100')).quantize(Decimal('1'))) if subtotal else 0,
-        'razorpay_currency': 'INR',
-        'razorpay_error': razorpay_error,
+        'payment_link_override_url': _get_razorpay_override_payment_link(),
+        'razorpay_payment_button_id': (getattr(settings, 'RAZORPAY_PAYMENT_BUTTON_ID', '') or '').strip(),
+        'razorpay_payment_handle_url': (getattr(settings, 'RAZORPAY_PAYMENT_HANDLE_URL', '') or '').strip(),
+        'razorpay_mode': _get_razorpay_mode(),
+        'razorpay_configuration_error': _get_razorpay_configuration_error(),
     })
 
 
 def add_to_cart(request, product_id):
-    if not request.user.is_authenticated:
-        return redirect(f"{reverse('login')}?next=/product/{product_id}/")
-
     if request.method != 'POST':
         return redirect('product_detail', product_id=product_id)
 
     product = get_object_or_404(Product, product_id=product_id, is_active=True)
     quantity = max(1, int(request.POST.get('quantity', 1)))
     selected_size = (request.POST.get('selected_size') or '').strip() or None
-    added, available_stock = _set_user_cart_item(request.user, product, quantity, selected_size=selected_size)
+    if request.user.is_authenticated:
+        added, available_stock = _set_user_cart_item(request.user, product, quantity, selected_size=selected_size)
+        _set_session_cart(request, {})
+    else:
+        added, available_stock = _add_to_session_cart(request, product, quantity, selected_size=selected_size)
     if not added:
         messages.error(request, 'This product is out of stock.')
         return redirect('product_detail', product_id=product_id)
 
     if quantity > available_stock:
         messages.warning(request, f'Only {available_stock} item(s) are available, so the quantity was limited.')
-    _set_session_cart(request, {})
 
     return redirect('cart')
 
 
 def remove_from_cart(request, cart_item_id):
-    if not request.user.is_authenticated:
-        return redirect(f"{reverse('login')}?next=/cart/")
-
     if request.method != 'POST':
         return redirect('cart')
 
-    CartItem.objects.filter(user=request.user, cart_item_id=cart_item_id).delete()
-    _set_session_cart(request, {})
+    if request.user.is_authenticated:
+        CartItem.objects.filter(user=request.user, cart_item_id=cart_item_id).delete()
+        _set_session_cart(request, {})
 
     return redirect('cart')
 
 
-def buy_now(request, product_id):
-    if not request.user.is_authenticated:
-        return redirect(f"{reverse('login')}?next=/product/{product_id}/")
+def remove_session_cart_item(request, item_key):
+    if request.method == 'POST':
+        _remove_session_cart_item(request, item_key)
+    return redirect('cart')
 
+
+def buy_now(request, product_id):
     if request.method != 'POST':
         return redirect('product_detail', product_id=product_id)
 
@@ -1036,11 +1282,18 @@ def buy_now(request, product_id):
         messages.error(request, 'This product is out of stock.')
         return redirect('product_detail', product_id=product_id)
 
-    CartItem.objects.filter(user=request.user).exclude(product=product).delete()
     if quantity > available_stock:
         messages.warning(request, f'Only {available_stock} item(s) are available, so the quantity was limited.')
-    _set_user_cart_item(request.user, product, quantity, selected_size=selected_size, replace=True)
-    _set_session_cart(request, {})
+
+    if request.user.is_authenticated:
+        CartItem.objects.filter(user=request.user).exclude(product=product).delete()
+        _set_user_cart_item(request.user, product, quantity, selected_size=selected_size, replace=True)
+        _set_session_cart(request, {})
+    else:
+        _set_session_cart(request, {})
+        _add_to_session_cart(request, product, quantity, selected_size=selected_size, replace=True)
+        messages.info(request, 'Please login to continue to payment. Your selected item is saved in the cart.')
+        return redirect(f"{reverse('login')}?next=/payment/")
 
     return redirect('payment_gateway')
 
@@ -1108,6 +1361,188 @@ def place_order(request):
 
 
 @transaction.atomic
+def start_payment_gateway(request):
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('login')}?next=/payment/")
+
+    if request.method != 'POST':
+        return redirect('payment_gateway')
+
+    payment_gateway_url = _get_razorpay_override_payment_link()
+
+    razorpay_error = _get_razorpay_configuration_error()
+    if not payment_gateway_url and razorpay_error:
+        messages.error(request, razorpay_error)
+        return redirect('payment_gateway')
+
+    cart_data = _get_effective_cart_data(request)
+    cart_items, subtotal, total_items = _build_cart_summary(cart_data)
+
+    if not cart_items:
+        messages.error(request, 'Your cart is empty.')
+        return redirect('cart')
+
+    full_name = (request.POST.get('full_name') or '').strip()
+    phone_number = (request.POST.get('phone_number') or '').strip()
+    email = (request.POST.get('email') or '').strip()
+    address = (request.POST.get('address') or '').strip()
+    city = (request.POST.get('city') or '').strip()
+    state = (request.POST.get('state') or '').strip()
+    pincode = (request.POST.get('pincode') or '').strip()
+    country = (request.POST.get('country') or 'India').strip() or 'India'
+
+    required_values = [full_name, phone_number, email, address, city, state, pincode]
+    if any(not value for value in required_values):
+        messages.error(request, 'Please fill in all billing details before continuing to payment.')
+        return redirect('payment_gateway')
+
+    amount_paise = int((subtotal * Decimal('100')).quantize(Decimal('1')))
+
+    order = Order.objects.create(
+        user=request.user,
+        full_name=full_name,
+        phone_number=phone_number,
+        email=email,
+        address=address,
+        city=city,
+        state=state,
+        pincode=pincode,
+        country=country,
+        payment_method='Razorpay Payment Link',
+        payment_status='Created',
+        currency='INR',
+        subtotal=subtotal,
+        total_items=total_items,
+        status='Pending Payment',
+    )
+
+    for item in cart_items:
+        OrderItem.objects.create(
+            order=order,
+            product=item['product'],
+            selected_size=item.get('selected_size'),
+            quantity=item['quantity'],
+            unit_price=item['product'].offer_price,
+            line_total=item['line_total'],
+        )
+
+    if payment_gateway_url:
+        messages.info(request, f'Opening the configured Razorpay payment page for order #{order.order_id}.')
+        return redirect(payment_gateway_url)
+
+    callback_url = _build_payment_callback_url(request, order.order_id)
+    reference_id = f"shopease_{order.order_id}"[:40]
+
+    try:
+        payment_link = _create_razorpay_payment_link(
+            amount_paise=amount_paise,
+            callback_url=callback_url,
+            reference_id=reference_id,
+            description=f"ShopEase Order #{order.order_id}",
+            customer={
+                'name': full_name,
+                'email': email,
+                'contact': phone_number,
+            },
+            notes={
+                'local_order_id': str(order.order_id),
+                'user_id': str(request.user.id),
+            },
+        )
+    except (requests.RequestException, ValueError) as exc:
+        order.payment_status = 'Failed'
+        order.status = 'Payment Link Failed'
+        order.save(update_fields=['payment_status', 'status'])
+        messages.error(request, _friendly_razorpay_error(exc))
+        return redirect('payment_gateway')
+
+    order.razorpay_order_id = payment_link.get('id')
+    order.save(update_fields=['razorpay_order_id'])
+
+    payment_link_url = payment_link.get('short_url') or payment_link.get('payment_link') or payment_link.get('short_url')
+    if not payment_link_url:
+        messages.error(request, 'Unable to open the payment gateway right now. Please try again.')
+        return redirect('payment_gateway')
+
+    return redirect(payment_link_url)
+
+
+def razorpay_payment_link_callback(request):
+    local_order_id = (request.GET.get('local_order_id') or '').strip()
+    payment_link_id = (request.GET.get('razorpay_payment_link_id') or '').strip()
+    payment_link_status = (request.GET.get('razorpay_payment_link_status') or '').strip().lower()
+    payment_id = (request.GET.get('razorpay_payment_id') or '').strip()
+
+    if not local_order_id:
+        messages.error(request, 'Order reference is missing from the payment gateway response.')
+        return redirect('payment_gateway')
+
+    order = get_object_or_404(Order, order_id=local_order_id)
+
+    if request.user.is_authenticated and order.user_id != request.user.id:
+        messages.error(request, 'This payment callback belongs to a different user account.')
+        return redirect('home')
+
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('login')}?next={request.get_full_path()}")
+
+    if not payment_link_id:
+        messages.error(request, 'Payment gateway did not return a payment link id.')
+        return redirect('payment_gateway')
+
+    if order.razorpay_order_id and order.razorpay_order_id != payment_link_id:
+        messages.error(request, 'Payment gateway response does not match the pending order.')
+        return redirect('payment_gateway')
+
+    try:
+        payment_link_data = _fetch_razorpay_payment_link(payment_link_id)
+    except (requests.RequestException, ValueError) as exc:
+        messages.error(request, _friendly_razorpay_error(exc))
+        return redirect('payment_gateway')
+
+    expected_amount = int((order.subtotal * Decimal('100')).quantize(Decimal('1')))
+    actual_status = (payment_link_data.get('status') or payment_link_status or '').lower()
+    amount_paid = int(payment_link_data.get('amount_paid') or 0)
+    reference_id = payment_link_data.get('reference_id') or ''
+
+    if reference_id and reference_id != f"shopease_{order.order_id}":
+        messages.error(request, 'Payment reference did not match the order.')
+        return redirect('payment_gateway')
+
+    if actual_status != 'paid' or amount_paid < expected_amount:
+        order.payment_status = actual_status.title() if actual_status else 'Pending'
+        order.status = 'Pending Payment'
+        order.save(update_fields=['payment_status', 'status'])
+        messages.error(request, 'Payment is not completed yet. Please complete the payment and try again.')
+        return redirect('payment_gateway')
+
+    payment_records = payment_link_data.get('payments') or []
+    if payment_records and not payment_id:
+        payment_id = payment_records[0].get('payment_id') or payment_records[0].get('id') or ''
+
+    order.payment_method = 'Razorpay Payment Link'
+    order.payment_status = 'Paid'
+    order.currency = payment_link_data.get('currency') or 'INR'
+    order.razorpay_order_id = payment_link_id
+    order.razorpay_payment_id = payment_id or order.razorpay_payment_id
+    order.status = 'Placed'
+    order.save(update_fields=[
+        'payment_method', 'payment_status', 'currency',
+        'razorpay_order_id', 'razorpay_payment_id', 'status',
+    ])
+
+    CartItem.objects.filter(user=order.user).delete()
+    _set_session_cart(request, {})
+    try:
+        invoice_email_sent = _send_order_invoice_email(order)
+    except Exception:
+        invoice_email_sent = False
+    _store_invoice_delivery_notice(request, order, invoice_email_sent)
+    messages.success(request, f'Payment completed and order #{order.order_id} confirmed successfully.')
+    return redirect('order_success', order_id=order.order_id)
+
+
+@transaction.atomic
 def verify_razorpay_payment(request):
     if not request.user.is_authenticated:
         return redirect(f"{reverse('login')}?next=/payment/")
@@ -1143,8 +1578,9 @@ def verify_razorpay_payment(request):
         messages.error(request, 'Payment verification details are missing. Please try again.')
         return redirect('payment_gateway')
 
-    if not _is_razorpay_configured():
-        messages.error(request, 'Razorpay is not configured on the backend yet.')
+    razorpay_error = _get_razorpay_configuration_error()
+    if razorpay_error:
+        messages.error(request, razorpay_error)
         return redirect('payment_gateway')
 
     if not _verify_razorpay_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature):
@@ -1198,6 +1634,11 @@ def verify_razorpay_payment(request):
 
     CartItem.objects.filter(user=request.user).delete()
     _set_session_cart(request, {})
+    try:
+        invoice_email_sent = _send_order_invoice_email(order)
+    except Exception:
+        invoice_email_sent = False
+    _store_invoice_delivery_notice(request, order, invoice_email_sent)
     messages.success(request, f'Payment verified and order #{order.order_id} placed successfully.')
     return redirect('order_success', order_id=order.order_id)
 
@@ -1210,8 +1651,9 @@ def create_razorpay_checkout(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'message': 'Invalid request method.'}, status=405)
 
-    if not _is_razorpay_configured():
-        return JsonResponse({'ok': False, 'message': 'Razorpay is not configured on the backend yet.'}, status=400)
+    razorpay_error = _get_razorpay_configuration_error()
+    if razorpay_error:
+        return JsonResponse({'ok': False, 'message': razorpay_error}, status=400)
 
     cart_data = _get_effective_cart_data(request)
     cart_items, subtotal, total_items = _build_cart_summary(cart_data)
@@ -1316,10 +1758,19 @@ def order_success(request, order_id):
             'image_path': _get_product_image_path(item.product, variant),
         })
 
+    invoice_delivery_notice = request.session.get('invoice_delivery_notice') or {}
+    if invoice_delivery_notice.get('order_id') != order.order_id:
+        invoice_delivery_notice = {
+            'email': order.email,
+            'phone_number': order.phone_number,
+            'email_sent': False,
+        }
+
     return render(request, 'store/order-success.html', {
         'order': order,
         'order_items': order_items,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'invoice_delivery_notice': invoice_delivery_notice,
     })
 
 
