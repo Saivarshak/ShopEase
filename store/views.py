@@ -310,6 +310,11 @@ def _store_invoice_delivery_notice(request, order, email_sent):
     }
 
 
+def _get_default_phone_number(request):
+    invoice_delivery_notice = request.session.get('invoice_delivery_notice') or {}
+    return (invoice_delivery_notice.get('phone_number') or '').strip()
+
+
 def _verify_razorpay_signature(order_id, payment_id, signature):
     _, key_secret = _get_razorpay_credentials()
     generated_signature = hmac.new(
@@ -318,6 +323,60 @@ def _verify_razorpay_signature(order_id, payment_id, signature):
         hashlib.sha256,
     ).hexdigest()
     return hmac.compare_digest(generated_signature, signature)
+
+
+def _verify_razorpay_payment_link_signature(payment_link_id, reference_id, payment_link_status, payment_id, signature):
+    _, key_secret = _get_razorpay_credentials()
+    payload = f'{payment_link_id}|{reference_id}|{payment_link_status}|{payment_id}'
+    generated_signature = hmac.new(
+        key_secret.encode(),
+        payload.encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(generated_signature, signature)
+
+
+def _extract_order_id_from_reference_id(reference_id):
+    if not reference_id:
+        return ''
+
+    expected_prefix = 'shopease_'
+    if not reference_id.startswith(expected_prefix):
+        return ''
+
+    return reference_id[len(expected_prefix):].strip()
+
+
+def _finalize_paid_order(order, request=None, payment_method='Razorpay Payment Link', payment_status='Paid', payment_id=''):
+    already_paid = (order.payment_status or '').strip().lower() in {'paid', 'authorized', 'captured'}
+
+    if not already_paid:
+        for item in order.items.select_related('product').all():
+            variant_queryset = ProductVariant.objects.select_for_update().filter(product=item.product)
+            if item.selected_size:
+                variant_queryset = variant_queryset.filter(size__iexact=item.selected_size)
+            variant = variant_queryset.order_by('variant_id').first()
+            if variant:
+                variant.quantity = max(0, (variant.quantity or 0) - item.quantity)
+                variant.save(update_fields=['quantity'])
+
+    order.payment_method = payment_method
+    order.payment_status = payment_status
+    order.status = 'Placed'
+    if payment_id:
+        order.razorpay_payment_id = payment_id
+    order.save(update_fields=['payment_method', 'payment_status', 'status', 'razorpay_payment_id'])
+
+    CartItem.objects.filter(user=order.user).delete()
+    if request is not None:
+        _set_session_cart(request, {})
+
+    if request is not None and not already_paid:
+        try:
+            invoice_email_sent = _send_order_invoice_email(order)
+        except Exception:
+            invoice_email_sent = False
+        _store_invoice_delivery_notice(request, order, invoice_email_sent)
 
 
 def _get_category_image_path(category):
@@ -1214,6 +1273,7 @@ def payment_gateway(request):
 
     cart_data = _get_effective_cart_data(request)
     cart_items, subtotal, total_items = _build_cart_summary(cart_data)
+    razorpay_configuration_error = _get_razorpay_configuration_error()
     return render(request, 'store/payment.html', {
         'cart_items': cart_items,
         'subtotal': subtotal,
@@ -1221,12 +1281,9 @@ def payment_gateway(request):
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
         'default_email': request.user.email,
         'default_full_name': request.user.get_full_name() or request.user.username,
-        'default_phone_number': '8247624897',
-        'payment_link_override_url': _get_razorpay_override_payment_link(),
-        'razorpay_payment_button_id': (getattr(settings, 'RAZORPAY_PAYMENT_BUTTON_ID', '') or '').strip(),
-        'razorpay_payment_handle_url': (getattr(settings, 'RAZORPAY_PAYMENT_HANDLE_URL', '') or '').strip(),
+        'default_phone_number': _get_default_phone_number(request),
         'razorpay_mode': _get_razorpay_mode(),
-        'razorpay_configuration_error': _get_razorpay_configuration_error(),
+        'razorpay_configuration_error': razorpay_configuration_error,
     })
 
 
@@ -1368,10 +1425,8 @@ def start_payment_gateway(request):
     if request.method != 'POST':
         return redirect('payment_gateway')
 
-    payment_gateway_url = _get_razorpay_override_payment_link()
-
     razorpay_error = _get_razorpay_configuration_error()
-    if not payment_gateway_url and razorpay_error:
+    if razorpay_error:
         messages.error(request, razorpay_error)
         return redirect('payment_gateway')
 
@@ -1426,10 +1481,6 @@ def start_payment_gateway(request):
             line_total=item['line_total'],
         )
 
-    if payment_gateway_url:
-        messages.info(request, f'Opening the configured Razorpay payment page for order #{order.order_id}.')
-        return redirect(payment_gateway_url)
-
     callback_url = _build_payment_callback_url(request, order.order_id)
     reference_id = f"shopease_{order.order_id}"[:40]
 
@@ -1467,24 +1518,28 @@ def start_payment_gateway(request):
     return redirect(payment_link_url)
 
 
+@transaction.atomic
 def razorpay_payment_link_callback(request):
     local_order_id = (request.GET.get('local_order_id') or '').strip()
     payment_link_id = (request.GET.get('razorpay_payment_link_id') or '').strip()
+    payment_link_reference_id = (request.GET.get('razorpay_payment_link_reference_id') or '').strip()
     payment_link_status = (request.GET.get('razorpay_payment_link_status') or '').strip().lower()
     payment_id = (request.GET.get('razorpay_payment_id') or '').strip()
+    razorpay_signature = (request.GET.get('razorpay_signature') or '').strip()
+
+    if not local_order_id:
+        local_order_id = _extract_order_id_from_reference_id(payment_link_reference_id)
 
     if not local_order_id:
         messages.error(request, 'Order reference is missing from the payment gateway response.')
         return redirect('payment_gateway')
 
-    order = get_object_or_404(Order, order_id=local_order_id)
+    order = get_object_or_404(Order.objects.select_for_update().prefetch_related('items__product'), order_id=local_order_id)
+    expected_reference_id = f"shopease_{order.order_id}"
 
-    if request.user.is_authenticated and order.user_id != request.user.id:
-        messages.error(request, 'This payment callback belongs to a different user account.')
-        return redirect('home')
-
-    if not request.user.is_authenticated:
-        return redirect(f"{reverse('login')}?next={request.get_full_path()}")
+    if payment_link_reference_id and payment_link_reference_id != expected_reference_id:
+        messages.error(request, 'Payment reference did not match the order.')
+        return redirect('payment_gateway')
 
     if not payment_link_id:
         messages.error(request, 'Payment gateway did not return a payment link id.')
@@ -1492,6 +1547,20 @@ def razorpay_payment_link_callback(request):
 
     if order.razorpay_order_id and order.razorpay_order_id != payment_link_id:
         messages.error(request, 'Payment gateway response does not match the pending order.')
+        return redirect('payment_gateway')
+
+    if not payment_id or not payment_link_status or not razorpay_signature:
+        messages.error(request, 'Payment gateway did not return complete confirmation details.')
+        return redirect('payment_gateway')
+
+    if not _verify_razorpay_payment_link_signature(
+        payment_link_id=payment_link_id,
+        reference_id=expected_reference_id,
+        payment_link_status=payment_link_status,
+        payment_id=payment_id,
+        signature=razorpay_signature,
+    ):
+        messages.error(request, 'Payment signature verification failed.')
         return redirect('payment_gateway')
 
     try:
@@ -1505,7 +1574,7 @@ def razorpay_payment_link_callback(request):
     amount_paid = int(payment_link_data.get('amount_paid') or 0)
     reference_id = payment_link_data.get('reference_id') or ''
 
-    if reference_id and reference_id != f"shopease_{order.order_id}":
+    if reference_id and reference_id != expected_reference_id:
         messages.error(request, 'Payment reference did not match the order.')
         return redirect('payment_gateway')
 
@@ -1520,24 +1589,26 @@ def razorpay_payment_link_callback(request):
     if payment_records and not payment_id:
         payment_id = payment_records[0].get('payment_id') or payment_records[0].get('id') or ''
 
-    order.payment_method = 'Razorpay Payment Link'
-    order.payment_status = 'Paid'
     order.currency = payment_link_data.get('currency') or 'INR'
     order.razorpay_order_id = payment_link_id
-    order.razorpay_payment_id = payment_id or order.razorpay_payment_id
-    order.status = 'Placed'
-    order.save(update_fields=[
-        'payment_method', 'payment_status', 'currency',
-        'razorpay_order_id', 'razorpay_payment_id', 'status',
-    ])
+    order.razorpay_signature = razorpay_signature
+    order.save(update_fields=['currency', 'razorpay_order_id', 'razorpay_signature'])
 
-    CartItem.objects.filter(user=order.user).delete()
-    _set_session_cart(request, {})
-    try:
-        invoice_email_sent = _send_order_invoice_email(order)
-    except Exception:
-        invoice_email_sent = False
-    _store_invoice_delivery_notice(request, order, invoice_email_sent)
+    _finalize_paid_order(
+        order,
+        request=request,
+        payment_method='Razorpay Payment Link',
+        payment_status='Paid',
+        payment_id=payment_id,
+    )
+
+    if request.user.is_authenticated and order.user_id != request.user.id:
+        messages.error(request, 'This payment callback belongs to a different user account.')
+        return redirect('home')
+
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('login')}?next={reverse('order_success', kwargs={'order_id': order.order_id})}")
+
     messages.success(request, f'Payment completed and order #{order.order_id} confirmed successfully.')
     return redirect('order_success', order_id=order.order_id)
 

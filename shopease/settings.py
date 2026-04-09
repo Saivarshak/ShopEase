@@ -23,12 +23,21 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^twboy#75qvp%bv5#aht+2=vllt4w!!il_h6)h*ksu$kz0!6a8'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-^twboy#75qvp%bv5#aht+2=vllt4w!!il_h6)h*ksu$kz0!6a8')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+    if host.strip()
+]
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if origin.strip()
+]
 
 
 # Application definition
@@ -46,6 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -81,12 +91,12 @@ WSGI_APPLICATION = 'shopease.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.mysql').strip(),
-        'NAME': os.getenv('DB_NAME', 'shopeasy').strip(),
-        'USER': os.getenv('DB_USER', 'root').strip(),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'Varshak@2006').strip(),
-        'HOST': os.getenv('DB_HOST', 'localhost').strip(),
-        'PORT': os.getenv('DB_PORT', '3306').strip(),
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.getenv('DB_NAME', BASE_DIR / 'db.sqlite3'),
+        'USER': os.getenv('DB_USER', ''),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', ''),
     }
 }
 
@@ -133,6 +143,8 @@ STATICFILES_DIRS = [
 # For production (when using collectstatic)
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # End sessions when the browser closes.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
@@ -147,10 +159,6 @@ RAZORPAY_KEY_SECRET = (os.getenv('RAZORPAY_KEY_SECRET') or '').strip()
 RAZORPAY_PAYMENT_LINK_OVERRIDE_URL = os.getenv(
     'RAZORPAY_PAYMENT_LINK_OVERRIDE_URL',
     '',
-).strip()
-RAZORPAY_PAYMENT_BUTTON_ID = os.getenv(
-    'RAZORPAY_PAYMENT_BUTTON_ID',
-    'pl_SZRbR0OcZ2QdFL',
 ).strip()
 RAZORPAY_PAYMENT_HANDLE_URL = os.getenv(
     'RAZORPAY_PAYMENT_HANDLE_URL',
