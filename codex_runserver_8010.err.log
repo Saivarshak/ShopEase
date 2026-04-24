@@ -1,0 +1,24 @@
+Watching for file changes with StatReloader
+[24/Apr/2026 14:18:41] "GET / HTTP/1.1" 200 15690
+[24/Apr/2026 14:18:41,702] - Broken pipe from ('127.0.0.1', 64545)
+[24/Apr/2026 14:18:57] "GET / HTTP/1.1" 200 15690
+[24/Apr/2026 14:18:57,222] - Broken pipe from ('127.0.0.1', 64546)
+[24/Apr/2026 14:18:59] "GET /terms-and-conditions/ HTTP/1.1" 200 8996
+[24/Apr/2026 14:18:59] "GET /privacy-policy/ HTTP/1.1" 200 8899
+[24/Apr/2026 14:18:59] "GET /refund-policy/ HTTP/1.1" 200 8855
+[24/Apr/2026 14:18:59,979] - Broken pipe from ('127.0.0.1', 64547)
+[24/Apr/2026 14:18:59,985] - Broken pipe from ('127.0.0.1', 64548)
+[24/Apr/2026 14:19:00,047] - Broken pipe from ('127.0.0.1', 64549)
+Invalid HTTP_HOST header: '01708c2694c23d.lhr.life'. You may need to add '01708c2694c23d.lhr.life' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\saiva\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\saiva\AppData\Roaming\Python\Python313\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "C:\Users\saiva\AppData\Roaming\Python\Python313\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "C:\Users\saiva\AppData\Roaming\Python\Python313\site-packages\django\http\request.py", line 186, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '01708c2694c23d.lhr.life'. You may need to add '01708c2694c23d.lhr.life' to ALLOWED_HOSTS.
+Bad Request: /
+[24/Apr/2026 14:19:43] "GET / HTTP/1.1" 400 71727

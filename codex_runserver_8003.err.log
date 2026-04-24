@@ -1,0 +1,9 @@
+Watching for file changes with StatReloader
+[23/Apr/2026 23:00:24] "GET / HTTP/1.1" 200 15690
+[23/Apr/2026 23:00:24,242] - Broken pipe from ('127.0.0.1', 64302)
+[23/Apr/2026 23:00:57] "GET /refund-policy/ HTTP/1.1" 200 8855
+[23/Apr/2026 23:00:57] "GET /privacy-policy/ HTTP/1.1" 200 8899
+[23/Apr/2026 23:00:57,418] - Broken pipe from ('127.0.0.1', 51550)
+[23/Apr/2026 23:00:57] "GET /terms-and-conditions/ HTTP/1.1" 200 8996
+[23/Apr/2026 23:00:57,447] - Broken pipe from ('127.0.0.1', 51551)
+[23/Apr/2026 23:00:57,518] - Broken pipe from ('127.0.0.1', 51552)
