@@ -67,6 +67,15 @@
         {% endif %}
         <a href="{% url 'home' %}" class="block rounded-2xl border border-slate-200 px-6 py-4 text-center text-base font-semibold text-slate-800 transition hover:bg-slate-50">Back to Home</a>
       </div>
+
+      <div class="mt-10">
+        <h3 class="text-lg font-semibold text-slate-900">Customer Policies</h3>
+        <div class="mt-4 grid gap-3">
+          <a href="{% url 'privacy_policy' %}" class="block rounded-2xl border border-rose-200 px-6 py-4 text-center text-sm font-semibold text-rose-700 transition hover:bg-rose-50">Privacy Policy</a>
+          <a href="{% url 'refund_policy' %}" class="block rounded-2xl border border-rose-200 px-6 py-4 text-center text-sm font-semibold text-rose-700 transition hover:bg-rose-50">Refund and Cancellation Policy</a>
+          <a href="{% url 'terms_and_conditions' %}" class="block rounded-2xl border border-rose-200 px-6 py-4 text-center text-sm font-semibold text-rose-700 transition hover:bg-rose-50">Terms and Conditions</a>
+        </div>
+      </div>
     </section>
   </main>
 </body>

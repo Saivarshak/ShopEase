@@ -1,5 +1,22 @@
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+
 from django.conf import settings
 from django.db import models
+
+
+def _calculate_offer_price(price, discount_percent):
+    try:
+        normalized_price = Decimal(price or 0)
+    except (InvalidOperation, TypeError):
+        normalized_price = Decimal('0')
+
+    try:
+        normalized_discount = Decimal(discount_percent or 0)
+    except (InvalidOperation, TypeError):
+        normalized_discount = Decimal('0')
+
+    discounted_price = normalized_price - ((normalized_price * normalized_discount) / Decimal('100'))
+    return max(discounted_price, Decimal('0')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
 class Category(models.Model):
     category_id = models.AutoField(primary_key=True)
@@ -165,6 +182,7 @@ class Product(models.Model):
         db_table = "products"
 
     def save(self, *args, **kwargs):
+        self.offer_price = _calculate_offer_price(self.price, self.discount_percent)
         super().save(*args, **kwargs)
 
     def __str__(self):

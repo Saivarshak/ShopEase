@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+from urllib.parse import urlparse
+import dj_database_url
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,18 +28,77 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-^twboy#75qvp%bv5#aht+2=vllt4w!!il_h6)h*ksu$kz0!6a8')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+TRUE_VALUES = {'1', 'true', 'yes', 'on'}
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
-    if host.strip()
-]
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
-    if origin.strip()
-]
+
+def _get_env_bool(name, default=False):
+    default_value = 'true' if default else 'false'
+    return os.getenv(name, default_value).strip().lower() in TRUE_VALUES
+
+
+DEBUG = _get_env_bool('DEBUG', False)
+IS_PRODUCTION = (
+    _get_env_bool('IS_PRODUCTION', False)
+    or (os.getenv('DJANGO_ENV', '') or '').strip().lower() == 'production'
+    or _get_env_bool('RENDER', False)
+)
+
+
+def _split_csv_env(value):
+    return [item.strip() for item in (value or '').split(',') if item.strip()]
+
+
+def _append_unique(items, value):
+    if value and value not in items:
+        items.append(value)
+
+
+def _normalize_base_url(value):
+    value = (value or '').strip().rstrip('/')
+    if not value:
+        return ''
+
+    parsed_url = urlparse(value)
+    if not parsed_url.scheme or not parsed_url.netloc:
+        return ''
+
+    return f'{parsed_url.scheme}://{parsed_url.netloc}'
+
+
+def _build_public_base_urls():
+    public_base_urls = []
+
+    for env_name in ('APP_BASE_URL', 'PAYMENT_CALLBACK_BASE_URL', 'RENDER_EXTERNAL_URL'):
+        normalized_url = _normalize_base_url(os.getenv(env_name, ''))
+        _append_unique(public_base_urls, normalized_url)
+
+    render_external_hostname = (os.getenv('RENDER_EXTERNAL_HOSTNAME') or '').strip()
+    if render_external_hostname:
+        _append_unique(public_base_urls, f'https://{render_external_hostname}')
+
+    return public_base_urls
+
+
+def _build_host_security_settings():
+    allowed_hosts = _split_csv_env(os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost'))
+    trusted_origins = _split_csv_env(os.getenv('CSRF_TRUSTED_ORIGINS', ''))
+
+    if DEBUG:
+        for debug_host in ('.lhr.life', '.localhost.run', '.loca.lt'):
+            _append_unique(allowed_hosts, debug_host)
+
+    render_external_hostname = (os.getenv('RENDER_EXTERNAL_HOSTNAME') or '').strip()
+    _append_unique(allowed_hosts, render_external_hostname)
+
+    for base_url in _build_public_base_urls():
+        parsed_url = urlparse(base_url)
+        _append_unique(allowed_hosts, parsed_url.hostname)
+        _append_unique(trusted_origins, f'{parsed_url.scheme}://{parsed_url.netloc}')
+
+    return allowed_hosts, trusted_origins
+
+
+ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS = _build_host_security_settings()
 
 
 # Application definition
@@ -90,14 +151,23 @@ WSGI_APPLICATION = 'shopease.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.getenv('DB_NAME', BASE_DIR / 'db.sqlite3'),
-        'USER': os.getenv('DB_USER', ''),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
-        'PORT': os.getenv('DB_PORT', ''),
-    }
+    'default': (
+        dj_database_url.parse(
+            os.getenv('DATABASE_URL', '').strip(),
+            conn_max_age=int(os.getenv('DB_CONN_MAX_AGE', '600')),
+            conn_health_checks=True,
+            ssl_require=_get_env_bool('DATABASE_SSL_REQUIRE', False),
+        )
+        if os.getenv('DATABASE_URL', '').strip()
+        else {
+            'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
+            'NAME': os.getenv('DB_NAME', BASE_DIR / 'db.sqlite3'),
+            'USER': os.getenv('DB_USER', ''),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', ''),
+            'PORT': os.getenv('DB_PORT', ''),
+        }
+    )
 }
 
 # Password validation
@@ -134,7 +204,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
@@ -144,6 +214,17 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+USE_X_FORWARDED_HOST = _get_env_bool('USE_X_FORWARDED_HOST', IS_PRODUCTION)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if IS_PRODUCTION else None
+SECURE_SSL_REDIRECT = _get_env_bool('SECURE_SSL_REDIRECT', IS_PRODUCTION)
+SESSION_COOKIE_SECURE = _get_env_bool('SESSION_COOKIE_SECURE', IS_PRODUCTION)
+CSRF_COOKIE_SECURE = _get_env_bool('CSRF_COOKIE_SECURE', IS_PRODUCTION)
+SECURE_CONTENT_TYPE_NOSNIFF = _get_env_bool('SECURE_CONTENT_TYPE_NOSNIFF', IS_PRODUCTION)
+SECURE_REFERRER_POLICY = os.getenv('SECURE_REFERRER_POLICY', 'same-origin').strip()
+SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000' if IS_PRODUCTION else '0'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = _get_env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', IS_PRODUCTION)
+SECURE_HSTS_PRELOAD = _get_env_bool('SECURE_HSTS_PRELOAD', IS_PRODUCTION)
 
 # End sessions when the browser closes.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
@@ -165,6 +246,12 @@ RAZORPAY_PAYMENT_HANDLE_URL = os.getenv(
     'https://razorpay.me/@varshakshopeasy',
 ).strip()
 PAYMENT_CALLBACK_BASE_URL = os.getenv('PAYMENT_CALLBACK_BASE_URL', '').strip()
+APP_BASE_URL = _normalize_base_url(os.getenv('APP_BASE_URL', '').strip())
+PAYMENT_CALLBACK_BASE_URL = (
+    _normalize_base_url(PAYMENT_CALLBACK_BASE_URL)
+    or APP_BASE_URL
+    or _normalize_base_url(os.getenv('RENDER_EXTERNAL_URL', '').strip())
+)
 
 EMAIL_BACKEND = os.getenv(
     'EMAIL_BACKEND',

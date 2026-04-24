@@ -17,7 +17,7 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      background-attachment: fixed;
+      background-attachment: scroll;
     }
     .mensideheading {
       font-family: "Tektur", sans-serif;
@@ -97,7 +97,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-10 justify-content-start">
         {% for item in men_categories %}
         <a href="{{ item.page_url }}" class="rounded-xl overflow-hidden shadow hover:shadow-xl transition transform hover:scale-105 bg-white card">
-          <img src="{% static item.image_path %}" alt="{{ item.name }}" class="w-full h-48 sm:h-64 object-cover">
+          <img src="{% static item.image_path %}" alt="{{ item.name }}" class="w-full h-48 sm:h-64 object-cover" loading="lazy" decoding="async">
           <div class="p-4 text-left">
             <h3 class="text-lg sm:text-xl font-semibold text-brandDark">{{ item.name }}</h3>
             <p class="text-brandMuted mt-1 sm:mt-2 text-sm sm:text-base">{{ item.description }}</p>

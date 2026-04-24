@@ -15,6 +15,9 @@ urlpatterns = [
     # Home page
     path('', views.home, name='home'),
     path('contact-us/', views.contact_us, name='contact_us'),
+    path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
+    path('refund-policy/', views.refund_policy, name='refund_policy'),
+    path('terms-and-conditions/', views.terms_and_conditions, name='terms_and_conditions'),
     path('search/', views.search_results, name='search_results'),
     
     path('mens_tshirts', views.mens_tshirts, name='mens_tshirts_legacy'),

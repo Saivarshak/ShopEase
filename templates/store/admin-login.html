@@ -18,8 +18,8 @@
 <body>
   <div class="card">
     <h1>Admin Access</h1>
-    <p class="muted">Only the configured admin account can access product management.</p>
-    <p class="muted" style="margin-top:-8px;">Admin email: {{ admin_email }}</p>
+    <p class="muted">Staff users, superusers, and the configured admin account can access product management.</p>
+    <p class="muted" style="margin-top:-8px;">Configured admin email: {{ admin_email }}</p>
 
     {% if messages %}
       {% for message in messages %}
@@ -31,8 +31,8 @@
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next_url }}">
       <div class="field">
-        <label>Email</label>
-        <input type="email" name="email" value="{{ admin_email }}" required>
+        <label>Email or Username</label>
+        <input type="text" name="identifier" value="{{ admin_identifier|default:admin_email }}" required>
       </div>
       <div class="field">
         <label>Password</label>

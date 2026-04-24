@@ -71,7 +71,7 @@
   <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
 <body class="bg-brandLight text-brandDark"
-      style="background-image: url('{% static 'images/banner.png' %}'); background-size: cover; background-position: center;">
+      style="background-image: url('{% static page_background_image %}'); background-size: cover; background-position: center;">
 
 <!-- Header -->
 <header class="topbanner shadow-md py-4">
@@ -95,7 +95,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-10">
     {% for item in kids_categories %}
     <a href="{{ item.page_url }}" class="rounded-xl overflow-hidden shadow hover:shadow-xl transition transform hover:scale-105 bg-white card">
-      <img src="{% static item.image_path %}" alt="{{ item.name }}" class="w-full h-48 sm:h-64 object-cover">
+      <img src="{% static item.image_path %}" alt="{{ item.name }}" class="w-full h-48 sm:h-64 object-cover" loading="lazy" decoding="async">
       <div class="p-4 text-center">
         <h3 class="text-lg sm:text-xl font-semibold text-brandDark">{{ item.name }}</h3>
         <p class="text-brandMuted text-sm mt-2">{{ item.description }}</p>

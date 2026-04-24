@@ -20,7 +20,7 @@
       width: 100%;
       background-size: cover;
       background-position: center;
-      background-attachment: fixed; /* ✅ Keeps background fixed */
+      background-attachment: scroll;
       position: relative;
       padding: 20px;
     }
@@ -158,7 +158,7 @@
   <div class="container" id="shirtContainer">
     {% for card in image_cards %}
     <div class="card" data-name="{{ card.card_name|lower }} {{ card.brand|default:''|lower }}">
-      <img src="{% static card.image_path %}" alt="{{ card.product_name }}" />
+      <img src="{% static card.image_path %}" alt="{{ card.product_name }}" loading="lazy" decoding="async" />
       <div class="card-content">
         <h3>{{ card.product_name }}</h3>
         <span class="price">Rs. {{ card.offer_price }}</span>

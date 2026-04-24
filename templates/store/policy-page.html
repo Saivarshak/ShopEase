@@ -1,0 +1,345 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page_title }} - ShopEase</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-muted: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #475569;
+      --accent: #be123c;
+      --accent-soft: #ffe4e6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #fff7ed 0%, var(--bg) 30%, #ffffff 100%);
+      color: var(--text);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner,
+    .content,
+    .footer-inner {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 0;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .brand img {
+      height: 52px;
+      width: auto;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .nav a,
+    .inline-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav a:hover,
+    .inline-links a:hover {
+      border-color: #fda4af;
+      background: #fff1f2;
+      color: var(--accent);
+    }
+
+    .hero {
+      padding: 48px 0 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.05;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
+      gap: 24px;
+      padding-bottom: 48px;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.07);
+    }
+
+    .policy-panel {
+      padding: 28px;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .meta-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .section {
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section:first-of-type {
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .section h2 {
+      margin: 0 0 12px;
+      font-size: 24px;
+    }
+
+    .section ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .section li + li {
+      margin-top: 10px;
+    }
+
+    .side-panel {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .info-card {
+      padding: 22px;
+    }
+
+    .info-card h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .info-card p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .contact-link {
+      display: block;
+      margin-top: 12px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      background: var(--surface-muted);
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .contact-link span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .inline-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .footer {
+      border-top: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 0 28px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .header-inner,
+      .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="{% url 'home' %}" class="brand">
+        <img src="{% static logo_image %}" alt="ShopEase logo">
+        <span>ShopEase</span>
+      </a>
+      <nav class="nav" aria-label="Secondary">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'contact_us' %}">Contact</a>
+        <a href="{% url 'cart' %}">Cart</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="hero">
+      <p class="eyebrow">Customer Information</p>
+      <h1>{{ page_title }}</h1>
+      <p>{{ page_summary }}</p>
+    </section>
+
+    <section class="layout">
+      <article class="panel policy-panel">
+        <div class="meta-row">
+          <div class="meta-pill">Updated {{ updated_on }}</div>
+          <div class="meta-pill">Public website page</div>
+        </div>
+
+        {% for section in sections %}
+        <section class="section">
+          <h2>{{ section.heading }}</h2>
+          <ul>
+            {% for point in section.points %}
+            <li>{{ point }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endfor %}
+      </article>
+
+      <aside class="side-panel">
+        <section class="panel info-card">
+          <h3>Need help?</h3>
+          <p>Customers can reach ShopEase for order support, payment questions, refund follow-up, and account help.</p>
+          <a href="tel:{{ phone_number }}" class="contact-link">
+            <span>Phone</span>
+            {{ phone_number }}
+          </a>
+          <a href="mailto:{{ email_address }}" class="contact-link">
+            <span>Email</span>
+            {{ email_address }}
+          </a>
+        </section>
+
+        <section class="panel info-card">
+          <h3>More pages</h3>
+          <div class="inline-links">
+            <a href="{% url 'privacy_policy' %}">Privacy</a>
+            <a href="{% url 'refund_policy' %}">Refunds</a>
+            <a href="{% url 'terms_and_conditions' %}">Terms</a>
+            <a href="{% url 'contact_us' %}">Contact</a>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>ShopEase customer policy center</div>
+      <div class="inline-links">
+        <a href="{% url 'privacy_policy' %}">Privacy Policy</a>
+        <a href="{% url 'refund_policy' %}">Refund Policy</a>
+        <a href="{% url 'terms_and_conditions' %}">Terms and Conditions</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

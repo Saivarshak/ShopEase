@@ -35,14 +35,29 @@ from .models import (
 
 
 def _asset_exists(normalized_path):
-    static_candidate = Path(settings.BASE_DIR) / 'static' / normalized_path
-    if static_candidate.exists():
-        return normalized_path
+    normalized = Path(normalized_path.replace('\\', '/').lstrip('/'))
+    candidate_paths = []
 
-    image_name = Path(normalized_path).name
-    static_images_candidate = Path(settings.BASE_DIR) / 'static' / 'images' / image_name
-    if static_images_candidate.exists():
-        return f'images/{image_name}'
+    if normalized.suffix.lower() != '.webp':
+        candidate_paths.append(normalized.with_suffix('.webp'))
+    candidate_paths.append(normalized)
+
+    image_name = normalized.name
+    fallback_image_path = Path('images') / image_name
+    if normalized.parent != Path('images'):
+        if fallback_image_path.suffix.lower() != '.webp':
+            candidate_paths.append(fallback_image_path.with_suffix('.webp'))
+        candidate_paths.append(fallback_image_path)
+
+    seen = set()
+    for candidate in candidate_paths:
+        candidate_key = candidate.as_posix()
+        if candidate_key in seen:
+            continue
+        seen.add(candidate_key)
+        static_candidate = Path(settings.BASE_DIR) / 'static' / candidate
+        if static_candidate.exists():
+            return candidate_key
     return None
 
 
@@ -57,7 +72,7 @@ def _get_site_asset(asset_key, fallback):
         resolved = _asset_exists(normalized)
         if resolved:
             return resolved
-    return fallback
+    return _asset_exists(fallback) or fallback
 
 
 def _get_page_asset(page_key, asset_key, fallback):
@@ -71,7 +86,7 @@ def _get_page_asset(page_key, asset_key, fallback):
         resolved = _asset_exists(normalized)
         if resolved:
             return resolved
-    return fallback
+    return _asset_exists(fallback) or fallback
 
 
 def _get_product_image_path(product, variant):
@@ -102,7 +117,7 @@ def _get_product_image_path(product, variant):
         resolved = _asset_exists(f'images/{image_name}')
         if resolved:
             return resolved
-    return fallback_image
+    return _asset_exists(fallback_image) or fallback_image
 
 
 def _get_razorpay_credentials():
@@ -394,7 +409,8 @@ def _get_category_image_path(category):
         if resolved:
             return resolved
 
-    return fallback_by_category.get(category.category_name.lower(), 'images/homebg.jpg')
+    fallback = fallback_by_category.get(category.category_name.lower(), 'images/homebg.jpg')
+    return _asset_exists(fallback) or fallback
 
 
 def _resolve_static_image_path(raw_path, fallback):
@@ -403,7 +419,7 @@ def _resolve_static_image_path(raw_path, fallback):
         resolved = _asset_exists(normalized)
         if resolved:
             return resolved
-    return fallback
+    return _asset_exists(fallback) or fallback
 
 
 def _load_category_cards(queryset, fallback_map, empty_fallback):
@@ -680,7 +696,7 @@ def _build_cart_summary(cart_data):
 
 def home(request):
     products = Product.objects.all()
-    categories = Category.objects.all()
+    categories = Category.objects.order_by('category_id')
     featured_products = []
     categories_context = []
     home_content = None
@@ -724,15 +740,12 @@ def home(request):
 
     logo_image = _get_site_asset('logo', 'images/logo1.png')
     background_image = _get_site_asset('home_background', 'images/homebg.jpg')
-    hero_banner_image = _get_site_asset('home_banner', 'images/banner.jpg')
-
     return render(request, 'store/home.html', {
         'products': products,
         'featured_products': featured_products,
         'categories_context': categories_context,
         'logo_image': logo_image,
         'background_image': background_image,
-        'hero_banner_image': hero_banner_image,
         'hero_subtitle': getattr(home_content, 'hero_subtitle', None) or 'For Modern Shoppers',
         'hero_title': getattr(home_content, 'hero_title', None) or 'Relax,',
         'hero_highlight': getattr(home_content, 'hero_highlight', None) or 'ShopEase',
@@ -825,11 +838,136 @@ def search_results(request):
 
 
 def contact_us(request):
-    return render(request, 'store/contact-us.html', {
+    return render(request, 'store/contact-us.html', _shop_contact_context())
+
+
+def _shop_contact_context():
+    return {
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
         'phone_number': '8247624897',
         'email_address': 'saivarshak14@gmail.com',
+    }
+
+
+def _policy_page_context(title, summary, sections):
+    context = _shop_contact_context()
+    context.update({
+        'page_title': title,
+        'page_summary': summary,
+        'updated_on': 'April 23, 2026',
+        'sections': sections,
     })
+    return context
+
+
+def privacy_policy(request):
+    return render(request, 'store/policy-page.html', _policy_page_context(
+        title='Privacy Policy',
+        summary='This page explains what customer information ShopEase collects and how it is used to process orders and support customers.',
+        sections=[
+            {
+                'heading': 'Information We Collect',
+                'points': [
+                    'We collect the details you submit during account registration, checkout, and customer support conversations.',
+                    'This can include your name, email address, phone number, delivery address, and order information.',
+                ],
+            },
+            {
+                'heading': 'How We Use Your Information',
+                'points': [
+                    'We use this information to process your orders, confirm payments, arrange delivery, and respond to support requests.',
+                    'We may also use your contact details for order updates, invoices, refund communication, and important service notifications.',
+                ],
+            },
+            {
+                'heading': 'Payments and Security',
+                'points': [
+                    'Online payments are handled through secure third-party payment providers such as Razorpay.',
+                    'ShopEase does not store your full card or UPI credentials on this website.',
+                ],
+            },
+            {
+                'heading': 'Sharing of Information',
+                'points': [
+                    'Customer information is shared only with service providers needed to complete payment, delivery, and support activities.',
+                    'We do not sell personal information to unrelated third parties.',
+                ],
+            },
+        ],
+    ))
+
+
+def refund_policy(request):
+    return render(request, 'store/policy-page.html', _policy_page_context(
+        title='Refund and Cancellation Policy',
+        summary='This page describes how ShopEase handles order cancellation, return review, and approved refunds.',
+        sections=[
+            {
+                'heading': 'Order Cancellation',
+                'points': [
+                    'Customers can request cancellation before the order is dispatched by contacting ShopEase support.',
+                    'Once an order has shipped, cancellation may no longer be available and the request may be handled as a return or refund review.',
+                ],
+            },
+            {
+                'heading': 'Return and Refund Review',
+                'points': [
+                    'If you receive a damaged, defective, or incorrect item, contact ShopEase with your order details and issue description.',
+                    'Eligible refund or replacement requests are reviewed after the support team verifies the order and reported issue.',
+                ],
+            },
+            {
+                'heading': 'Refund Processing',
+                'points': [
+                    'Approved refunds are sent back to the original payment method used during checkout.',
+                    'The final credit timeline depends on the payment provider and your bank after ShopEase completes the refund.',
+                ],
+            },
+            {
+                'heading': 'Support for Refund Requests',
+                'points': [
+                    'For any cancellation, refund, or return question, customers should contact ShopEase through the contact details listed on the website.',
+                ],
+            },
+        ],
+    ))
+
+
+def terms_and_conditions(request):
+    return render(request, 'store/policy-page.html', _policy_page_context(
+        title='Terms and Conditions',
+        summary='These terms govern the use of the ShopEase website, order placement, payments, and customer responsibilities.',
+        sections=[
+            {
+                'heading': 'Orders and Availability',
+                'points': [
+                    'All orders are subject to product availability, payment confirmation, and acceptance by ShopEase.',
+                    'If a product becomes unavailable after an order is placed, ShopEase may contact the customer to offer an update, replacement, or refund.',
+                ],
+            },
+            {
+                'heading': 'Pricing and Payments',
+                'points': [
+                    'Product prices displayed on the website are shown in the stated currency and may change without prior notice.',
+                    'Orders are processed only after successful payment authorization or confirmation through the selected payment method.',
+                ],
+            },
+            {
+                'heading': 'Customer Responsibilities',
+                'points': [
+                    'Customers must provide accurate billing, shipping, and contact details when placing an order.',
+                    'ShopEase may delay or cancel orders that appear fraudulent, incomplete, or inconsistent with payment verification requirements.',
+                ],
+            },
+            {
+                'heading': 'Website Use',
+                'points': [
+                    'Users agree not to misuse the website, interfere with store operations, or submit false information through forms or checkout.',
+                    'Continued use of the ShopEase website means acceptance of the latest published terms and policies.',
+                ],
+            },
+        ],
+    ))
 
 
 def category_view(request, category_name):
@@ -876,7 +1014,7 @@ def category_view(request, category_name):
             fallback_map,
             'images/women.png',
         )
-        context['page_background_image'] = _get_page_asset('category_women', 'background', 'images/bg.jpg')
+        context['page_background_image'] = _get_page_asset('category_women', 'background', 'images/womenbg.jpg')
     elif category.category_name.lower() == 'kids':
         fallback_map = {
             't-shirts': 'images/kids-tshirts.png',
@@ -890,7 +1028,7 @@ def category_view(request, category_name):
             fallback_map,
             'images/kids.png',
         )
-        context['page_background_image'] = _get_page_asset('category_kids', 'background', 'images/bg.jpg')
+        context['page_background_image'] = _get_page_asset('category_kids', 'background', 'images/banner.png')
 
     context['logo_image'] = _get_site_asset('logo', 'images/logo1.png')
 
@@ -1856,11 +1994,33 @@ def orders(request):
     })
 
 
-SHOP_ADMIN_EMAIL = 'saivarshak14@gmail.com'
+SHOP_ADMIN_EMAIL = (getattr(settings, 'SHOP_ADMIN_EMAIL', '') or 'saivarshak14@gmail.com').strip()
+
+
+def _is_allowed_admin_user(user):
+    if not user or not user.is_authenticated:
+        return False
+
+    configured_email = SHOP_ADMIN_EMAIL.lower()
+    user_email = (user.email or '').strip().lower()
+    return bool(user.is_staff or user.is_superuser or (configured_email and user_email == configured_email))
+
+
+def _find_admin_user(identifier):
+    normalized_identifier = (identifier or '').strip()
+    if not normalized_identifier:
+        return None
+
+    user = User.objects.filter(
+        Q(username__iexact=normalized_identifier) | Q(email__iexact=normalized_identifier)
+    ).first()
+    if user and _is_allowed_admin_user(user):
+        return user
+    return None
 
 
 def _is_shop_admin(user):
-    return user.is_authenticated and user.email.lower() == SHOP_ADMIN_EMAIL.lower()
+    return _is_allowed_admin_user(user)
 
 
 def _require_shop_admin(request):
@@ -1871,23 +2031,24 @@ def _require_shop_admin(request):
 
 def admin_access(request):
     next_url = request.GET.get('next') or request.POST.get('next') or reverse('admin_dashboard')
+    submitted_identifier = (request.POST.get('identifier') or request.POST.get('email') or '').strip()
 
     if _is_shop_admin(request.user):
         return redirect(next_url)
 
     if request.method == 'POST':
-        email = (request.POST.get('email') or '').strip().lower()
+        admin_identifier = submitted_identifier
         password = request.POST.get('password') or ''
-        user = User.objects.filter(email__iexact=email).first()
+        user = _find_admin_user(admin_identifier)
 
-        if email != SHOP_ADMIN_EMAIL.lower():
-            messages.error(request, 'Only the configured admin email can access this panel.')
-        elif user is None:
-            messages.error(request, 'Admin user not found in backend.')
+        if user is None:
+            messages.error(request, 'Use a staff, superuser, or configured admin account to access this panel.')
         else:
             authenticated_user = authenticate(request, username=user.username, password=password)
             if authenticated_user is None:
                 messages.error(request, 'Invalid admin password.')
+            elif not _is_shop_admin(authenticated_user):
+                messages.error(request, 'This account does not have admin panel access.')
             else:
                 login(request, authenticated_user)
                 return redirect(next_url)
@@ -1895,6 +2056,7 @@ def admin_access(request):
     return render(request, 'store/admin-login.html', {
         'next_url': next_url,
         'admin_email': SHOP_ADMIN_EMAIL,
+        'admin_identifier': submitted_identifier,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
     })
 
@@ -2018,42 +2180,19 @@ def admin_product_form(request, product_id=None):
         if not all([product_name, category, subcategory, sku]):
             messages.error(request, 'Product name, category, subcategory, and SKU are required.')
         else:
-            product_values = {
-                'product_name': product_name,
-                'brand': brand or None,
-                'category_id': category.category_id,
-                'subcategory_id': subcategory.subcategory_id,
-                'sku': sku,
-                'price': price,
-                'discount_percent': discount_percent,
-                'description': description or None,
-                'is_active': is_active,
-            }
-
             if product is None:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        """
-                        INSERT INTO products
-                        (product_name, brand, category_id, subcategory_id, sku, price, discount_percent, description, is_active)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        """,
-                        [
-                            product_values['product_name'],
-                            product_values['brand'],
-                            product_values['category_id'],
-                            product_values['subcategory_id'],
-                            product_values['sku'],
-                            product_values['price'],
-                            product_values['discount_percent'],
-                            product_values['description'],
-                            product_values['is_active'],
-                        ],
-                    )
-                    product = Product.objects.get(product_id=cursor.lastrowid)
-            else:
-                Product.objects.filter(product_id=product.product_id).update(**product_values)
-                product.refresh_from_db()
+                product = Product()
+
+            product.product_name = product_name
+            product.brand = brand or None
+            product.category = category
+            product.subcategory = subcategory
+            product.sku = sku
+            product.price = price
+            product.discount_percent = discount_percent
+            product.description = description or None
+            product.is_active = is_active
+            product.save()
 
             if variant is None:
                 variant = ProductVariant(product=product)

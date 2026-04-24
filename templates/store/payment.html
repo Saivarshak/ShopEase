@@ -224,6 +224,33 @@ body {
   font-size: 13px;
 }
 
+.trust-links {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.trust-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #d0d5dd;
+  border-radius: 999px;
+  background: #fff;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.trust-links a:hover {
+  border-color: #111827;
+  color: #111827;
+}
+
 @media (max-width: 900px) {
   .wrapper {
     grid-template-columns: 1fr;
@@ -359,6 +386,13 @@ body {
 
     <div class="badge" id="paymentInfoBadge">
       Pay with Razorpay opens the hosted Razorpay payment page. After payment success, this order will be confirmed and you will be redirected to the success page.
+    </div>
+
+    <div class="trust-links" aria-label="Store information">
+      <a href="{% url 'contact_us' %}">Contact</a>
+      <a href="{% url 'privacy_policy' %}">Privacy Policy</a>
+      <a href="{% url 'refund_policy' %}">Refund Policy</a>
+      <a href="{% url 'terms_and_conditions' %}">Terms and Conditions</a>
     </div>
   </div>
 </div>

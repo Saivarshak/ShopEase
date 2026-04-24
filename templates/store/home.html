@@ -51,7 +51,7 @@
 <body class="text-brandDark w-screen overflow-x-hidden" 
       style="background-image: url('{% static background_image %}');
              background-size: cover;
-             background-attachment: fixed;
+             background-attachment: scroll;
              background-position: center;
              background-repeat: no-repeat;">
       
@@ -121,8 +121,7 @@
 </header>
 
   <!-- Hero Section -->
-  <section class="py-20 px-6 md:px-20 text-center bg-cover bg-center mt-20"
-           style="background-image: url('{% static hero_banner_image %}');">
+  <section class="mt-20 bg-gradient-to-br from-amber-100 via-white to-rose-100 px-6 py-20 text-center md:px-20">
     <div class="bg-white/80 shadow-lg rounded-2xl max-w-3xl mx-auto p-10">
       <h2 class="text-xl text-brandMuted">{{ hero_subtitle }}</h2>
       <h1 class="text-4xl md:text-5xl font-bold mt-4">
@@ -145,7 +144,7 @@
       {% for category in categories_context %}
       <a href="{% url category.route_name %}" class="block">
         <div class="rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105">
-          <img src="{% static category.image_path %}" alt="{{ category.name }}" class="w-full h-64 object-cover" />
+          <img src="{% static category.image_path %}" alt="{{ category.name }}" class="w-full h-64 object-cover" loading="lazy" decoding="async" />
           <div class="bg-white p-5 text-center">
             <h4 class="text-2xl font-semibold text-brandDark">{{ category.name }}</h4>
             <p class="text-brandMuted mt-2">{{ category.description }}</p>
@@ -163,7 +162,7 @@
     {% for item in featured_products %}
       <a href="{% url 'catalog_product_detail' item.product.product_id %}" class="block">
         <div class="rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105 bg-white">
-          <img src="{% static item.image_path %}" alt="{{ item.product.product_name }}" class="w-full h-64 object-cover" />
+          <img src="{% static item.image_path %}" alt="{{ item.product.product_name }}" class="w-full h-64 object-cover" loading="lazy" decoding="async" />
           <div class="p-5 text-center">
             <h4 class="text-xl font-semibold text-brandDark">{{ item.product.product_name }}</h4>
             <p class="text-brandMuted mt-2">{{ item.product.brand }}</p>
@@ -181,8 +180,16 @@
 
   <!-- Footer -->
   <footer class="bg-beige py-6 border-t mt-12">
-    <div class="w-full px-10 text-center text-sm text-brandMuted">
-      &copy; 2025 <strong class="text-brandDark">{{ footer_brand_text }}</strong>. {{ footer_text }} | Built by <span class="text-brandCoral font-semibold">{{ footer_builder_text }}</span>
+    <div class="w-full px-10 text-center text-sm text-brandMuted space-y-4">
+      <div>
+        &copy; 2025 <strong class="text-brandDark">{{ footer_brand_text }}</strong>. {{ footer_text }} | Built by <span class="text-brandCoral font-semibold">{{ footer_builder_text }}</span>
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-3 text-sm">
+        <a href="{% url 'contact_us' %}" class="rounded-full border border-white/60 bg-white/70 px-4 py-2 font-medium text-brandDark transition hover:bg-white">Contact</a>
+        <a href="{% url 'privacy_policy' %}" class="rounded-full border border-white/60 bg-white/70 px-4 py-2 font-medium text-brandDark transition hover:bg-white">Privacy Policy</a>
+        <a href="{% url 'refund_policy' %}" class="rounded-full border border-white/60 bg-white/70 px-4 py-2 font-medium text-brandDark transition hover:bg-white">Refund Policy</a>
+        <a href="{% url 'terms_and_conditions' %}" class="rounded-full border border-white/60 bg-white/70 px-4 py-2 font-medium text-brandDark transition hover:bg-white">Terms and Conditions</a>
+      </div>
     </div>
   </footer>
 
