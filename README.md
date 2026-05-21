@@ -1,6 +1,7 @@
 # ShopEase
 
 This project is ready to deploy on Render for a stable production URL.
+GitHub Actions in this repository are for CI checks only; deployment should go through Render.
 
 ## Recommended hosting
 
@@ -42,5 +43,8 @@ CSRF_TRUSTED_ORIGINS=https://your-domain.com
 
 - Render free services are not recommended for production payments.
 - This app now supports `DATABASE_URL` for managed PostgreSQL hosting.
+- The sample environment now assumes PostgreSQL when you set explicit DB connection fields outside Render.
 - The health check endpoint is available at `/health/`.
 - The Dockerfile now respects a platform-provided `PORT`, which helps on hosts like Railway and Render Docker services.
+- If you run `python manage.py check --deploy` against the local development `.env`, Django will warn because the local file keeps `DEBUG=True` and uses a development secret key.
+- To run a production-style deployment check locally without changing your normal dev settings, use `powershell -ExecutionPolicy Bypass -File .\scripts\check-deploy.ps1`.

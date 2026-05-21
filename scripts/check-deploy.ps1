@@ -1,0 +1,14 @@
+$env:DJANGO_ENV = 'production'
+$env:DEBUG = 'false'
+$env:SECRET_KEY = 'local-deploy-check-secret-key-only-1234567890-abcdefghijklmnopqrstuvwxyz'
+$env:APP_BASE_URL = 'https://example.onrender.com'
+$env:PAYMENT_CALLBACK_BASE_URL = 'https://example.onrender.com'
+$env:SECURE_SSL_REDIRECT = 'true'
+$env:SESSION_COOKIE_SECURE = 'true'
+$env:CSRF_COOKIE_SECURE = 'true'
+$env:SECURE_CONTENT_TYPE_NOSNIFF = 'true'
+$env:SECURE_HSTS_SECONDS = '31536000'
+$env:SECURE_HSTS_INCLUDE_SUBDOMAINS = 'true'
+$env:SECURE_HSTS_PRELOAD = 'true'
+
+python manage.py check --deploy
