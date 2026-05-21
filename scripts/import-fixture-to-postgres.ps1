@@ -2,12 +2,12 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$PostgresPassword,
 
-    [string]$DatabaseName = "shopease_pg",
+    [string]$DatabaseName = "shopdb",
     [string]$SchemaName = "public",
     [string]$PostgresHost = "localhost",
     [int]$PostgresPort = 5432,
     [string]$PostgresUser = "postgres",
-    [string]$FixturePath = "data/public_demo_fixture.json",
+    [string]$FixturePath = "data/backup_fixture.json",
     [switch]$UseExistingDatabase
 )
 
