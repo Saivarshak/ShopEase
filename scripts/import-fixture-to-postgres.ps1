@@ -18,6 +18,8 @@ if (-not (Test-Path $FixturePath)) {
     throw "Fixture file not found: $FixturePath"
 }
 
+$sanitizedFixturePath = Join-Path $env:TEMP "shopease_postgres_fixture.json"
+
 $pgInstall = Get-ChildItem "C:\Program Files\PostgreSQL" -Directory |
     Sort-Object { [version]$_.Name } -Descending |
     Select-Object -First 1
@@ -81,7 +83,12 @@ if ($LASTEXITCODE -ne 0) {
     throw "Django migrations failed."
 }
 
-python manage.py loaddata $FixturePath
+python scripts/sanitize_fixture.py $FixturePath $sanitizedFixturePath
+if ($LASTEXITCODE -ne 0) {
+    throw "Sanitizing fixture data failed."
+}
+
+python manage.py loaddata $sanitizedFixturePath
 if ($LASTEXITCODE -ne 0) {
     throw "Loading fixture data failed."
 }
