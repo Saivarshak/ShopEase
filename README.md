@@ -43,7 +43,7 @@ CSRF_TRUSTED_ORIGINS=https://your-domain.com
 
 - Render free services are not recommended for production payments.
 - This app now supports `DATABASE_URL` for managed PostgreSQL hosting.
-- The sample environment now assumes PostgreSQL when you set explicit DB connection fields outside Render.
+- The local sample environment now assumes PostgreSQL with database name `EcommerceDb` when you set explicit DB connection fields outside Render.
 - The health check endpoint is available at `/health/`.
 - The Dockerfile now respects a platform-provided `PORT`, which helps on hosts like Railway and Render Docker services.
 - If you run `python manage.py check --deploy` against the local development `.env`, Django will warn because the local file keeps `DEBUG=True` and uses a development secret key.

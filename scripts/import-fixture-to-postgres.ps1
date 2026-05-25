@@ -2,7 +2,7 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$PostgresPassword,
 
-    [string]$DatabaseName = "shopdb",
+    [string]$DatabaseName = "EcommerceDb",
     [string]$SchemaName = "public",
     [string]$PostgresHost = "localhost",
     [int]$PostgresPort = 5432,
