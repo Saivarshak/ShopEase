@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, SubCategory, Product, ProductVariant
+from .models import Category, SubCategory, Product, ProductVariant, SiteAsset, PageAsset
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -23,6 +23,20 @@ class ProductVariantAdmin(admin.ModelAdmin):
     list_display = ('variant_id', 'product', 'size', 'color', 'quantity')
     list_filter = ('product', 'size', 'color')
     search_fields = ('product__product_name',)
+
+
+@admin.register(SiteAsset)
+class SiteAssetAdmin(admin.ModelAdmin):
+    list_display = ('asset_key', 'image_path', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('asset_key', 'image_path')
+
+
+@admin.register(PageAsset)
+class PageAssetAdmin(admin.ModelAdmin):
+    list_display = ('page_key', 'asset_key', 'image_path', 'is_active')
+    list_filter = ('page_key', 'asset_key', 'is_active')
+    search_fields = ('page_key', 'asset_key', 'image_path')
     
     
     

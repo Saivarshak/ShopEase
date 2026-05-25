@@ -89,6 +89,108 @@ def _get_page_asset(page_key, asset_key, fallback):
     return _asset_exists(fallback) or fallback
 
 
+BACKGROUND_ASSET_CHOICES = [
+    {
+        'scope': 'site',
+        'page_key': '',
+        'asset_key': 'home_background',
+        'label': 'Home Page Background',
+        'fallback': 'images/homebg.jpg',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'category_men',
+        'asset_key': 'background',
+        'label': "Men's Category Background",
+        'fallback': 'images/bg.jpg',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'category_women',
+        'asset_key': 'background',
+        'label': "Women's Category Background",
+        'fallback': 'images/womenbg.jpg',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'category_kids',
+        'asset_key': 'background',
+        'label': 'Kids Category Background',
+        'fallback': 'images/kidsbg.jpg',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'mens_tshirts',
+        'asset_key': 'background',
+        'label': "Men's T-Shirts Background",
+        'fallback': 'images/menstshirts.jpg',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'mens_shirts',
+        'asset_key': 'background',
+        'label': "Men's Shirts Background",
+        'fallback': 'images/shirt.jpg',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'mens_jeans',
+        'asset_key': 'background',
+        'label': "Men's Jeans Background",
+        'fallback': 'images/jeansbg.jpg',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'womens_ethnicware',
+        'asset_key': 'background',
+        'label': "Women's Ethnic Wear Background",
+        'fallback': 'images/ethicwearebg.jpeg',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'womens_westernware',
+        'asset_key': 'background',
+        'label': "Women's Western Wear Background",
+        'fallback': 'images/westernware.jpg',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'womens_footwear',
+        'asset_key': 'background',
+        'label': "Women's Footwear Background",
+        'fallback': 'images/women-footwear1.png',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'kids_tshirts',
+        'asset_key': 'background',
+        'label': "Kids T-Shirts Background",
+        'fallback': 'images/kidstshirtsbg.jpeg',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'kids_dresses',
+        'asset_key': 'background',
+        'label': 'Kids Dresses Background',
+        'fallback': 'images/kids-dresses.png',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'kids_toys',
+        'asset_key': 'background',
+        'label': 'Kids Toys Background',
+        'fallback': 'images/kids-toys.png',
+    },
+    {
+        'scope': 'page',
+        'page_key': 'kids_footwear',
+        'asset_key': 'background',
+        'label': 'Kids Footwear Background',
+        'fallback': 'images/kids-footwear.png',
+    },
+]
+
+
 def _get_product_image_path(product, variant):
     category_name = (getattr(product.category, 'category_name', '') or '').lower()
     subcategory_name = (getattr(product.subcategory, 'subcategory_name', '') or '').lower()
@@ -1028,7 +1130,7 @@ def category_view(request, category_name):
             fallback_map,
             'images/kids.png',
         )
-        context['page_background_image'] = _get_page_asset('category_kids', 'background', 'images/banner.png')
+        context['page_background_image'] = _get_page_asset('category_kids', 'background', 'images/kidsbg.jpg')
 
     context['logo_image'] = _get_site_asset('logo', 'images/logo1.png')
 
@@ -2140,6 +2242,69 @@ def _save_uploaded_product_image(uploaded_file, product_name, slot_name):
     return filename
 
 
+def _save_uploaded_asset_image(uploaded_file, asset_name):
+    if not uploaded_file:
+        return None
+
+    extension = Path(uploaded_file.name).suffix or '.jpg'
+    safe_name = slugify(asset_name) or 'background'
+    filename = f"{safe_name}{extension.lower()}"
+    target_dir = Path(settings.BASE_DIR) / 'static' / 'images'
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target_path = target_dir / filename
+
+    counter = 1
+    while target_path.exists():
+        filename = f"{safe_name}_{counter}{extension.lower()}"
+        target_path = target_dir / filename
+        counter += 1
+
+    with target_path.open('wb+') as destination:
+        for chunk in uploaded_file.chunks():
+            destination.write(chunk)
+
+    return f'images/{filename}'
+
+
+def _normalize_admin_asset_path(raw_path):
+    normalized = (raw_path or '').strip().replace('\\', '/').lstrip('/')
+    if not normalized:
+        return ''
+    if normalized.startswith('static/'):
+        normalized = normalized[len('static/'):]
+    if '/' not in normalized:
+        normalized = f'images/{normalized}'
+    return normalized
+
+
+def _get_background_asset_record(choice):
+    if choice['scope'] == 'site':
+        return SiteAsset.objects.filter(asset_key=choice['asset_key']).first()
+    return PageAsset.objects.filter(
+        page_key=choice['page_key'],
+        asset_key=choice['asset_key'],
+    ).first()
+
+
+def _save_background_asset_record(choice, image_path, is_active):
+    if choice['scope'] == 'site':
+        asset = SiteAsset.objects.filter(asset_key=choice['asset_key']).first()
+        if asset is None:
+            asset = SiteAsset(asset_key=choice['asset_key'])
+    else:
+        asset = PageAsset.objects.filter(
+            page_key=choice['page_key'],
+            asset_key=choice['asset_key'],
+        ).first()
+        if asset is None:
+            asset = PageAsset(page_key=choice['page_key'], asset_key=choice['asset_key'])
+
+    asset.image_path = image_path
+    asset.is_active = is_active
+    asset.save()
+    return asset
+
+
 def admin_product_form(request, product_id=None):
     access_redirect = _require_shop_admin(request)
     if access_redirect:
@@ -2258,6 +2423,70 @@ def admin_product_delete(request, product_id):
         product.delete()
         messages.success(request, 'Product deleted successfully.')
     return redirect('admin_dashboard')
+
+
+def admin_backgrounds(request):
+    access_redirect = _require_shop_admin(request)
+    if access_redirect:
+        return access_redirect
+
+    if request.method == 'POST':
+        choice_id = request.POST.get('choice_id')
+        selected_choice = None
+        for choice in BACKGROUND_ASSET_CHOICES:
+            current_id = f"{choice['scope']}:{choice['page_key']}:{choice['asset_key']}"
+            if current_id == choice_id:
+                selected_choice = choice
+                break
+
+        if selected_choice is None:
+            messages.error(request, 'Choose a valid background section to update.')
+            return redirect('admin_backgrounds')
+
+        uploaded_path = _save_uploaded_asset_image(
+            request.FILES.get('background_upload'),
+            f"{selected_choice['page_key'] or 'site'}-{selected_choice['asset_key']}",
+        )
+        typed_path = _normalize_admin_asset_path(request.POST.get('image_path'))
+        final_path = uploaded_path or typed_path or selected_choice['fallback']
+
+        if not _asset_exists(final_path):
+            messages.error(request, 'That image was not found in the static images folder.')
+            return redirect('admin_backgrounds')
+
+        _save_background_asset_record(
+            selected_choice,
+            final_path,
+            request.POST.get('is_active') == 'on',
+        )
+        messages.success(request, f"{selected_choice['label']} updated successfully.")
+        return redirect('admin_backgrounds')
+
+    background_rows = []
+    for choice in BACKGROUND_ASSET_CHOICES:
+        try:
+            asset = _get_background_asset_record(choice)
+        except (ProgrammingError, OperationalError):
+            asset = None
+
+        saved_path = getattr(asset, 'image_path', '') or ''
+        if choice['scope'] == 'site':
+            current_path = _get_site_asset(choice['asset_key'], choice['fallback'])
+        else:
+            current_path = _get_page_asset(choice['page_key'], choice['asset_key'], choice['fallback'])
+
+        background_rows.append({
+            **choice,
+            'choice_id': f"{choice['scope']}:{choice['page_key']}:{choice['asset_key']}",
+            'saved_path': saved_path,
+            'current_path': current_path,
+            'is_active': getattr(asset, 'is_active', True),
+        })
+
+    return render(request, 'store/admin-backgrounds.html', {
+        'backgrounds': background_rows,
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+    })
 
 
 def mens_shirts(request):

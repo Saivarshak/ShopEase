@@ -14,6 +14,8 @@
     .btn { display: inline-block; text-decoration: none; border: none; border-radius: 999px; padding: 12px 18px; font-weight: 700; cursor: pointer; }
     .btn-primary { background: #2563eb; color: white; }
     .btn-secondary { background: #e5e7eb; color: #111827; }
+    .btn-dark { background: #111827; color: white; }
+    .admin-section { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 14px 40px rgba(17, 24, 39, 0.08); margin-bottom: 22px; display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; }
     .table-card { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 14px 40px rgba(17, 24, 39, 0.08); overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 14px 12px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: middle; }
@@ -48,6 +50,14 @@
         <p style="margin:6px 0 0;color:#667085;">Add, edit, and remove products for men, women, and kids.</p>
       </div>
       <a href="{% url 'admin_product_add' %}" class="btn btn-primary">Add Product</a>
+    </div>
+
+    <div class="admin-section">
+      <div>
+        <h2 style="margin:0;font-size:22px;">Manage Backgrounds</h2>
+        <p style="margin:6px 0 0;color:#667085;">Update home, category, and product-listing background images.</p>
+      </div>
+      <a href="{% url 'admin_backgrounds' %}" class="btn btn-dark">Open Backgrounds</a>
     </div>
 
     <div class="table-card">
