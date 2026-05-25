@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -150,24 +151,50 @@ WSGI_APPLICATION = 'shopease.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': (
-        dj_database_url.parse(
-            os.getenv('DATABASE_URL', '').strip(),
+def _build_database_config():
+    database_url = (os.getenv('DATABASE_URL') or '').strip()
+    if database_url:
+        return dj_database_url.parse(
+            database_url,
             conn_max_age=int(os.getenv('DB_CONN_MAX_AGE', '600')),
             conn_health_checks=True,
             ssl_require=_get_env_bool('DATABASE_SSL_REQUIRE', False),
         )
-        if os.getenv('DATABASE_URL', '').strip()
-        else {
-            'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-            'NAME': os.getenv('DB_NAME', 'EcommerceDb'),
-            'USER': os.getenv('DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('DB_PASSWORD', ''),
-            'HOST': os.getenv('DB_HOST', 'localhost'),
-            'PORT': os.getenv('DB_PORT', '5432'),
-        }
-    )
+
+    database_config = {
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.getenv('DB_NAME', 'EcommerceDb'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+    }
+
+    if IS_PRODUCTION:
+        engine = (database_config.get('ENGINE') or '').strip()
+        if engine == 'django.db.backends.sqlite3':
+            raise ImproperlyConfigured(
+                'Production deployment is still configured to use SQLite. '
+                'Set DATABASE_URL or PostgreSQL DB_* environment variables in Render.'
+            )
+
+        using_default_local_postgres = all([
+            (database_config.get('NAME') or '').strip() == 'EcommerceDb',
+            (database_config.get('USER') or '').strip() == 'postgres',
+            (database_config.get('HOST') or '').strip() in {'', 'localhost', '127.0.0.1'},
+            (database_config.get('PORT') or '').strip() == '5432',
+        ])
+        if using_default_local_postgres:
+            raise ImproperlyConfigured(
+                'Production deployment is missing DATABASE_URL or explicit PostgreSQL DB_* settings. '
+                'Attach a Render PostgreSQL database or configure the hosted PostgreSQL connection first.'
+            )
+
+    return database_config
+
+
+DATABASES = {
+    'default': _build_database_config()
 }
 
 # Password validation
