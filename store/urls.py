@@ -9,6 +9,8 @@ router = routers.DefaultRouter()
 router.register('products', views.ProductViewSet)
 
 urlpatterns = [
+    path('assets/<path:asset_path>', views.store_asset, name='store_asset'),
+
     # DRF API
     path('api/', include(router.urls)),     
 

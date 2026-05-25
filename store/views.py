@@ -12,7 +12,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.db import connection, transaction
 from django.db.utils import OperationalError, ProgrammingError
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import FileResponse, Http404, JsonResponse
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.text import slugify
@@ -87,6 +87,21 @@ def _get_page_asset(page_key, asset_key, fallback):
         if resolved:
             return resolved
     return _asset_exists(fallback) or fallback
+
+
+def _asset_public_url(asset_path):
+    normalized = (asset_path or '').replace('\\', '/').lstrip('/')
+    if not normalized:
+        return ''
+    return reverse('store_asset', kwargs={'asset_path': normalized})
+
+
+def _get_site_asset_url(asset_key, fallback):
+    return _asset_public_url(_get_site_asset(asset_key, fallback))
+
+
+def _get_page_asset_url(page_key, asset_key, fallback):
+    return _asset_public_url(_get_page_asset(page_key, asset_key, fallback))
 
 
 BACKGROUND_ASSET_CHOICES = [
@@ -572,6 +587,20 @@ def _build_product_cards(products):
     return image_cards
 
 
+def store_asset(request, asset_path):
+    normalized = Path((asset_path or '').replace('\\', '/').lstrip('/'))
+
+    if normalized.is_absolute() or '..' in normalized.parts or normalized.parts[:1] != ('images',):
+        raise Http404('Asset not found.')
+
+    resolved = _asset_exists(normalized.as_posix())
+    if not resolved:
+        raise Http404('Asset not found.')
+
+    file_path = Path(settings.BASE_DIR) / 'static' / resolved
+    return FileResponse(file_path.open('rb'))
+
+
 def _get_session_cart(request):
     session_cart = request.session.get('cart', {})
     normalized_cart = {}
@@ -848,6 +877,7 @@ def home(request):
         'categories_context': categories_context,
         'logo_image': logo_image,
         'background_image': background_image,
+        'background_url': _asset_public_url(background_image),
         'hero_subtitle': getattr(home_content, 'hero_subtitle', None) or 'For Modern Shoppers',
         'hero_title': getattr(home_content, 'hero_title', None) or 'Relax,',
         'hero_highlight': getattr(home_content, 'hero_highlight', None) or 'ShopEase',
@@ -1103,6 +1133,7 @@ def category_view(request, category_name):
             'images/T-shirt.jpg',
         )
         context['page_background_image'] = _get_page_asset('category_men', 'background', 'images/bg.jpg')
+        context['page_background_url'] = _asset_public_url(context['page_background_image'])
     elif category.category_name.lower() == 'womens':
         fallback_map = {
             'ethnic wear': 'images/women-ethnic.png',
@@ -1117,6 +1148,7 @@ def category_view(request, category_name):
             'images/women.png',
         )
         context['page_background_image'] = _get_page_asset('category_women', 'background', 'images/womenbg.jpg')
+        context['page_background_url'] = _asset_public_url(context['page_background_image'])
     elif category.category_name.lower() == 'kids':
         fallback_map = {
             't-shirts': 'images/kids-tshirts.png',
@@ -1131,6 +1163,7 @@ def category_view(request, category_name):
             'images/kids.png',
         )
         context['page_background_image'] = _get_page_asset('category_kids', 'background', 'images/kidsbg.jpg')
+        context['page_background_url'] = _asset_public_url(context['page_background_image'])
 
     context['logo_image'] = _get_site_asset('logo', 'images/logo1.png')
 
@@ -1194,10 +1227,12 @@ def mens_tshirts(request):
             'card_name': product.product_name,
         })
 
+    page_background_image = _get_page_asset('mens_tshirts', 'background', 'images/menstshirts.jpg')
     return render(request, 'store/mens-tshirts.html', {
         'image_cards': image_cards,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'page_background_image': _get_page_asset('mens_tshirts', 'background', 'images/menstshirts.jpg'),
+        'page_background_image': page_background_image,
+        'page_background_url': _asset_public_url(page_background_image),
     })
 
 
@@ -1252,10 +1287,12 @@ def mens_jeans(request):
             'card_name': product.product_name,
         })
 
+    page_background_image = _get_page_asset('mens_jeans', 'background', 'images/jeansbg.jpg')
     return render(request, 'store/mens-Jeans.html', {
         'image_cards': image_cards,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'page_background_image': _get_page_asset('mens_jeans', 'background', 'images/jeansbg.jpg'),
+        'page_background_image': page_background_image,
+        'page_background_url': _asset_public_url(page_background_image),
     })
 
 
@@ -1308,12 +1345,14 @@ def womens_ethnicware(request):
         subcategory__subcategory_name__iexact='ethnic wear',
         is_active=True,
     ).select_related('category', 'subcategory')
+    page_background_image = _get_page_asset('womens_ethnicware', 'background', 'images/ethicwearebg.jpeg')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Stylish Ethnic Wear for Women',
         'search_placeholder_text': 'Search ethnic wear...',
         'image_cards': _build_product_cards(products),
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'page_background_image': _get_page_asset('womens_ethnicware', 'background', 'images/ethicwearebg.jpeg'),
+        'page_background_image': page_background_image,
+        'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
     })
 
@@ -1324,12 +1363,14 @@ def womens_westernware(request):
         subcategory__subcategory_name__iexact='western wear',
         is_active=True,
     ).select_related('category', 'subcategory')
+    page_background_image = _get_page_asset('womens_westernware', 'background', 'images/westernware.jpg')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Stylish Western Wear for Women',
         'search_placeholder_text': 'Search western wear...',
         'image_cards': _build_product_cards(products),
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'page_background_image': _get_page_asset('womens_westernware', 'background', 'images/westernware.jpg'),
+        'page_background_image': page_background_image,
+        'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
     })
 
@@ -1340,12 +1381,14 @@ def womens_footwear(request):
         subcategory__subcategory_name__iexact='footwear',
         is_active=True,
     ).select_related('category', 'subcategory')
+    page_background_image = _get_page_asset('womens_footwear', 'background', 'images/women-footwear1.png')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': "Women's Footwear",
         'search_placeholder_text': 'Search footwear...',
         'image_cards': _build_product_cards(products),
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'page_background_image': _get_page_asset('womens_footwear', 'background', 'images/women-footwear1.png'),
+        'page_background_image': page_background_image,
+        'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
     })
 
@@ -1359,12 +1402,14 @@ def kids_tshirts(request):
         Q(subcategory__subcategory_name__icontains='t-shirts') |
         Q(subcategory__subcategory_name__icontains='t shirts')
     ).select_related('category', 'subcategory')
+    page_background_image = _get_page_asset('kids_tshirts', 'background', 'images/kidstshirtsbg.jpeg')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'T-Shirts for Kids',
         'search_placeholder_text': 'Search kids t-shirts...',
         'image_cards': _build_product_cards(products),
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'page_background_image': _get_page_asset('kids_tshirts', 'background', 'images/kidstshirtsbg.jpeg'),
+        'page_background_image': page_background_image,
+        'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
     })
 
@@ -1377,12 +1422,14 @@ def kids_dresses(request):
         Q(subcategory__subcategory_name__icontains='kids dresses') |
         Q(subcategory__subcategory_name__icontains='dresses')
     ).select_related('category', 'subcategory')
+    page_background_image = _get_page_asset('kids_dresses', 'background', 'images/kids-dresses.png')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Kids Dresses',
         'search_placeholder_text': 'Search kids dresses...',
         'image_cards': _build_product_cards(products),
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'page_background_image': _get_page_asset('kids_dresses', 'background', 'images/kids-dresses.png'),
+        'page_background_image': page_background_image,
+        'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
     })
 
@@ -1393,12 +1440,14 @@ def kids_toys(request):
         subcategory__subcategory_name__iexact='toys',
         is_active=True,
     ).select_related('category', 'subcategory')
+    page_background_image = _get_page_asset('kids_toys', 'background', 'images/kids-toys.png')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Kids Toys',
         'search_placeholder_text': 'Search kids toys...',
         'image_cards': _build_product_cards(products),
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'page_background_image': _get_page_asset('kids_toys', 'background', 'images/kids-toys.png'),
+        'page_background_image': page_background_image,
+        'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
     })
 
@@ -1409,12 +1458,14 @@ def kids_footwear(request):
         subcategory__subcategory_name__iexact='footwear',
         is_active=True,
     ).select_related('category', 'subcategory')
+    page_background_image = _get_page_asset('kids_footwear', 'background', 'images/kids-footwear.png')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Kids Footwear',
         'search_placeholder_text': 'Search kids footwear...',
         'image_cards': _build_product_cards(products),
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'page_background_image': _get_page_asset('kids_footwear', 'background', 'images/kids-footwear.png'),
+        'page_background_image': page_background_image,
+        'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
     })
 
@@ -2480,6 +2531,7 @@ def admin_backgrounds(request):
             'choice_id': f"{choice['scope']}:{choice['page_key']}:{choice['asset_key']}",
             'saved_path': saved_path,
             'current_path': current_path,
+            'current_url': _asset_public_url(current_path),
             'is_active': getattr(asset, 'is_active', True),
         })
 
@@ -2523,10 +2575,12 @@ def mens_shirts(request):
             'card_name': product.product_name,
         })
 
+    page_background_image = _get_page_asset('mens_shirts', 'background', 'images/shirt.jpg')
     return render(request, 'store/mens-shirts.html', {
         'image_cards': image_cards,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'page_background_image': _get_page_asset('mens_shirts', 'background', 'images/shirt.jpg'),
+        'page_background_image': page_background_image,
+        'page_background_url': _asset_public_url(page_background_image),
     })
 
 # Optional: Django REST Framework API
