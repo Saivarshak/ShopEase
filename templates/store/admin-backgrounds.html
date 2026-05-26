@@ -6,20 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manage Backgrounds</title>
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; background: #f3f6fb; color: #111827; }
-    .header { background: #111827; color: white; padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f3f6fb; color: #2563eb; }
+    .header { background: #2563eb; color: white; padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; }
     .header a { color: white; text-decoration: none; }
     .wrap { max-width: 1180px; margin: 32px auto; padding: 0 20px; }
     .topbar { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
     .btn { display: inline-block; text-decoration: none; border: none; border-radius: 999px; padding: 12px 18px; font-weight: 700; cursor: pointer; }
     .btn-primary { background: #2563eb; color: white; }
-    .btn-secondary { background: #e5e7eb; color: #111827; }
+    .btn-secondary { background: #e5e7eb; color: #2563eb; }
     .message { margin-bottom: 16px; padding: 14px; border-radius: 12px; background: #ecfdf3; color: #027a48; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
-    .asset-card { background: white; border-radius: 18px; padding: 18px; box-shadow: 0 14px 40px rgba(17, 24, 39, 0.08); }
+    .asset-card { background: white; border-radius: 18px; padding: 18px; box-shadow: 0 14px 40px rgba(37, 99, 235, 0.08); }
     .preview { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; background: #e5e7eb; display: block; }
     .asset-title { margin: 14px 0 4px; font-size: 18px; }
-    .meta { color: #667085; font-size: 13px; margin: 0 0 14px; word-break: break-all; }
+    .meta { color: #2563eb; font-size: 13px; margin: 0 0 14px; word-break: break-all; }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
     label { font-weight: 700; font-size: 14px; }
     input[type="text"], input[type="file"] { border: 1px solid #d0d5dd; border-radius: 12px; padding: 11px 13px; font-size: 14px; background: white; }
@@ -49,7 +49,7 @@
     <div class="topbar">
       <div>
         <h1 style="margin:0;">Background Images</h1>
-        <p style="margin:6px 0 0;color:#667085;">Change storefront page backgrounds from one admin section.</p>
+        <p style="margin:6px 0 0;color:#2563eb;">Change storefront page backgrounds from one admin section.</p>
       </div>
       <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Products</a>
     </div>

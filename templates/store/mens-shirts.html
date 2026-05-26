@@ -25,17 +25,6 @@
       position: relative;
       padding: 20px;
     }
-    /* Transparent overlay only on background */
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background-color: rgba(0, 0, 0, 0.38);
-      z-index: 0;
-    }
-
-    /* Ensure heading, search bar and cards are above overlay */
-
     header {
       text-align: center;
       margin-bottom: 30px;
@@ -81,7 +70,7 @@
     .card {
       background: white;
       border-radius: 25px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 5px 15px rgba(37, 99, 235, 0.1);
       overflow: hidden;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       display: flex;
@@ -90,7 +79,7 @@
 
     .card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
     }
 
     .card img {
@@ -132,10 +121,6 @@
     .logo{
       height: 100px;
       width: 100px;
-    }
-    header, .search-bar, .container, .logo{
-      position: relative;
-      z-index: 1;
     }
   </style>
 </head>
