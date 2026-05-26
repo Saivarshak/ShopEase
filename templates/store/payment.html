@@ -10,11 +10,11 @@ body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
   background: #f7f7f7;
-  color: #2563eb;
+  color: #000000;
 }
 
 .header {
-  background: #2563eb;
+  background: #000000;
   color: white;
   padding: 16px 28px;
   display: flex;
@@ -38,9 +38,9 @@ body {
 
 .panel {
   background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 22px;
-  box-shadow: 0 18px 48px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.08);
 }
 
 .form-panel {
@@ -59,7 +59,7 @@ body {
 
 .subtitle {
   margin: 0 0 24px;
-  color: #2563eb;
+  color: #000000;
 }
 
 .section-title {
@@ -101,8 +101,8 @@ body {
 
 .field input:focus,
 .field select:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+  border-color: #000000;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08);
 }
 
 .cta {
@@ -111,7 +111,7 @@ body {
   width: 100%;
   padding: 15px 18px;
   border-radius: 999px;
-  background: #2563eb;
+  background: #000000;
   color: white;
   font-size: 16px;
   font-weight: 700;
@@ -119,7 +119,7 @@ body {
 }
 
 .cta:hover {
-  background: #2563eb;
+  background: #000000;
 }
 
 .cta:disabled {
@@ -153,7 +153,7 @@ body {
 }
 
 .muted {
-  color: #2563eb;
+  color: #000000;
   font-size: 14px;
 }
 
@@ -179,29 +179,29 @@ body {
   padding: 14px;
   border-radius: 16px;
   background: #f2f4f7;
-  color: #2563eb;
+  color: #000000;
   font-size: 14px;
 }
 
 .badge.is-success {
   background: #ecfdf3;
-  color: #027a48;
+  color: #000000;
 }
 
 .badge.is-warning {
   background: #fff7ed;
-  color: #b54708;
+  color: #000000;
 }
 
 .badge.is-error {
   background: #fef3f2;
-  color: #b42318;
+  color: #000000;
 }
 
 .payment-widget {
   margin-top: 24px;
   padding: 20px;
-  border: 1px solid rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 18px;
   background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
   position: relative;
@@ -214,13 +214,13 @@ body {
 
 .payment-widget p {
   margin: 0 0 14px;
-  color: #2563eb;
+  color: #000000;
   font-size: 14px;
 }
 
 .helper-text {
   margin-top: 12px;
-  color: #2563eb;
+  color: #000000;
   font-size: 13px;
 }
 
@@ -240,15 +240,15 @@ body {
   border: 1px solid #d0d5dd;
   border-radius: 999px;
   background: #fff;
-  color: #2563eb;
+  color: #000000;
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
 }
 
 .trust-links a:hover {
-  border-color: #2563eb;
-  color: #2563eb;
+  border-color: #000000;
+  color: #000000;
 }
 
 @media (max-width: 900px) {
@@ -279,15 +279,15 @@ body {
     <p class="subtitle">Complete your billing details, then continue with the Razorpay payment option below.</p>
     {% if messages %}
       {% for message in messages %}
-        <div class="badge" style="background:#fff7ed;color:#b54708;">{{ message }}</div>
+        <div class="badge" style="background:#fff7ed;color:#000000;">{{ message }}</div>
       {% endfor %}
     {% endif %}
     {% if razorpay_configuration_error %}
-      <div class="badge" style="background:#fef3f2;color:#b42318;">
+      <div class="badge" style="background:#fef3f2;color:#000000;">
         Razorpay mode: {{ razorpay_mode|upper }}. {{ razorpay_configuration_error }}
       </div>
     {% else %}
-      <div class="badge" style="background:#ecfdf3;color:#027a48;">
+      <div class="badge" style="background:#ecfdf3;color:#000000;">
         Razorpay mode: {{ razorpay_mode|upper }}.
         {% if razorpay_mode == 'live' %}
           Real payments are enabled and the button will open Razorpay secure checkout.

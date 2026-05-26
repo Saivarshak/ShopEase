@@ -22,10 +22,10 @@
       display: flex;
       width: 50%;
       max-width: 1200px;
-      background: lightblue;
+      background: #f3f4f6;
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       backdrop-filter: blur(15px);
       -webkit-backdrop-filter: blur(15px);
       margin-left: 100px;
@@ -42,9 +42,9 @@
       justify-content: center;
       background: rgba(255, 255, 255, 0.92);
     }
-    .form-section h2 { margin-bottom: 20px; font-size: 32px; color: #1d4ed8; }
+    .form-section h2 { margin-bottom: 20px; font-size: 32px; color: #000000; }
     .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; font-size: 14px; color: #2563eb; }
+    .form-group label { display: block; font-size: 14px; color: #000000; }
     .form-group input {
       width: 100%;
       padding: 10px 15px;
@@ -54,7 +54,7 @@
       font-size: 16px;
     }
     .btn-login {
-      background-color: #007bff;
+      background-color: #000000;
       color: white;
       padding: 12px;
       width: 100%;
@@ -64,13 +64,13 @@
       cursor: pointer;
       margin-top: 10px;
     }
-    .btn-login:hover { background-color: #0056b3; }
+    .btn-login:hover { background-color: #8b5cf6; }
     .message {
       margin-bottom: 16px;
       padding: 12px 14px;
       border-radius: 10px;
       background: #fee4e2;
-      color: #b42318;
+      color: #000000;
       font-size: 14px;
     }
     .logo {
@@ -116,7 +116,7 @@
       </div>
       <button type="submit" class="btn-login">Login</button>
       <p style="margin-top:16px;text-align:center;">
-        New user? <a href="{% url 'register' %}?next={{ next_url }}" style="color:#007bff;text-decoration:none;">Create account</a>
+        New user? <a href="{% url 'register' %}?next={{ next_url }}" style="color:#000000;text-decoration:none;">Create account</a>
       </p>
     </form>
   </div>

@@ -6,26 +6,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; background: #f3f6fb; color: #2563eb; }
-    .header { background: #2563eb; color: white; padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f3f6fb; color: #000000; }
+    .header { background: #000000; color: white; padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; }
     .header a { color: white; text-decoration: none; }
     .wrap { max-width: 1200px; margin: 32px auto; padding: 0 20px; }
     .topbar { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
     .btn { display: inline-block; text-decoration: none; border: none; border-radius: 999px; padding: 12px 18px; font-weight: 700; cursor: pointer; }
-    .btn-primary { background: #2563eb; color: white; }
-    .btn-secondary { background: #e5e7eb; color: #2563eb; }
-    .btn-dark { background: #2563eb; color: white; }
-    .admin-section { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 14px 40px rgba(37, 99, 235, 0.08); margin-bottom: 22px; display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; }
-    .table-card { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 14px 40px rgba(37, 99, 235, 0.08); overflow-x: auto; }
+    .btn-primary { background: #000000; color: white; }
+    .btn-secondary { background: #000000; color: white; }
+    .btn-dark { background: #000000; color: white; }
+    .btn:hover { background: #8b5cf6; color: white; }
+    .admin-section { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08); margin-bottom: 22px; display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .table-card { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08); overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 14px 12px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: middle; }
     th { color: #475467; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
     img.product { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; background: #f3f4f6; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn-edit { background: #dbeafe; color: #1d4ed8; }
-    .btn-delete { background: #fee2e2; color: #b91c1c; }
-    .empty { text-align: center; padding: 32px; color: #2563eb; }
-    .message { margin-bottom: 16px; padding: 14px; border-radius: 12px; background: #ecfdf3; color: #027a48; }
+    .btn-edit { background: #000000; color: white; }
+    .btn-delete { background: #000000; color: white; }
+    .btn-edit:hover { background: #14b8a6; }
+    .btn-delete:hover { background: #ec4899; }
+    .empty { text-align: center; padding: 32px; color: #000000; }
+    .message { margin-bottom: 16px; padding: 14px; border-radius: 12px; background: #ecfdf3; color: #000000; }
   </style>
 </head>
 <body>
@@ -47,7 +50,7 @@
     <div class="topbar">
       <div>
         <h1 style="margin:0;">Manage Products</h1>
-        <p style="margin:6px 0 0;color:#2563eb;">Add, edit, and remove products for men, women, and kids.</p>
+        <p style="margin:6px 0 0;color:#000000;">Add, edit, and remove products for men, women, and kids.</p>
       </div>
       <a href="{% url 'admin_product_add' %}" class="btn btn-primary">Add Product</a>
     </div>
@@ -55,7 +58,7 @@
     <div class="admin-section">
       <div>
         <h2 style="margin:0;font-size:22px;">Manage Backgrounds</h2>
-        <p style="margin:6px 0 0;color:#2563eb;">Update home, category, and product-listing background images.</p>
+        <p style="margin:6px 0 0;color:#000000;">Update home, category, and product-listing background images.</p>
       </div>
       <a href="{% url 'admin_backgrounds' %}" class="btn btn-dark">Open Backgrounds</a>
     </div>

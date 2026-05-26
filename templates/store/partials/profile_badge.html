@@ -3,10 +3,10 @@
   {% if profile_photo_url %}
   <img src="{{ profile_photo_url }}" alt="Profile" style="width:40px;height:40px;border-radius:999px;object-fit:cover;">
   {% else %}
-  <div style="width:40px;height:40px;border-radius:999px;background:#f73939;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;">
+  <div style="width:40px;height:40px;border-radius:999px;background:#000000;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;">
     {{ profile_initial }}
   </div>
   {% endif %}
-  <div style="font-size:14px;font-weight:600;color:#1d4ed8;">{{ profile_display_text }}</div>
+  <div style="font-size:14px;font-weight:600;color:#000000;">{{ profile_display_text }}</div>
 </div>
 {% endif %}
