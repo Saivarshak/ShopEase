@@ -13,14 +13,16 @@
       background-size: cover;
       background-position: center;
       background-attachment: scroll;
+      background-repeat: no-repeat;
+      min-height: 100vh;
       position: relative;
       padding: 20px;
     }
     body::after {
       content: "";
-      position: absolute;
+      position: fixed;
       inset: 0;
-      background-color: rgba(0, 0, 0, 0.28);
+      background-color: rgba(0, 0, 0, 0.38);
       z-index: 0;
     }
     header, .search-bar, .container, .logo { position: relative; z-index: 1; }

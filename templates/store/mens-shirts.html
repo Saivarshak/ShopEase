@@ -16,22 +16,20 @@
     }
     body {
       background-image: url("{{ page_background_url }}");
-      height: 100%;
+      min-height: 100vh;
       width: 100%;
       background-size: cover;
       background-position: center;
       background-attachment: scroll;
+      background-repeat: no-repeat;
       position: relative;
       padding: 20px;
     }
     /* Transparent overlay only on background */
     body::after {
       content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      position: fixed;
+      inset: 0;
       background-color: rgba(0, 0, 0, 0.38);
       z-index: 0;
     }
