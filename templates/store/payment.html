@@ -290,9 +290,9 @@ body {
       <div class="badge" style="background:#ecfdf3;color:#027a48;">
         Razorpay mode: {{ razorpay_mode|upper }}.
         {% if razorpay_mode == 'live' %}
-          Real payments are enabled and the button will open the Razorpay payment page.
+          Real payments are enabled and the button will open Razorpay secure checkout.
         {% else %}
-          Test payments are enabled and the button will open the Razorpay payment page.
+          Test payments are enabled and the button will open Razorpay secure checkout.
         {% endif %}
       </div>
     {% endif %}
@@ -342,12 +342,12 @@ body {
 
       <div class="payment-widget">
         <h3>Secure Razorpay Payment</h3>
-        <p>Click the button below to open the Razorpay payment page using the billing details from this form. After a successful payment, your order confirmation page will appear automatically.</p>
+        <p>Click the button below to open Razorpay secure checkout using the billing details from this form. After a successful payment, your order confirmation page will appear automatically.</p>
         <button type="submit" class="cta" id="integratedCheckoutButton" data-default-text="Pay with Razorpay">
           Pay with Razorpay
         </button>
         <div class="helper-text" id="paymentHelperText">
-          Fill in all billing details, then continue to the Razorpay payment page.
+          Fill in all billing details, then continue to Razorpay secure checkout.
         </div>
       </div>
     </form>
@@ -385,7 +385,7 @@ body {
     </div>
 
     <div class="badge" id="paymentInfoBadge">
-      Pay with Razorpay opens the hosted Razorpay payment page. After payment success, this order will be confirmed and you will be redirected to the success page.
+      Pay with Razorpay opens secure Razorpay checkout with your cart total. After payment success, this order will be confirmed and you will be redirected to the success page.
     </div>
 
     <div class="trust-links" aria-label="Store information">
@@ -396,6 +396,7 @@ body {
     </div>
   </div>
 </div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
   (function () {
     const paymentForm = document.getElementById('paymentForm');
@@ -412,6 +413,9 @@ body {
     ).filter((field) => field.name !== 'csrfmiddlewaretoken');
     const integratedButtonDefaultText = integratedCheckoutButton.dataset.defaultText || integratedCheckoutButton.textContent.trim();
     const checkoutReady = {% if razorpay_configuration_error %}false{% else %}true{% endif %};
+    const createCheckoutUrl = "{% url 'create_razorpay_checkout' %}";
+    const verifyCheckoutUrl = "{% url 'verify_razorpay_payment' %}";
+    const csrfToken = paymentForm.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
 
     const isFieldFilled = (field) => {
       if (field.tagName === 'SELECT') {
@@ -437,11 +441,33 @@ body {
         if (!isComplete) {
           paymentHelperText.textContent = 'Fill in all billing details to enable the payment button.';
         } else if (checkoutReady) {
-          paymentHelperText.textContent = 'Billing details complete. Pay with Razorpay will open the hosted Razorpay payment page.';
+          paymentHelperText.textContent = 'Billing details complete. Pay with Razorpay will open secure Razorpay checkout.';
         } else {
           paymentHelperText.textContent = 'Razorpay is not configured yet. Add valid Razorpay keys to enable checkout.';
         }
       }
+    };
+
+    const buildPostForm = (action, values) => {
+      const form = document.createElement('form');
+      form.method = 'post';
+      form.action = action;
+
+      const csrfField = document.createElement('input');
+      csrfField.type = 'hidden';
+      csrfField.name = 'csrfmiddlewaretoken';
+      csrfField.value = csrfToken;
+      form.appendChild(csrfField);
+
+      Object.entries(values).forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value ?? '';
+        form.appendChild(input);
+      });
+
+      return form;
     };
 
     billingFields.forEach((field) => {
@@ -449,16 +475,82 @@ body {
       field.addEventListener('change', updateCheckoutState);
     });
 
-    paymentForm.addEventListener('submit', (event) => {
+    paymentForm.addEventListener('submit', async (event) => {
       if (!checkoutReady) {
         event.preventDefault();
         setInfoBadge('Razorpay is not configured yet. Add valid Razorpay keys to continue.', 'error');
         return;
       }
 
+      if (typeof window.Razorpay !== 'function') {
+        setInfoBadge('Secure Razorpay checkout could not be loaded, so we are redirecting you to the hosted payment page instead.', 'warning');
+        return;
+      }
+
+      event.preventDefault();
       integratedCheckoutButton.disabled = true;
-      integratedCheckoutButton.textContent = 'Opening Razorpay...';
-      setInfoBadge('Opening the hosted Razorpay payment page for this order...', 'warning');
+      integratedCheckoutButton.textContent = 'Preparing Razorpay...';
+      setInfoBadge('Creating your Razorpay order from the live cart total...', 'warning');
+
+      try {
+        const response = await fetch(createCheckoutUrl, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          body: new FormData(paymentForm),
+        });
+        const payload = await response.json();
+
+        if (!response.ok || !payload.ok) {
+          throw new Error(payload.message || 'Unable to start Razorpay checkout right now.');
+        }
+
+        const razorpay = new window.Razorpay({
+          key: payload.key_id,
+          amount: payload.amount,
+          currency: payload.currency,
+          name: 'ShopEase',
+          description: `Order #${payload.local_order_id}`,
+          order_id: payload.razorpay_order_id,
+          prefill: payload.customer || {},
+          notes: {
+            local_order_id: String(payload.local_order_id),
+          },
+          theme: {
+            color: '#111827',
+          },
+          modal: {
+            ondismiss: () => {
+              integratedCheckoutButton.disabled = false;
+              integratedCheckoutButton.textContent = integratedButtonDefaultText;
+              setInfoBadge('Payment window was closed before completion. You can try again whenever you are ready.', 'warning');
+              updateCheckoutState();
+            },
+          },
+          handler: (responsePayload) => {
+            integratedCheckoutButton.textContent = 'Confirming payment...';
+            setInfoBadge('Payment captured. Confirming your order and opening the success page...', 'warning');
+            const verificationForm = buildPostForm(verifyCheckoutUrl, {
+              local_order_id: payload.local_order_id,
+              razorpay_order_id: responsePayload.razorpay_order_id || payload.razorpay_order_id,
+              razorpay_payment_id: responsePayload.razorpay_payment_id || '',
+              razorpay_signature: responsePayload.razorpay_signature || '',
+            });
+            document.body.appendChild(verificationForm);
+            verificationForm.submit();
+          },
+        });
+
+        integratedCheckoutButton.textContent = 'Opening Razorpay...';
+        setInfoBadge('Opening Razorpay secure checkout for this order...', 'warning');
+        razorpay.open();
+      } catch (error) {
+        integratedCheckoutButton.disabled = false;
+        integratedCheckoutButton.textContent = integratedButtonDefaultText;
+        setInfoBadge(error.message || 'Unable to start Razorpay checkout right now.', 'error');
+      }
     });
 
     updateCheckoutState();

@@ -2,6 +2,7 @@ from pathlib import Path
 from decimal import Decimal, InvalidOperation
 import hashlib
 import hmac
+import json
 import time
 
 from django.conf import settings
@@ -12,10 +13,11 @@ from django.core.mail import EmailMultiAlternatives
 from django.db import connection, transaction
 from django.db.utils import OperationalError, ProgrammingError
 from django.db.models import Q
-from django.http import FileResponse, Http404, JsonResponse
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.text import slugify
+from django.views.decorators.csrf import csrf_exempt
 import requests
 from .models import (
     Product,
@@ -243,6 +245,10 @@ def _get_razorpay_credentials():
     return key_id, key_secret
 
 
+def _get_razorpay_webhook_secret():
+    return (getattr(settings, 'RAZORPAY_WEBHOOK_SECRET', '') or '').strip()
+
+
 def _get_razorpay_mode():
     mode = (getattr(settings, 'RAZORPAY_MODE', 'test') or 'test').strip().lower()
     return mode if mode in {'test', 'live'} else 'test'
@@ -468,6 +474,19 @@ def _verify_razorpay_payment_link_signature(payment_link_id, reference_id, payme
     return hmac.compare_digest(generated_signature, signature)
 
 
+def _verify_razorpay_webhook_signature(raw_body, signature):
+    webhook_secret = _get_razorpay_webhook_secret()
+    if not webhook_secret or not signature:
+        return False
+
+    generated_signature = hmac.new(
+        webhook_secret.encode(),
+        raw_body,
+        hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(generated_signature, signature)
+
+
 def _extract_order_id_from_reference_id(reference_id):
     if not reference_id:
         return ''
@@ -477,6 +496,10 @@ def _extract_order_id_from_reference_id(reference_id):
         return ''
 
     return reference_id[len(expected_prefix):].strip()
+
+
+def _amount_to_paise(amount):
+    return int((Decimal(amount or 0) * Decimal('100')).quantize(Decimal('1')))
 
 
 def _finalize_paid_order(order, request=None, payment_method='Razorpay Payment Link', payment_status='Paid', payment_id=''):
@@ -503,12 +526,102 @@ def _finalize_paid_order(order, request=None, payment_method='Razorpay Payment L
     if request is not None:
         _set_session_cart(request, {})
 
-    if request is not None and not already_paid:
+    invoice_email_sent = False
+    if not already_paid:
         try:
             invoice_email_sent = _send_order_invoice_email(order)
         except Exception:
             invoice_email_sent = False
-        _store_invoice_delivery_notice(request, order, invoice_email_sent)
+
+    if request is not None:
+        _store_invoice_delivery_notice(request, order, invoice_email_sent or already_paid)
+
+
+def _update_order_payment_record(
+    order,
+    *,
+    payment_method=None,
+    payment_status=None,
+    currency='INR',
+    razorpay_order_id='',
+    razorpay_payment_id='',
+    razorpay_signature='',
+    status=None,
+):
+    update_fields = []
+
+    if payment_method is not None and order.payment_method != payment_method:
+        order.payment_method = payment_method
+        update_fields.append('payment_method')
+
+    if payment_status is not None and order.payment_status != payment_status:
+        order.payment_status = payment_status
+        update_fields.append('payment_status')
+
+    if status is not None and order.status != status:
+        order.status = status
+        update_fields.append('status')
+
+    if currency and order.currency != currency:
+        order.currency = currency
+        update_fields.append('currency')
+
+    if razorpay_order_id and order.razorpay_order_id != razorpay_order_id:
+        order.razorpay_order_id = razorpay_order_id
+        update_fields.append('razorpay_order_id')
+
+    if razorpay_payment_id and order.razorpay_payment_id != razorpay_payment_id:
+        order.razorpay_payment_id = razorpay_payment_id
+        update_fields.append('razorpay_payment_id')
+
+    if razorpay_signature and order.razorpay_signature != razorpay_signature:
+        order.razorpay_signature = razorpay_signature
+        update_fields.append('razorpay_signature')
+
+    if update_fields:
+        order.save(update_fields=update_fields)
+
+
+def _get_order_from_webhook_payload(payload):
+    payload = payload or {}
+    payment_entity = ((payload.get('payment') or {}).get('entity') or {})
+    order_entity = ((payload.get('order') or {}).get('entity') or {})
+    payment_link_entity = ((payload.get('payment_link') or {}).get('entity') or {})
+
+    order_notes = order_entity.get('notes') or {}
+    payment_notes = payment_entity.get('notes') or {}
+    payment_link_notes = payment_link_entity.get('notes') or {}
+
+    local_order_id = (
+        str(
+            order_notes.get('local_order_id')
+            or payment_notes.get('local_order_id')
+            or payment_link_notes.get('local_order_id')
+            or ''
+        ).strip()
+        or _extract_order_id_from_reference_id(payment_link_entity.get('reference_id') or '')
+    )
+
+    razorpay_order_id = (
+        str(order_entity.get('id') or '').strip()
+        or str(payment_entity.get('order_id') or '').strip()
+        or str(payment_link_entity.get('order_id') or '').strip()
+    )
+    payment_link_id = str(payment_link_entity.get('id') or '').strip()
+
+    order_queryset = Order.objects.select_for_update().prefetch_related('items__product')
+    order = None
+
+    if local_order_id:
+        order = order_queryset.filter(order_id=local_order_id).first()
+
+    if order is None and razorpay_order_id:
+        order = order_queryset.filter(razorpay_order_id=razorpay_order_id).first()
+
+    if order is None and payment_link_id:
+        order = order_queryset.filter(razorpay_order_id=payment_link_id).first()
+
+    return order, payment_entity, order_entity, payment_link_entity
 
 
 def _get_category_image_path(category):
@@ -1742,7 +1855,7 @@ def start_payment_gateway(request):
         messages.error(request, 'Please fill in all billing details before continuing to payment.')
         return redirect('payment_gateway')
 
-    amount_paise = int((subtotal * Decimal('100')).quantize(Decimal('1')))
+    amount_paise = _amount_to_paise(subtotal)
 
     order = Order.objects.create(
         user=request.user,
@@ -1860,7 +1973,7 @@ def razorpay_payment_link_callback(request):
         messages.error(request, _friendly_razorpay_error(exc))
         return redirect('payment_gateway')
 
-    expected_amount = int((order.subtotal * Decimal('100')).quantize(Decimal('1')))
+    expected_amount = _amount_to_paise(order.subtotal)
     actual_status = (payment_link_data.get('status') or payment_link_status or '').lower()
     amount_paid = int(payment_link_data.get('amount_paid') or 0)
     reference_id = payment_link_data.get('reference_id') or ''
@@ -1870,9 +1983,14 @@ def razorpay_payment_link_callback(request):
         return redirect('payment_gateway')
 
     if actual_status != 'paid' or amount_paid < expected_amount:
-        order.payment_status = actual_status.title() if actual_status else 'Pending'
-        order.status = 'Pending Payment'
-        order.save(update_fields=['payment_status', 'status'])
+        _update_order_payment_record(
+            order,
+            payment_method='Razorpay Payment Link',
+            payment_status=actual_status.title() if actual_status else 'Pending',
+            currency=payment_link_data.get('currency') or 'INR',
+            razorpay_order_id=payment_link_id,
+            status='Pending Payment',
+        )
         messages.error(request, 'Payment is not completed yet. Please complete the payment and try again.')
         return redirect('payment_gateway')
 
@@ -1880,10 +1998,17 @@ def razorpay_payment_link_callback(request):
     if payment_records and not payment_id:
         payment_id = payment_records[0].get('payment_id') or payment_records[0].get('id') or ''
 
-    order.currency = payment_link_data.get('currency') or 'INR'
-    order.razorpay_order_id = payment_link_id
-    order.razorpay_signature = razorpay_signature
-    order.save(update_fields=['currency', 'razorpay_order_id', 'razorpay_signature'])
+    if request.user.is_authenticated and order.user_id != request.user.id:
+        messages.error(request, 'This payment callback belongs to a different user account.')
+        return redirect('home')
+
+    _update_order_payment_record(
+        order,
+        currency=payment_link_data.get('currency') or 'INR',
+        razorpay_order_id=payment_link_id,
+        razorpay_payment_id=payment_id,
+        razorpay_signature=razorpay_signature,
+    )
 
     _finalize_paid_order(
         order,
@@ -1892,10 +2017,6 @@ def razorpay_payment_link_callback(request):
         payment_status='Paid',
         payment_id=payment_id,
     )
-
-    if request.user.is_authenticated and order.user_id != request.user.id:
-        messages.error(request, 'This payment callback belongs to a different user account.')
-        return redirect('home')
 
     if not request.user.is_authenticated:
         return redirect(f"{reverse('login')}?next={reverse('order_success', kwargs={'order_id': order.order_id})}")
@@ -1912,30 +2033,12 @@ def verify_razorpay_payment(request):
     if request.method != 'POST':
         return redirect('payment_gateway')
 
-    cart_data = _get_effective_cart_data(request)
-    cart_items, subtotal, total_items = _build_cart_summary(cart_data)
-
-    if not cart_items:
-        messages.error(request, 'Your cart is empty.')
-        return redirect('cart')
-
-    full_name = (request.POST.get('full_name') or '').strip()
-    phone_number = (request.POST.get('phone_number') or '').strip()
-    email = (request.POST.get('email') or '').strip()
-    address = (request.POST.get('address') or '').strip()
-    city = (request.POST.get('city') or '').strip()
-    state = (request.POST.get('state') or '').strip()
-    pincode = (request.POST.get('pincode') or '').strip()
-    country = (request.POST.get('country') or 'India').strip() or 'India'
     local_order_id = (request.POST.get('local_order_id') or '').strip()
     razorpay_order_id = (request.POST.get('razorpay_order_id') or '').strip()
     razorpay_payment_id = (request.POST.get('razorpay_payment_id') or '').strip()
     razorpay_signature = (request.POST.get('razorpay_signature') or '').strip()
 
-    required_values = [
-        full_name, phone_number, email, address, city, state, pincode,
-        local_order_id, razorpay_order_id, razorpay_payment_id, razorpay_signature,
-    ]
+    required_values = [local_order_id, razorpay_order_id, razorpay_payment_id, razorpay_signature]
     if any(not value for value in required_values):
         messages.error(request, 'Payment verification details are missing. Please try again.')
         return redirect('payment_gateway')
@@ -1949,13 +2052,20 @@ def verify_razorpay_payment(request):
         messages.error(request, 'Payment signature verification failed.')
         return redirect('payment_gateway')
 
+    order = get_object_or_404(
+        Order.objects.select_for_update().prefetch_related('items__product'),
+        order_id=local_order_id,
+        user=request.user,
+        razorpay_order_id=razorpay_order_id,
+    )
+
     try:
         payment_data = _fetch_razorpay_payment(razorpay_payment_id)
     except requests.RequestException:
         messages.error(request, 'Unable to confirm the payment with Razorpay right now. Please try again.')
         return redirect('payment_gateway')
 
-    expected_amount = int((subtotal * Decimal('100')).quantize(Decimal('1')))
+    expected_amount = _amount_to_paise(order.subtotal)
     payment_status = (payment_data.get('status') or '').lower()
     payment_amount = int(payment_data.get('amount') or 0)
     payment_order_id = payment_data.get('order_id') or ''
@@ -1964,43 +2074,21 @@ def verify_razorpay_payment(request):
         messages.error(request, 'Payment could not be validated against the order details.')
         return redirect('payment_gateway')
 
-    order = get_object_or_404(
-        Order,
-        order_id=local_order_id,
-        user=request.user,
+    _update_order_payment_record(
+        order,
+        currency=payment_data.get('currency') or 'INR',
         razorpay_order_id=razorpay_order_id,
+        razorpay_payment_id=razorpay_payment_id,
+        razorpay_signature=razorpay_signature,
     )
 
-    order.full_name = full_name
-    order.phone_number = phone_number
-    order.email = email
-    order.address = address
-    order.city = city
-    order.state = state
-    order.pincode = pincode
-    order.country = country
-    order.payment_method = 'Razorpay'
-    order.payment_status = payment_status.title()
-    order.currency = payment_data.get('currency') or 'INR'
-    order.razorpay_payment_id = razorpay_payment_id
-    order.razorpay_signature = razorpay_signature
-    order.status = 'Placed'
-    order.subtotal = subtotal
-    order.total_items = total_items
-    order.save(update_fields=[
-        'full_name', 'phone_number', 'email', 'address', 'city', 'state',
-        'pincode', 'country', 'payment_method', 'payment_status', 'currency',
-        'razorpay_payment_id', 'razorpay_signature', 'status', 'subtotal',
-        'total_items',
-    ])
-
-    CartItem.objects.filter(user=request.user).delete()
-    _set_session_cart(request, {})
-    try:
-        invoice_email_sent = _send_order_invoice_email(order)
-    except Exception:
-        invoice_email_sent = False
-    _store_invoice_delivery_notice(request, order, invoice_email_sent)
+    _finalize_paid_order(
+        order,
+        request=request,
+        payment_method='Razorpay',
+        payment_status=payment_status.title(),
+        payment_id=razorpay_payment_id,
+    )
     messages.success(request, f'Payment verified and order #{order.order_id} placed successfully.')
     return redirect('order_success', order_id=order.order_id)
 
@@ -2036,7 +2124,7 @@ def create_razorpay_checkout(request):
     if any(not value for value in required_values):
         return JsonResponse({'ok': False, 'message': 'Please fill in all billing details.'}, status=400)
 
-    amount_paise = int((subtotal * Decimal('100')).quantize(Decimal('1')))
+    amount_paise = _amount_to_paise(subtotal)
 
     order = Order.objects.create(
         user=request.user,
@@ -2098,6 +2186,100 @@ def create_razorpay_checkout(request):
             'contact': phone_number,
         },
     })
+
+
+@csrf_exempt
+@transaction.atomic
+def razorpay_webhook(request):
+    if request.method != 'POST':
+        return HttpResponse(status=405)
+
+    webhook_signature = (request.headers.get('X-Razorpay-Signature') or '').strip()
+    raw_body = request.body or b''
+
+    if not _verify_razorpay_webhook_signature(raw_body, webhook_signature):
+        return JsonResponse({'ok': False, 'message': 'Invalid webhook signature.'}, status=400)
+
+    try:
+        webhook_event = json.loads(raw_body.decode('utf-8'))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return JsonResponse({'ok': False, 'message': 'Invalid webhook payload.'}, status=400)
+
+    event_name = (webhook_event.get('event') or '').strip().lower()
+    order, payment_entity, order_entity, payment_link_entity = _get_order_from_webhook_payload(webhook_event.get('payload'))
+
+    if order is None:
+        return JsonResponse({'ok': True, 'ignored': True})
+
+    payment_status = (
+        str(payment_entity.get('status') or '').strip().lower()
+        or str(order_entity.get('status') or '').strip().lower()
+        or str(payment_link_entity.get('status') or '').strip().lower()
+    )
+    payment_id = str(payment_entity.get('id') or '').strip()
+    currency = (
+        str(payment_entity.get('currency') or '').strip()
+        or str(order_entity.get('currency') or '').strip()
+        or str(payment_link_entity.get('currency') or '').strip()
+        or 'INR'
+    )
+    expected_amount = _amount_to_paise(order.subtotal)
+    amount_paid = int(
+        payment_entity.get('amount_captured')
+        or payment_entity.get('amount')
+        or order_entity.get('amount_paid')
+        or payment_link_entity.get('amount_paid')
+        or 0
+    )
+    razorpay_order_id = str(order_entity.get('id') or payment_entity.get('order_id') or '').strip()
+    payment_link_id = str(payment_link_entity.get('id') or '').strip()
+
+    if event_name in {'payment.authorized', 'payment.failed'}:
+        status_label = payment_status.title() if payment_status else ('Failed' if event_name == 'payment.failed' else 'Authorized')
+        order_status = 'Payment Failed' if event_name == 'payment.failed' else 'Pending Payment'
+        _update_order_payment_record(
+            order,
+            payment_method='Razorpay Payment Link' if event_name.startswith('payment_link.') else 'Razorpay',
+            payment_status=status_label,
+            currency=currency,
+            razorpay_order_id=payment_link_id or razorpay_order_id,
+            razorpay_payment_id=payment_id,
+            razorpay_signature=webhook_signature,
+            status=order_status,
+        )
+        return JsonResponse({'ok': True, 'event': event_name})
+
+    if event_name not in {'order.paid', 'payment.captured', 'payment_link.paid'}:
+        return JsonResponse({'ok': True, 'ignored': True, 'event': event_name})
+
+    if amount_paid < expected_amount:
+        _update_order_payment_record(
+            order,
+            payment_method='Razorpay Payment Link' if event_name == 'payment_link.paid' else 'Razorpay',
+            payment_status=payment_status.title() if payment_status else 'Pending',
+            currency=currency,
+            razorpay_order_id=payment_link_id or razorpay_order_id,
+            razorpay_payment_id=payment_id,
+            razorpay_signature=webhook_signature,
+            status='Pending Payment',
+        )
+        return JsonResponse({'ok': True, 'pending': True, 'event': event_name})
+
+    _update_order_payment_record(
+        order,
+        currency=currency,
+        razorpay_order_id=payment_link_id or razorpay_order_id,
+        razorpay_payment_id=payment_id,
+        razorpay_signature=webhook_signature,
+    )
+
+    _finalize_paid_order(
+        order,
+        payment_method='Razorpay Payment Link' if event_name == 'payment_link.paid' else 'Razorpay',
+        payment_status='Paid' if event_name in {'order.paid', 'payment_link.paid'} else payment_status.title(),
+        payment_id=payment_id,
+    )
+    return JsonResponse({'ok': True, 'event': event_name, 'order_id': order.order_id})
 
 
 def order_success(request, order_id):

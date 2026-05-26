@@ -264,6 +264,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 RAZORPAY_MODE = (os.getenv('RAZORPAY_MODE', 'test') or 'test').strip().lower()
 RAZORPAY_KEY_ID = (os.getenv('RAZORPAY_KEY_ID') or '').strip()
 RAZORPAY_KEY_SECRET = (os.getenv('RAZORPAY_KEY_SECRET') or '').strip()
+RAZORPAY_WEBHOOK_SECRET = (os.getenv('RAZORPAY_WEBHOOK_SECRET') or '').strip()
 RAZORPAY_PAYMENT_LINK_OVERRIDE_URL = os.getenv(
     'RAZORPAY_PAYMENT_LINK_OVERRIDE_URL',
     '',

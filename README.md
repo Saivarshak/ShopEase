@@ -17,7 +17,7 @@ Use Render with the included `render.yaml`. It will create:
 1. Push this project to GitHub.
 2. Sign in to Render and create a new Blueprint from this repository.
 3. Render will read `render.yaml` and create the `shopease` web service and `shopease-db` database.
-4. Enter your `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` when Render prompts for them.
+4. Enter your `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET` when Render prompts for them.
 5. After the first deploy finishes, open the Render Shell and run:
 
 ```bash
@@ -38,6 +38,24 @@ PAYMENT_CALLBACK_BASE_URL=https://your-domain.com
 ALLOWED_HOSTS=your-domain.com,.onrender.com
 CSRF_TRUSTED_ORIGINS=https://your-domain.com
 ```
+
+8. In the Razorpay dashboard, create a webhook that points to:
+
+```text
+https://your-domain.com/payment/webhook/
+```
+
+Use the same value in Render for:
+
+```text
+RAZORPAY_WEBHOOK_SECRET
+```
+
+Subscribe at minimum to:
+
+- `order.paid`
+- `payment.captured`
+- `payment_link.paid`
 
 ## Important notes
 
