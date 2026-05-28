@@ -27,10 +27,11 @@
       min-height:100vh;
 
       display:flex;
-      justify-content:center;
+      justify-content:flex-start;
       align-items:center;
 
-      padding:20px;
+      padding-left:80px;
+      padding-right:20px;
 
       background-image:url("{% static 'images/loginbg.jpg' %}");
       background-size:cover;
@@ -41,11 +42,11 @@
     /* Main Layout */
     .main-container{
       width:100%;
-      max-width:1200px;
+      max-width:500px;
 
       display:flex;
       flex-direction:column;
-      align-items:center;
+      align-items:flex-start;
     }
 
     /* Logo */
@@ -69,21 +70,20 @@
       overflow:hidden;
 
       /* Glass Effect */
-      background:rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.10);
 
       border:1px solid rgba(255,255,255,0.18);
 
-      backdrop-filter:blur(18px);
-      -webkit-backdrop-filter:blur(18px);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
 
       box-shadow:
-        0 8px 32px rgba(0,0,0,0.20);
+        0 8px 32px rgba(0,0,0,0.25);
     }
 
-    
     /* Form Area */
     .form-section{
-      flex:1;
+      width:100%;
 
       padding:55px;
 
@@ -91,8 +91,7 @@
       flex-direction:column;
       justify-content:center;
 
-      /* Transparent Glass */
-      background:rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.05);
 
       backdrop-filter:blur(20px);
       -webkit-backdrop-filter:blur(20px);
@@ -139,7 +138,7 @@
       font-size:14px;
       font-weight:500;
 
-      color:black;
+      color:#ffffff;
     }
 
     /* Inputs */
@@ -233,12 +232,18 @@
     ========================== */
     @media (max-width: 992px){
 
-      .container{
-        flex-direction:column;
+      body{
+        justify-content:center;
+        padding-left:20px;
       }
 
-      .image-section{
-        min-height:250px;
+      .main-container{
+        max-width:100%;
+        align-items:center;
+      }
+
+      .container{
+        width:100%;
       }
 
       .form-section{
@@ -266,10 +271,6 @@
 
       .container{
         border-radius:22px;
-      }
-
-      .image-section{
-        min-height:180px;
       }
 
       .form-section{
@@ -314,8 +315,6 @@
 
     <!-- Login Card -->
     <div class="container">
-
- 
 
       <!-- Form -->
       <form
