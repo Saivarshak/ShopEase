@@ -1,124 +1,405 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
   <title>E-Commerce Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Poppins', sans-serif;
-      display: flex;
-      height: 100vh;
-      align-items: center;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-image: url("{% static 'images/loginbg.jpg' %}");
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
     }
-    .container {
-      display: flex;
-      width: 50%;
-      max-width: 1200px;
-      background: #f3f4f6;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      margin-left: 100px;
+
+    body{
+      font-family:'Poppins',sans-serif;
+
+      min-height:100vh;
+
+      display:flex;
+      justify-content:center;
+      align-items:center;
+
+      padding:20px;
+
+      background-image:url("{% static 'images/loginbg.jpg' %}");
+      background-size:cover;
+      background-position:center;
+      background-repeat:no-repeat;
     }
-    .image-section {
-      flex: 1;
-      background: url('https://static.vecteezy.com/system/resources/previews/014/471/815/original/shopping-cart-business-icon-flat-cartoon-for-the-business-idea-web-design-illustration-free-vector.jpg') no-repeat center center/cover;
+
+    /* Main Layout */
+    .main-container{
+      width:100%;
+      max-width:1200px;
+
+      display:flex;
+      flex-direction:column;
+      align-items:center;
     }
-    .form-section {
-      flex: 1;
-      padding: 50px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      background: rgba(255, 255, 255, 0.92);
+
+    /* Logo */
+    .logo-container{
+      margin-bottom:25px;
     }
-    .form-section h2 { margin-bottom: 20px; font-size: 32px; color: #000000; }
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; font-size: 14px; color: #000000; }
-    .form-group input {
-      width: 100%;
-      padding: 10px 15px;
-      margin-top: 8px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      font-size: 16px;
+
+    .logo{
+      width:100px;
+      height:100px;
+      object-fit:contain;
     }
-    .btn-login {
-      background-color: #000000;
-      color: white;
-      padding: 12px;
-      width: 100%;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 10px;
+
+    /* Login Card */
+    .container{
+      width:100%;
+
+      display:flex;
+
+      border-radius:28px;
+      overflow:hidden;
+
+      /* Glass Effect */
+      background:rgba(255,255,255,0.12);
+
+      border:1px solid rgba(255,255,255,0.18);
+
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.20);
     }
-    .btn-login:hover { background-color: #8b5cf6; }
-    .message {
-      margin-bottom: 16px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      background: #fee4e2;
-      color: #000000;
-      font-size: 14px;
+
+    /* Left Image */
+    .image-section{
+      flex:1;
+
+      min-height:580px;
+
+      background:url('https://static.vecteezy.com/system/resources/previews/014/471/815/original/shopping-cart-business-icon-flat-cartoon-for-the-business-idea-web-design-illustration-free-vector.jpg');
+
+      background-position:center;
+      background-repeat:no-repeat;
+      background-size:cover;
     }
-    .logo {
-      position: absolute;
-      top: 0;
-      left: 70px;
-      height: 220px;
-      width: 220px;
+
+    /* Form Area */
+    .form-section{
+      flex:1;
+
+      padding:55px;
+
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+
+      /* Transparent Glass */
+      background:rgba(255,255,255,0.08);
+
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
     }
-    @media (max-width: 992px) {
-      .container { flex-direction: column; margin: 0 auto; width: 90%; }
-      .image-section { height: 200px; }
-      .form-section { padding: 30px; }
-      .logo { position: static; display: block; margin: 0 auto 20px auto; height: 120px; width: 120px; }
+
+    /* Heading */
+    .form-section h2{
+      font-size:38px;
+      font-weight:700;
+
+      color:#ffffff;
+
+      margin-bottom:30px;
     }
+
+    /* Messages */
+    .message{
+      margin-bottom:18px;
+
+      padding:12px 14px;
+
+      border-radius:12px;
+
+      background:rgba(255,255,255,0.12);
+
+      color:#ffffff;
+
+      font-size:14px;
+
+      border:1px solid rgba(255,255,255,0.12);
+    }
+
+    /* Form Group */
+    .form-group{
+      margin-bottom:22px;
+    }
+
+    /* Labels */
+    .form-group label{
+      display:block;
+
+      margin-bottom:8px;
+
+      font-size:14px;
+      font-weight:500;
+
+      color:#ffffff;
+    }
+
+    /* Inputs */
+    .form-group input{
+      width:100%;
+
+      padding:15px 18px;
+
+      border-radius:14px;
+
+      border:1px solid rgba(255,255,255,0.20);
+
+      background:rgba(255,255,255,0.10);
+
+      color:#ffffff;
+
+      font-size:15px;
+
+      outline:none;
+
+      transition:0.3s ease;
+    }
+
+    /* Placeholder */
+    .form-group input::placeholder{
+      color:rgba(255,255,255,0.75);
+    }
+
+    /* Focus */
+    .form-group input:focus{
+      border-color:rgba(255,255,255,0.5);
+
+      box-shadow:
+        0 0 0 4px rgba(255,255,255,0.10);
+    }
+
+    /* Button */
+    .btn-login{
+      width:100%;
+
+      padding:15px;
+
+      border:none;
+      border-radius:14px;
+
+      background:rgba(255,255,255,0.18);
+
+      color:#ffffff;
+
+      font-size:16px;
+      font-weight:600;
+
+      cursor:pointer;
+
+      margin-top:10px;
+
+      transition:0.3s ease;
+    }
+
+    .btn-login:hover{
+      background:rgba(255,255,255,0.28);
+
+      transform:translateY(-2px);
+    }
+
+    /* Register */
+    .register-text{
+      margin-top:20px;
+
+      text-align:center;
+
+      color:#ffffff;
+
+      font-size:14px;
+    }
+
+    .register-text a{
+      color:#ffffff;
+
+      font-weight:600;
+
+      text-decoration:none;
+    }
+
+    .register-text a:hover{
+      text-decoration:underline;
+    }
+
+    /* =========================
+       TABLET
+    ========================== */
+    @media (max-width: 992px){
+
+      .container{
+        flex-direction:column;
+      }
+
+      .image-section{
+        min-height:250px;
+      }
+
+      .form-section{
+        padding:40px 30px;
+      }
+    }
+
+    /* =========================
+       MOBILE
+    ========================== */
+    @media (max-width: 576px){
+
+      body{
+        padding:15px;
+      }
+
+      .logo{
+        width:75px;
+        height:75px;
+      }
+
+      .logo-container{
+        margin-bottom:18px;
+      }
+
+      .container{
+        border-radius:22px;
+      }
+
+      .image-section{
+        min-height:180px;
+      }
+
+      .form-section{
+        padding:28px 20px;
+      }
+
+      .form-section h2{
+        font-size:30px;
+        text-align:center;
+      }
+
+      .form-group input{
+        padding:13px 14px;
+        font-size:14px;
+      }
+
+      .btn-login{
+        padding:14px;
+        font-size:15px;
+      }
+
+      .register-text{
+        font-size:13px;
+      }
+    }
+
   </style>
 </head>
+
 <body>
-  <div>
-    <img src="{% static 'images/logo1.png' %}" alt="Logo" class="logo"/>
+
+  <div class="main-container">
+
+    <!-- Logo -->
+    <div class="logo-container">
+      <img
+        src="{% static 'images/logo1.png' %}"
+        alt="Logo"
+        class="logo"
+      />
+    </div>
+
+    <!-- Login Card -->
+    <div class="container">
+
+      <!-- Left Image -->
+      <div class="image-section"></div>
+
+      <!-- Form -->
+      <form
+        class="form-section"
+        method="post"
+        action="{% url 'login' %}"
+      >
+
+        {% csrf_token %}
+
+        <input type="hidden" name="next" value="{{ next_url }}">
+
+        <h2>Welcome Back!</h2>
+
+        <!-- Messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="message">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">
+            Email Address
+          </label>
+
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">
+            Password
+          </label>
+
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+
+        <!-- Button -->
+        <button type="submit" class="btn-login">
+          Login
+        </button>
+
+        <!-- Register -->
+        <p class="register-text">
+          New user?
+          <a href="{% url 'register' %}?next={{ next_url }}">
+            Create account
+          </a>
+        </p>
+
+      </form>
+
+    </div>
+
   </div>
-  <div class="container">
-    <div class="image-section"></div>
 
-    <form class="form-section" method="post" action="{% url 'login' %}">
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ next_url }}">
-      <h2>Welcome Back!</h2>
-
-      {% if messages %}
-        {% for message in messages %}
-          <div class="message">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-
-      <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" placeholder="Enter your email" required />
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" placeholder="Enter your password" required />
-      </div>
-      <button type="submit" class="btn-login">Login</button>
-      <p style="margin-top:16px;text-align:center;">
-        New user? <a href="{% url 'register' %}?next={{ next_url }}" style="color:#000000;text-decoration:none;">Create account</a>
-      </p>
-    </form>
-  </div>
 </body>
 </html>
