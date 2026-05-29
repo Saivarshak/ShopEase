@@ -25,13 +25,14 @@
       font-family:'Poppins',sans-serif;
 
       min-height:100vh;
+      min-height:100svh;
       width:100%;
 
       display:flex;
       justify-content:center;
       align-items:center;
 
-      padding:20px;
+      padding:clamp(16px,4vw,32px);
 
       background-image:url("{% static 'images/loginbg.jpg' %}");
       background-size:cover;
@@ -40,17 +41,28 @@
       background-attachment:fixed;
     }
 
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:linear-gradient(135deg,rgba(0,0,0,0.35),rgba(0,0,0,0.08));
+      pointer-events:none;
+    }
+
     /* =========================
        MAIN CONTAINER
     ========================== */
     .main-container{
       width:100%;
-      max-width:450px;
+      max-width:min(450px,100%);
 
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
+
+      position:relative;
+      z-index:1;
     }
 
     /* =========================
@@ -62,7 +74,7 @@
       display:flex;
       justify-content:center;
 
-      margin-bottom:20px;
+      margin-bottom:clamp(14px,3vw,20px);
     }
 
     .logo{
@@ -77,7 +89,7 @@
     .container{
       width:100%;
 
-      border-radius:28px;
+      border-radius:24px;
 
       overflow:hidden;
 
@@ -97,7 +109,7 @@
     .form-section{
       width:100%;
 
-      padding:50px 40px;
+      padding:clamp(30px,7vw,50px) clamp(22px,6vw,40px);
 
       display:flex;
       flex-direction:column;
@@ -108,7 +120,7 @@
        HEADING
     ========================== */
     .form-section h2{
-      font-size:42px;
+      font-size:clamp(30px,8vw,42px);
       font-weight:700;
 
       color:#ffffff;
@@ -137,6 +149,38 @@
       font-size:14px;
 
       border:1px solid rgba(255,255,255,0.15);
+    }
+
+    .message.success{
+      background:rgba(22,163,74,0.9);
+      border-color:rgba(187,247,208,0.55);
+      box-shadow:0 14px 35px rgba(22,163,74,0.2);
+    }
+
+    .toast-stack{
+      position:fixed;
+      top:16px;
+      right:16px;
+      z-index:5;
+      width:min(340px,calc(100vw - 32px));
+    }
+
+    .toast-message{
+      padding:14px 16px;
+      border-radius:12px;
+      background:#16a34a;
+      border:1px solid rgba(187,247,208,0.6);
+      color:#ffffff;
+      font-weight:700;
+      box-shadow:0 18px 45px rgba(0,0,0,0.22);
+      opacity:1;
+      transform:translateY(0);
+      transition:opacity 0.35s ease,transform 0.35s ease;
+    }
+
+    .toast-message.is-hiding{
+      opacity:0;
+      transform:translateY(-8px);
     }
 
     /* =========================
@@ -254,22 +298,23 @@
     @media (max-width:768px){
 
       body{
-        padding:20px;
+        padding:24px 18px;
 
         justify-content:center;
         align-items:center;
+        background-attachment:scroll;
       }
 
       .main-container{
-        max-width:400px;
+        max-width:420px;
       }
 
       .form-section{
-        padding:40px 28px;
+        padding:38px 28px;
       }
 
       .form-section h2{
-        font-size:34px;
+        margin-bottom:30px;
       }
     }
 
@@ -279,7 +324,7 @@
     @media (max-width:576px){
 
       body{
-        padding:16px;
+        padding:18px 14px;
 
         display:flex;
         justify-content:center;
@@ -309,11 +354,11 @@
 
       .container{
         width:100%;
-        border-radius:24px;
+        border-radius:20px;
       }
 
       .form-section{
-        padding:32px 22px;
+        padding:30px 20px;
       }
 
       .form-section h2{
@@ -340,6 +385,23 @@
 
       .register-text{
         font-size:13px;
+      }
+
+      .toast-stack{
+        left:14px;
+        right:14px;
+        width:auto;
+      }
+    }
+
+    @media (max-width:380px){
+      .form-section{
+        padding:26px 16px;
+      }
+
+      .logo{
+        width:68px;
+        height:68px;
       }
     }
 
@@ -377,7 +439,7 @@
         <!-- Messages -->
         {% if messages %}
           {% for message in messages %}
-            <div class="message">
+            <div class="message {{ message.tags }}">
               {{ message }}
             </div>
           {% endfor %}
@@ -435,6 +497,25 @@
     </div>
 
   </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      {% if message.tags == 'success' %}
+      <div class="toast-stack" aria-live="polite" aria-atomic="true">
+        <div class="toast-message" role="status">{{ message }}</div>
+      </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  <script>
+    document.querySelectorAll(".toast-message").forEach((toast) => {
+      setTimeout(() => {
+        toast.classList.add("is-hiding");
+        setTimeout(() => toast.remove(), 350);
+      }, 3500);
+    });
+  </script>
 
 </body>
 </html>

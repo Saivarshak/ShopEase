@@ -1004,7 +1004,7 @@ def home(request):
         'nav_products_text': getattr(home_content, 'nav_products_text', None) or 'Products',
         'nav_products_url': getattr(home_content, 'nav_products_url', None) or '#featured-products',
         'nav_contact_text': getattr(home_content, 'nav_contact_text', None) or 'Contact Us',
-        'nav_contact_url': getattr(home_content, 'nav_contact_url', None) or reverse('contact_us'),
+        'nav_contact_url': reverse('contact_html'),
         'nav_login_text': getattr(home_content, 'nav_login_text', None) or 'Login',
         'nav_login_url': getattr(home_content, 'nav_login_url', None) or '/login/',
         'category_section_title': getattr(home_content, 'category_section_title', None) or 'Shop by Category',
@@ -1073,7 +1073,7 @@ def search_results(request):
         'nav_products_text': getattr(home_content, 'nav_products_text', None) or 'Products',
         'nav_products_url': getattr(home_content, 'nav_products_url', None) or '#featured-products',
         'nav_contact_text': getattr(home_content, 'nav_contact_text', None) or 'Contact Us',
-        'nav_contact_url': getattr(home_content, 'nav_contact_url', None) or reverse('contact_us'),
+        'nav_contact_url': reverse('contact_html'),
         'nav_login_text': getattr(home_content, 'nav_login_text', None) or 'Login',
         'nav_login_url': getattr(home_content, 'nav_login_url', None) or '/login/',
         'footer_text': getattr(home_content, 'footer_text', None) or 'All rights reserved.',
@@ -1620,6 +1620,7 @@ def login_view(request):
                 login(request, authenticated_user)
                 _merge_session_cart_into_db(request, authenticated_user)
                 _set_session_cart(request, {})
+                messages.success(request, 'Login Successful')
                 return redirect(next_url)
 
             messages.error(request, 'Invalid password.')
