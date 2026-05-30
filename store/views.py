@@ -23,6 +23,7 @@ from .models import (
     Product,
     Category,
     SubCategory,
+    FashionCategory,
     ProductVariant,
     CartItem,
     Order,
@@ -34,6 +35,39 @@ from .models import (
     PageAsset,
     HomeContent,
 )
+
+
+def _format_fashion_category_option(category):
+    indent = ' - ' * max(category.level, 0)
+    label = f"{indent}{category.name}"
+    if category.is_under_maintenance:
+        label = f"{label} (Under Maintenance)"
+    return label
+
+
+def _build_fashion_category_tree():
+    try:
+        categories = list(
+            FashionCategory.objects.select_related('parent', 'root_category')
+            .order_by('root_category__category_name', 'level', 'sort_order', 'name')
+        )
+    except (ProgrammingError, OperationalError):
+        return []
+
+    children_by_parent = {}
+    roots = []
+    for category in categories:
+        children_by_parent.setdefault(category.parent_id, []).append(category)
+        if category.parent_id is None:
+            roots.append(category)
+
+    def build_node(category):
+        return {
+            'category': category,
+            'children': [build_node(child) for child in children_by_parent.get(category.fashion_category_id, [])],
+        }
+
+    return [build_node(category) for category in roots]
 
 
 def _asset_exists(normalized_path):
@@ -2402,7 +2436,7 @@ def admin_dashboard(request):
     if access_redirect:
         return access_redirect
 
-    products = Product.objects.select_related('category', 'subcategory').order_by('-product_id')
+    products = Product.objects.select_related('category', 'subcategory', 'fashion_category').order_by('-product_id')
     product_rows = []
     for product in products:
         variant = ProductVariant.objects.filter(product=product).first()
@@ -2415,6 +2449,18 @@ def admin_dashboard(request):
 
     return render(request, 'store/dashboard.html', {
         'products': product_rows,
+        'fashion_tree': _build_fashion_category_tree(),
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+    })
+
+
+def admin_fashion_structure(request):
+    access_redirect = _require_shop_admin(request)
+    if access_redirect:
+        return access_redirect
+
+    return render(request, 'store/admin-fashion-structure.html', {
+        'fashion_tree': _build_fashion_category_tree(),
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
     })
 
@@ -2549,12 +2595,27 @@ def admin_product_form(request, product_id=None):
     existing_variants = list(ProductVariant.objects.filter(product=product).order_by('variant_id')) if product else []
     categories = Category.objects.order_by('category_name')
     subcategories = SubCategory.objects.select_related('category').order_by('subcategory_name')
+    fashion_categories = FashionCategory.objects.select_related('parent', 'root_category').order_by(
+        'root_category__category_name',
+        'level',
+        'sort_order',
+        'name',
+    )
+    fashion_category_options = [
+        {
+            'id': item.fashion_category_id,
+            'label': _format_fashion_category_option(item),
+            'root': item.root_category.category_name if item.root_category else '',
+        }
+        for item in fashion_categories
+    ]
 
     if request.method == 'POST':
         product_name = (request.POST.get('product_name') or '').strip()
         brand = (request.POST.get('brand') or '').strip()
         category_id = request.POST.get('category_id')
         subcategory_id = request.POST.get('subcategory_id')
+        fashion_category_id = request.POST.get('fashion_category_id')
         sku = (request.POST.get('sku') or '').strip()
         price = _parse_decimal(request.POST.get('price'))
         discount_percent = _parse_decimal(request.POST.get('discount_percent'))
@@ -2575,6 +2636,15 @@ def admin_product_form(request, product_id=None):
 
         category = Category.objects.filter(category_id=category_id).first()
         subcategory = SubCategory.objects.filter(subcategory_id=subcategory_id).first()
+        fashion_category = FashionCategory.objects.filter(fashion_category_id=fashion_category_id).first()
+
+        if fashion_category:
+            category = fashion_category.root_category or category
+            if category and subcategory is None:
+                subcategory, _ = SubCategory.objects.get_or_create(
+                    category=category,
+                    subcategory_name=fashion_category.name,
+                )
 
         if not all([product_name, category, subcategory, sku]):
             messages.error(request, 'Product name, category, subcategory, and SKU are required.')
@@ -2586,6 +2656,7 @@ def admin_product_form(request, product_id=None):
             product.brand = brand or None
             product.category = category
             product.subcategory = subcategory
+            product.fashion_category = fashion_category
             product.sku = sku
             product.price = price
             product.discount_percent = discount_percent
@@ -2641,6 +2712,7 @@ def admin_product_form(request, product_id=None):
         ),
         'categories': categories,
         'subcategories': subcategories,
+        'fashion_category_options': fashion_category_options,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
         'page_title': 'Edit Product' if product else 'Add Product',
         'form_action_label': 'Update Product' if product else 'Add Product',

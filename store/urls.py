@@ -47,6 +47,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('admin-access/', views.admin_access, name='admin_access'),
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-panel/fashion-structure/', views.admin_fashion_structure, name='admin_fashion_structure'),
     path('admin-panel/backgrounds/', views.admin_backgrounds, name='admin_backgrounds'),
     path('admin-panel/products/add/', views.admin_product_form, name='admin_product_add'),
     path('admin-panel/products/<int:product_id>/edit/', views.admin_product_form, name='admin_product_edit'),

@@ -71,6 +71,16 @@
               {% endfor %}
             </select>
           </div>
+          <div class="field full">
+            <label>Fashion Category</label>
+            <select name="fashion_category_id">
+              <option value="">Select exact fashion category</option>
+              {% for item in fashion_category_options %}
+                <option value="{{ item.id }}" {% if product and product.fashion_category_id == item.id %}selected{% endif %}>{{ item.root }} - {{ item.label }}</option>
+              {% endfor %}
+            </select>
+            <small>Use this for the complete website structure, for example Men - Footwear - Casual Shoes.</small>
+          </div>
           <div class="field">
             <label>SKU</label>
             <input type="text" name="sku" value="{{ product.sku|default:'' }}" required>

@@ -42,6 +42,52 @@ class SubCategory(models.Model):
         return self.subcategory_name
 
 
+class FashionCategory(models.Model):
+    fashion_category_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=120)
+    slug = models.SlugField(max_length=160)
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='children',
+    )
+    root_category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='fashion_categories',
+    )
+    level = models.PositiveSmallIntegerField(default=0)
+    sort_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    is_under_maintenance = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "fashion_categories"
+        ordering = ['root_category__category_name', 'level', 'sort_order', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['parent', 'slug'],
+                name='unique_fashion_category_parent_slug',
+            ),
+        ]
+
+    @property
+    def full_path(self):
+        names = [self.name]
+        parent = self.parent
+        while parent:
+            names.append(parent.name)
+            parent = parent.parent
+        return " > ".join(reversed(names))
+
+    def __str__(self):
+        return self.full_path
+
+
 class MenCategory(models.Model):
     men_category_id = models.AutoField(primary_key=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, db_column='category_id')
@@ -167,6 +213,13 @@ class Product(models.Model):
     brand = models.CharField(max_length=100, blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+    fashion_category = models.ForeignKey(
+        FashionCategory,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='products',
+    )
     sku = models.CharField(max_length=100, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)

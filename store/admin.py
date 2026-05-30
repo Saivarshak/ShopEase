@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, SubCategory, Product, ProductVariant, SiteAsset, PageAsset
+from .models import Category, SubCategory, FashionCategory, Product, ProductVariant, SiteAsset, PageAsset
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -12,10 +12,29 @@ class SubCategoryAdmin(admin.ModelAdmin):
     list_filter = ('category',)
     search_fields = ('subcategory_name',)
 
+
+@admin.register(FashionCategory)
+class FashionCategoryAdmin(admin.ModelAdmin):
+    list_display = (
+        'fashion_category_id',
+        'name',
+        'parent',
+        'root_category',
+        'level',
+        'sort_order',
+        'is_active',
+        'is_under_maintenance',
+    )
+    list_filter = ('root_category', 'level', 'is_active', 'is_under_maintenance')
+    search_fields = ('name', 'slug', 'parent__name', 'root_category__category_name')
+    prepopulated_fields = {'slug': ('name',)}
+    ordering = ('root_category__category_name', 'level', 'sort_order', 'name')
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('product_id', 'product_name', 'brand', 'category', 'subcategory', 'price', 'discount_percent', 'offer_price', 'is_active')
-    list_filter = ('category', 'subcategory', 'is_active')
+    list_display = ('product_id', 'product_name', 'brand', 'category', 'subcategory', 'fashion_category', 'price', 'discount_percent', 'offer_price', 'is_active')
+    list_filter = ('category', 'subcategory', 'fashion_category', 'is_active')
     search_fields = ('product_name', 'brand', 'sku')
 
 @admin.register(ProductVariant)
