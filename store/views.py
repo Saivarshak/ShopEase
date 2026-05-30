@@ -1011,7 +1011,7 @@ def home(request):
         'featured_section_title': getattr(home_content, 'featured_section_title', None) or 'Featured Products',
         'footer_text': getattr(home_content, 'footer_text', None) or 'All rights reserved.',
         'footer_brand_text': getattr(home_content, 'footer_brand_text', None) or 'ShopEase',
-        'footer_builder_text': getattr(home_content, 'footer_builder_text', None) or 'MR Technologies',
+        'footer_builder_text': getattr(home_content, 'footer_builder_text', None) or 'Varshak Shopeasy',
         'search_query': '',
         'profile_photo_url': request.session.get('profile_photo_url', ''),
     })
@@ -1078,7 +1078,7 @@ def search_results(request):
         'nav_login_url': getattr(home_content, 'nav_login_url', None) or '/login/',
         'footer_text': getattr(home_content, 'footer_text', None) or 'All rights reserved.',
         'footer_brand_text': getattr(home_content, 'footer_brand_text', None) or 'ShopEase',
-        'footer_builder_text': getattr(home_content, 'footer_builder_text', None) or 'MR Technologies',
+        'footer_builder_text': getattr(home_content, 'footer_builder_text', None) or 'Varshak Shopeasy',
     })
 
 
