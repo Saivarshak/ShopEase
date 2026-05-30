@@ -1,0 +1,56 @@
+{% if fashion_tree %}
+<div class="fashion-tree-grid">
+  {% for root in fashion_tree %}
+  <section class="fashion-tree-card">
+    <div class="fashion-tree-root">
+      <span>{{ root.category.name }}</span>
+      {% if root.category.is_under_maintenance %}<span class="maintenance-badge">Under Maintenance</span>{% endif %}
+    </div>
+    {% if root.children %}
+    <ul class="fashion-tree-list">
+      {% for child in root.children %}
+      <li>
+        {% if child.category.is_under_maintenance %}
+          <span class="fashion-tree-link is-disabled">{{ child.category.name }}</span>
+          <span class="maintenance-badge">Under Maintenance</span>
+        {% else %}
+          <a class="fashion-tree-link" href="{% url 'search_results' %}?q={{ child.category.name|urlencode }}">{{ child.category.name }}</a>
+        {% endif %}
+
+        {% if child.children %}
+        <ul>
+          {% for grandchild in child.children %}
+          <li>
+            {% if grandchild.category.is_under_maintenance %}
+              <span class="fashion-tree-link is-disabled">{{ grandchild.category.name }}</span>
+              <span class="maintenance-badge">Under Maintenance</span>
+            {% else %}
+              <a class="fashion-tree-link" href="{% url 'search_results' %}?q={{ grandchild.category.name|urlencode }}">{{ grandchild.category.name }}</a>
+            {% endif %}
+
+            {% if grandchild.children %}
+            <ul>
+              {% for item in grandchild.children %}
+              <li>
+                {% if item.category.is_under_maintenance %}
+                  <span class="fashion-tree-link is-disabled">{{ item.category.name }}</span>
+                  <span class="maintenance-badge">Under Maintenance</span>
+                {% else %}
+                  <a class="fashion-tree-link" href="{% url 'search_results' %}?q={{ item.category.name|urlencode }}">{{ item.category.name }}</a>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+  {% endfor %}
+</div>
+{% endif %}

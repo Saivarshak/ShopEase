@@ -45,12 +45,12 @@ def _format_fashion_category_option(category):
     return label
 
 
-def _build_fashion_category_tree():
+def _build_fashion_category_tree(root_category=None):
     try:
-        categories = list(
-            FashionCategory.objects.select_related('parent', 'root_category')
-            .order_by('root_category__category_name', 'level', 'sort_order', 'name')
-        )
+        queryset = FashionCategory.objects.select_related('parent', 'root_category')
+        if root_category is not None:
+            queryset = queryset.filter(root_category=root_category)
+        categories = list(queryset.order_by('root_category__category_name', 'level', 'sort_order', 'name'))
     except (ProgrammingError, OperationalError):
         return []
 
@@ -1022,6 +1022,7 @@ def home(request):
         'products': products,
         'featured_products': featured_products,
         'categories_context': categories_context,
+        'fashion_tree': _build_fashion_category_tree(),
         'logo_image': logo_image,
         'background_image': background_image,
         'background_url': _asset_public_url(background_image),
@@ -1060,7 +1061,8 @@ def search_results(request):
             Q(product_name__icontains=search_query) |
             Q(brand__icontains=search_query) |
             Q(category__category_name__icontains=search_query) |
-            Q(subcategory__subcategory_name__icontains=search_query)
+            Q(subcategory__subcategory_name__icontains=search_query) |
+            Q(fashion_category__name__icontains=search_query)
         )
 
         for token in search_tokens:
@@ -1068,7 +1070,8 @@ def search_results(request):
                 Q(product_name__icontains=token) |
                 Q(brand__icontains=token) |
                 Q(category__category_name__icontains=token) |
-                Q(subcategory__subcategory_name__icontains=token)
+                Q(subcategory__subcategory_name__icontains=token) |
+                Q(fashion_category__name__icontains=token)
             )
 
         if 'tshirt' in search_query.lower() or 't shirt' in search_query.lower() or 't-shirt' in search_query.lower():
@@ -1266,7 +1269,11 @@ def category_view(request, category_name):
     products = Product.objects.filter(category=category, is_active=True).select_related('category', 'subcategory')
     template_name = template_lookup.get(category.category_name.lower(), 'store/category-men.html')
 
-    context = {'products': products, 'category': category}
+    context = {
+        'products': products,
+        'category': category,
+        'fashion_tree': _build_fashion_category_tree(category),
+    }
     if category.category_name.lower() == 'mens':
         fallback_map = {
             't-shirts': 'images/T-shirt.jpg',
