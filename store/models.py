@@ -62,6 +62,9 @@ class FashionCategory(models.Model):
     )
     level = models.PositiveSmallIntegerField(default=0)
     sort_order = models.PositiveIntegerField(default=0)
+    image = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    page_url = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_under_maintenance = models.BooleanField(default=False)
 

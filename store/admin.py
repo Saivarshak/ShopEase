@@ -42,9 +42,9 @@ class PageAssetAdmin(admin.ModelAdmin):
 
 @admin.register(FashionCategory)
 class FashionCategoryAdmin(admin.ModelAdmin):
-    list_display = ('fashion_category_id', 'name', 'parent', 'root_category', 'level', 'is_under_maintenance', 'is_active')
+    list_display = ('fashion_category_id', 'name', 'parent', 'root_category', 'level', 'sort_order', 'is_under_maintenance', 'is_active')
     list_filter = ('root_category', 'is_under_maintenance', 'is_active')
-    search_fields = ('name', 'slug')
+    search_fields = ('name', 'slug', 'description', 'page_url')
 
 
 @admin.register(WishlistItem)

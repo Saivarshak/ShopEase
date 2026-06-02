@@ -672,6 +672,78 @@ def _load_category_cards(queryset, fallback_map, empty_fallback):
         return []
 
 
+def _get_fashion_card_fallback(category):
+    fallback_map = {
+        't-shirts': 'images/T-shirt.jpg',
+        'shirts': 'images/mens_shirts.png',
+        'polos': 'images/menstshirts.webp',
+        'jeans': 'images/mens_jeans.png',
+        'trousers': 'images/mens_jeans.png',
+        'cargo pants': 'images/mens_jeans.png',
+        'shorts': 'images/mens_tshirts.png',
+        'hoodies & sweatshirts': 'images/mens_tshirts.webp',
+        'jackets & coats': 'images/men.png',
+        'blazers': 'images/men.png',
+        'suits': 'images/men.png',
+        'innerwear': 'images/men.png',
+        'nightwear': 'images/men.png',
+        'activewear': 'images/mens_tshirts.png',
+        'traditional wear': 'images/mens_shirts.png',
+        'footwear': 'images/mens_shoes.png',
+        'accessories': 'images/mens_accessories.png',
+        'ethnic wear': 'images/women-ethnic.png',
+        'western wear': 'images/women-western.png',
+        'lingerie & sleepwear': 'images/women.png',
+        'maternity wear': 'images/women.png',
+        'winter wear': 'images/women.png',
+        'bags & accessories': 'images/women-bags.png',
+        'boys wear': 'images/kids-tshirts.png',
+        'girls wear': 'images/kids-dresses.png',
+        'boys': 'images/kids-tshirts.png',
+        'girls': 'images/kids-dresses.png',
+        'baby care': 'images/kids.png',
+        'toys': 'images/kids-toys.png',
+    }
+    root_name = (getattr(category.root_category, 'category_name', '') or '').lower()
+    root_fallbacks = {
+        'mens': 'images/men.png',
+        'womens': 'images/women.png',
+        'kids': 'images/kids.png',
+        'accessories': 'images/mens_accessories.png',
+    }
+    name = (category.name or '').lower()
+    return fallback_map.get(name, root_fallbacks.get(root_name, 'images/homebg.jpg'))
+
+
+def _is_maintenance_category(category):
+    return bool(category.is_under_maintenance or 'accessor' in (category.name or '').lower())
+
+
+def _build_fashion_category_cards(root_category):
+    try:
+        root_node = FashionCategory.objects.filter(
+            root_category=root_category,
+            parent__isnull=True,
+            is_active=True,
+        ).order_by('sort_order', 'name').first()
+        if not root_node:
+            return []
+
+        cards = []
+        for item in root_node.children.filter(is_active=True).order_by('sort_order', 'name'):
+            cards.append({
+                'id': item.fashion_category_id,
+                'name': item.name,
+                'image_path': _resolve_static_image_path(item.image, _get_fashion_card_fallback(item)),
+                'description': item.description or f'Explore {item.name.lower()} styles and essentials.',
+                'page_url': item.page_url or reverse('fashion_category_listing', args=[item.fashion_category_id]),
+                'is_under_maintenance': _is_maintenance_category(item),
+            })
+        return cards
+    except (ProgrammingError, OperationalError):
+        return []
+
+
 def _build_product_cards(products):
     image_cards = []
 
@@ -1325,7 +1397,7 @@ def category_view(request, category_name):
             'jeans': 'images/mens_jeans.png',
             'accessories': 'images/mens_accessories.png',
         }
-        context['men_categories'] = _load_category_cards(
+        context['men_categories'] = _build_fashion_category_cards(category) or _load_category_cards(
             MenCategory.objects.filter(category=category, is_active=True),
             fallback_map,
             'images/T-shirt.jpg',
@@ -1340,7 +1412,7 @@ def category_view(request, category_name):
             'bags & accessories': 'images/women-bags.png',
             'bags and accessories': 'images/women-bags.png',
         }
-        context['women_categories'] = _load_category_cards(
+        context['women_categories'] = _build_fashion_category_cards(category) or _load_category_cards(
             WomenCategory.objects.filter(category=category, is_active=True),
             fallback_map,
             'images/women.png',
@@ -1355,7 +1427,7 @@ def category_view(request, category_name):
             'toys': 'images/kids-toys.png',
             'footwear': 'images/kids-footwear.png',
         }
-        context['kids_categories'] = _load_category_cards(
+        context['kids_categories'] = _build_fashion_category_cards(category) or _load_category_cards(
             KidsCategory.objects.filter(category=category, is_active=True),
             fallback_map,
             'images/kids.png',
@@ -2724,6 +2796,13 @@ def _parse_size_quantities(raw_value):
     return variants
 
 
+def _parse_int(raw_value, default=0):
+    try:
+        return int(raw_value)
+    except (TypeError, ValueError):
+        return default
+
+
 def _get_total_stock(product):
     return sum(ProductVariant.objects.filter(product=product).values_list('quantity', flat=True))
 
@@ -2813,6 +2892,17 @@ def _save_background_asset_record(choice, image_path, is_active):
     asset.is_active = is_active
     asset.save()
     return asset
+
+
+def _unique_fashion_slug(name, parent, category_id=None):
+    base_slug = slugify(name)[:150] or 'fashion-category'
+    slug = base_slug
+    counter = 2
+    while FashionCategory.objects.filter(parent=parent, slug=slug).exclude(fashion_category_id=category_id).exists():
+        suffix = f'-{counter}'
+        slug = f'{base_slug[:160 - len(suffix)]}{suffix}'
+        counter += 1
+    return slug
 
 
 def admin_product_form(request, product_id=None):
@@ -3026,33 +3116,68 @@ def admin_categories(request):
         return access_redirect
 
     if request.method == 'POST':
+        action = (request.POST.get('action') or 'save_fashion_category').strip()
+        fashion_category_id = request.POST.get('fashion_category_id')
+
+        if action == 'delete_fashion_category':
+            category = get_object_or_404(FashionCategory, fashion_category_id=fashion_category_id)
+            category_name = category.name
+            category.delete()
+            messages.success(request, f'"{category_name}" category card deleted successfully.')
+            return redirect('admin_categories')
+
         name = (request.POST.get('name') or '').strip()
         root_category_id = request.POST.get('root_category_id')
         parent_id = request.POST.get('parent_id')
+        sort_order = max(0, _parse_int(request.POST.get('sort_order'), 0))
+        description = (request.POST.get('description') or '').strip()
+        page_url = (request.POST.get('page_url') or '').strip()
+        image_path = _normalize_admin_asset_path(request.POST.get('image'))
+        uploaded_image_path = _save_uploaded_asset_image(request.FILES.get('image_upload'), name)
         is_under_maintenance = request.POST.get('is_under_maintenance') == 'on'
+        is_active = request.POST.get('is_active') == 'on'
         root_category = Category.objects.filter(category_id=root_category_id).first()
         parent = FashionCategory.objects.filter(fashion_category_id=parent_id).first()
         if name and root_category:
-            FashionCategory.objects.create(
-                name=name,
-                slug=slugify(name)[:160],
-                root_category=root_category,
-                parent=parent,
-                level=(parent.level + 1) if parent else 0,
-                sort_order=FashionCategory.objects.count() + 1,
-                is_active=True,
-                is_under_maintenance=is_under_maintenance,
-            )
+            category = FashionCategory.objects.filter(fashion_category_id=fashion_category_id).first()
+            if category is None:
+                category = FashionCategory()
+
+            final_image_path = uploaded_image_path or image_path or (category.image if category.fashion_category_id else '')
+            category.name = name
+            category.slug = _unique_fashion_slug(name, parent, category.fashion_category_id)
+            category.root_category = root_category
+            category.parent = parent
+            category.level = (parent.level + 1) if parent else 0
+            category.sort_order = sort_order or FashionCategory.objects.count() + 1
+            category.image = final_image_path or None
+            category.description = description or None
+            category.page_url = page_url or None
+            category.is_active = is_active
+            category.is_under_maintenance = is_under_maintenance
+            category.save()
+
             if parent:
                 SubCategory.objects.get_or_create(category=root_category, subcategory_name=name)
-            messages.success(request, 'Fashion category saved successfully.')
+            messages.success(request, 'Fashion category card saved successfully.')
         else:
             messages.error(request, 'Category name and root category are required.')
         return redirect('admin_categories')
 
+    fashion_categories = FashionCategory.objects.select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
+    root_nodes = FashionCategory.objects.filter(parent__isnull=True).select_related('root_category').order_by('sort_order', 'name')
+    card_groups = []
+    for root_node in root_nodes:
+        cards = root_node.children.select_related('root_category', 'parent').order_by('sort_order', 'name')
+        card_groups.append({
+            'root': root_node,
+            'cards': cards,
+        })
+
     return render(request, 'store/admin-categories.html', {
         'categories': Category.objects.order_by('category_name'),
-        'fashion_categories': FashionCategory.objects.select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name'),
+        'fashion_categories': fashion_categories,
+        'card_groups': card_groups,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
     })
 
