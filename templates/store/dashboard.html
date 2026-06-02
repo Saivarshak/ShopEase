@@ -67,14 +67,6 @@
       <a href="{% url 'admin_backgrounds' %}" class="btn btn-dark">Open Backgrounds</a>
     </div>
 
-    <div class="admin-section">
-      <div>
-        <h2 style="margin:0;font-size:22px;">Fashion Website Structure</h2>
-        <p style="margin:6px 0 0;color:#000000;">View the Men, Women, Kids, and Accessories category tree from the database.</p>
-      </div>
-      <a href="{% url 'admin_fashion_structure' %}" class="btn btn-dark">Open Structure</a>
-    </div>
-
     <div class="table-card">
       <table>
         <thead>
@@ -83,7 +75,6 @@
             <th>Name</th>
             <th>Category</th>
             <th>Subcategory</th>
-            <th>Fashion Category</th>
             <th>SKU</th>
             <th>Price</th>
             <th>Stock</th>
@@ -98,7 +89,6 @@
               <td>{{ row.product.product_name }}</td>
               <td>{{ row.product.category.category_name }}</td>
               <td>{{ row.product.subcategory.subcategory_name }}</td>
-              <td>{% if row.product.fashion_category %}{{ row.product.fashion_category.full_path }}{% else %}-{% endif %}</td>
               <td>{{ row.product.sku }}</td>
               <td>Rs. {{ row.product.offer_price }}</td>
               <td>{{ row.total_stock }}</td>
@@ -115,7 +105,7 @@
             </tr>
           {% empty %}
             <tr>
-              <td colspan="10" class="empty">No products available yet.</td>
+              <td colspan="9" class="empty">No products available yet.</td>
             </tr>
           {% endfor %}
         </tbody>

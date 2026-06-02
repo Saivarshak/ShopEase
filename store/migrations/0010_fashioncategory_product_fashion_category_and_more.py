@@ -168,7 +168,7 @@ def seed_fashion_categories(apps, schema_editor):
             )
 
     for root_order, (display_name, legacy_category_name, children) in enumerate(FASHION_TREE, start=1):
-        root_category = Category.objects.filter(category_name__iexact=legacy_category_name).first()
+        root_category, _ = Category.objects.get_or_create(category_name=legacy_category_name)
         create_node(root_category, None, display_name, children, False, 0, root_order)
 
 
