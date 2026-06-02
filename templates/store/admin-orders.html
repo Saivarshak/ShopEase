@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Management</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f3f6fb; color: #111827; }
+    .header { background: #000; color: #fff; padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .header a { color: #fff; text-decoration: none; }
+    .wrap { max-width: 1240px; margin: 32px auto; padding: 0 20px; }
+    .topbar { display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+    .btn { border: 0; border-radius: 999px; padding: 10px 14px; background: #000; color: #fff; font-weight: 700; text-decoration: none; cursor: pointer; }
+    .message { margin-bottom: 14px; padding: 12px 14px; border-radius: 8px; background: #ecfdf3; }
+    .card { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 14px 40px rgba(0,0,0,.08); margin-bottom: 18px; }
+    .order-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 12px; }
+    .muted { color: #667085; font-size: 14px; }
+    .items { display: grid; gap: 8px; margin-bottom: 14px; }
+    .item { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+    .form-grid { display: grid; grid-template-columns: repeat(5, minmax(140px, 1fr)) auto; gap: 10px; align-items: end; }
+    label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #475467; }
+    input, select { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; }
+    .empty { background: #fff; border-radius: 12px; padding: 36px; text-align: center; }
+    @media (max-width: 980px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 620px) { .form-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>Order Management</div>
+    <div style="display:flex;gap:14px;align-items:center;">
+      <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+      <a href="{% url 'logout' %}">Logout</a>
+    </div>
+  </div>
+  <main class="wrap">
+    {% if messages %}{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}{% endif %}
+    <div class="topbar">
+      <div>
+        <h1 style="margin:0;">Orders</h1>
+        <p class="muted" style="margin:6px 0 0;">View orders, update status, cancel orders, and maintain delivery tracking details.</p>
+      </div>
+      <form method="get" style="display:flex;gap:8px;align-items:center;">
+        <select name="status">
+          <option value="">All Statuses</option>
+          <option value="Placed">Placed</option>
+          <option value="Pending Payment">Pending Payment</option>
+          <option value="Packed">Packed</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+        <button class="btn" type="submit">Filter</button>
+      </form>
+    </div>
+    {% for order in orders %}
+      <section class="card">
+        <div class="order-head">
+          <div>
+            <strong>Order #{{ order.order_id }}</strong>
+            <div class="muted">{{ order.full_name }} | {{ order.email }} | {{ order.phone_number }}</div>
+            <div class="muted">{{ order.address }}, {{ order.city }}, {{ order.state }} - {{ order.pincode }}</div>
+          </div>
+          <div>
+            <strong>Rs. {{ order.subtotal }}</strong>
+            <div class="muted">{{ order.total_items }} item{{ order.total_items|pluralize }} | {{ order.created_at }}</div>
+          </div>
+        </div>
+        <div class="items">
+          {% for item in order.items.all %}
+            <div class="item">
+              <span>{{ item.product.product_name }}{% if item.selected_size %} ({{ item.selected_size }}){% endif %} x {{ item.quantity }}</span>
+              <strong>Rs. {{ item.line_total }}</strong>
+            </div>
+          {% endfor %}
+        </div>
+        <form class="form-grid" method="post" action="{% url 'admin_order_update' order.order_id %}">
+          {% csrf_token %}
+          <div>
+            <label>Order Status</label>
+            <select name="status">
+              <option value="Placed" {% if order.status == "Placed" %}selected{% endif %}>Placed</option>
+              <option value="Pending Payment" {% if order.status == "Pending Payment" %}selected{% endif %}>Pending Payment</option>
+              <option value="Packed" {% if order.status == "Packed" %}selected{% endif %}>Packed</option>
+              <option value="Shipped" {% if order.status == "Shipped" %}selected{% endif %}>Shipped</option>
+              <option value="Delivered" {% if order.status == "Delivered" %}selected{% endif %}>Delivered</option>
+              <option value="Cancelled" {% if order.status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+            </select>
+          </div>
+          <div>
+            <label>Payment Status</label>
+            <select name="payment_status">
+              <option value="Pending" {% if order.payment_status == "Pending" %}selected{% endif %}>Pending</option>
+              <option value="Created" {% if order.payment_status == "Created" %}selected{% endif %}>Created</option>
+              <option value="Paid" {% if order.payment_status == "Paid" %}selected{% endif %}>Paid</option>
+              <option value="Failed" {% if order.payment_status == "Failed" %}selected{% endif %}>Failed</option>
+              <option value="Refunded" {% if order.payment_status == "Refunded" %}selected{% endif %}>Refunded</option>
+            </select>
+          </div>
+          <div><label>Courier</label><input name="courier_name" value="{{ order.courier_name|default:'' }}"></div>
+          <div><label>Tracking Number</label><input name="tracking_number" value="{{ order.tracking_number|default:'' }}"></div>
+          <div><label>Tracking URL</label><input name="tracking_url" value="{{ order.tracking_url|default:'' }}"></div>
+          <div><label>Estimated Delivery</label><input type="date" name="estimated_delivery" value="{{ order.estimated_delivery|date:'Y-m-d' }}"></div>
+          <button class="btn" type="submit">Update</button>
+        </form>
+      </section>
+    {% empty %}
+      <div class="empty">
+        <h2>No orders found</h2>
+        <p class="muted">Orders placed from checkout will appear here.</p>
+      </div>
+    {% endfor %}
+  </main>
+</body>
+</html>

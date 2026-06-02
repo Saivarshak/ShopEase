@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Category Management</title>
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#f3f6fb; color:#111827; }
+    .header { background:#000; color:#fff; padding:16px 28px; display:flex; justify-content:space-between; }
+    .header a { color:#fff; text-decoration:none; }
+    .wrap { max-width:1180px; margin:32px auto; padding:0 20px; display:grid; grid-template-columns:360px 1fr; gap:20px; }
+    .panel { background:#fff; border-radius:12px; padding:22px; box-shadow:0 14px 40px rgba(0,0,0,.08); }
+    label { display:block; font-weight:700; margin-top:12px; font-size:14px; }
+    input, select { width:100%; box-sizing:border-box; padding:11px; border:1px solid #cbd5e1; border-radius:8px; margin-top:5px; }
+    button { margin-top:16px; border:0; background:#000; color:#fff; border-radius:999px; padding:12px 16px; font-weight:700; cursor:pointer; }
+    .row { border-top:1px solid #e5e7eb; padding:12px 0; }
+    .row:first-of-type { border-top:0; }
+    .badge { display:inline-block; border-radius:999px; padding:3px 8px; background:#fff7ed; color:#b54708; font-size:12px; font-weight:700; }
+    @media(max-width:900px){ .wrap{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+  <div class="header"><div>Category Management</div><a href="{% url 'admin_dashboard' %}">Dashboard</a></div>
+  <main class="wrap">
+    <form class="panel" method="post">
+      {% csrf_token %}
+      <h1>Add Fashion Category</h1>
+      {% if messages %}{% for message in messages %}<p>{{ message }}</p>{% endfor %}{% endif %}
+      <label>Name</label>
+      <input name="name" required>
+      <label>Root Category</label>
+      <select name="root_category_id" required>
+        <option value="">Select root</option>
+        {% for category in categories %}
+          <option value="{{ category.category_id }}">{{ category.category_name }}</option>
+        {% endfor %}
+      </select>
+      <label>Parent Category</label>
+      <select name="parent_id">
+        <option value="">Top level</option>
+        {% for category in fashion_categories %}
+          <option value="{{ category.fashion_category_id }}">{{ category.full_path }}</option>
+        {% endfor %}
+      </select>
+      <label><input type="checkbox" name="is_under_maintenance" style="width:auto;"> Under maintenance</label>
+      <button type="submit">Save Category</button>
+    </form>
+    <section class="panel">
+      <h1>Fashion Categories</h1>
+      {% for category in fashion_categories %}
+        <div class="row">
+          <strong>{{ category.full_path }}</strong>
+          <div>{{ category.root_category.category_name|default:"-" }} | Level {{ category.level }}</div>
+          {% if category.is_under_maintenance %}<span class="badge">Under Maintenance</span>{% endif %}
+        </div>
+      {% empty %}
+        <p>No categories available.</p>
+      {% endfor %}
+    </section>
+  </main>
+</body>
+</html>
