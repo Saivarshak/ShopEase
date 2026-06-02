@@ -2,129 +2,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>ShopEase - Kids</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barriecito&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<title>ShopEase - Kids</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      min-height: 100vh;
-      position: relative;
-      background-repeat: no-repeat;
-      background-attachment: scroll;
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barriecito&display=swap" rel="stylesheet">
 
-    .footersection {
-      background-color: rgb(177 135 171 / 30%);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      padding: 20px;
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,
+body{
+    height:100%;
+    overflow:hidden; /* Prevent page scrolling */
+    font-family:'Inter',sans-serif;
+}
+
+body{
+    background-image:url('{{ page_background_url }}');
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed; /* Background never moves */
+    display:flex;
+    flex-direction:column;
+}
+
+/* Glass Header */
+.topbanner{
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+    border-bottom:1px solid rgba(255,255,255,0.2);
+    flex-shrink:0;
+}
+
+/* Glass Footer */
+.footersection{
+    background:rgba(255,255,255,0.12);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+    border-top:1px solid rgba(255,255,255,0.2);
+    flex-shrink:0;
+}
+
+/* Main Scroll Area */
+.scroll-container{
+    flex:1;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding-bottom:30px;
+
+    /* Hide Scrollbar */
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+.scroll-container::-webkit-scrollbar{
+    display:none;
+}
+
+/* Glass Cards */
+.card{
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,0.25);
+    transition:all 0.4s ease;
+}
+
+.card:hover{
+    transform:translateY(-8px) scale(1.03);
+    box-shadow:0 20px 40px rgba(0,0,0,0.2);
+}
+
+.mainheading{
+    font-family:"Barriecito",system-ui;
+    font-weight:400;
+}
+
+h1.size{
+    font-size:28px;
+}
+
+@media(min-width:640px){
+    h1.size{
+        font-size:35px;
     }
-    @media (min-width: 1024px) {
-      .footersection {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-      }
-    }
-    .topbanner {
-      background-color: #e5b8e154;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      padding: 20px;
-    }
-    .card {
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      padding: 20px;
-    }
-    .mainheading {
-      font-family: "Barriecito", system-ui;
-      font-weight: 400;
-      font-style: normal;
-    }
-    h1.size {
-      font-size: 28px;
-    }
-    @media (min-width: 640px) {
-      h1.size { font-size: 35px; }
-    }
-   
-  </style>
-  <script>
-    tailwind.config = {
-      theme: {
+}
+
+img{
+    display:block;
+}
+
+.maintenance-badge{
+    background:rgba(255,193,7,0.2);
+    color:#7a5600;
+    backdrop-filter:blur(10px);
+}
+
+.empty-box{
+    background:rgba(255,255,255,0.18);
+    backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,0.2);
+}
+</style>
+
+<script>
+tailwind.config = {
+    theme: {
         extend: {
-          colors: {
-            brandPink: '#000000',
-            brandCoral: '#000000',
-            brandDark: '#000000',
-            brandMuted: '#000000',
-            brandLight: '#fdfdfd',
-            beige: '#eaba83ff'
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif']
-          }
+            colors: {
+                brandPink: '#000000',
+                brandCoral: '#000000',
+                brandDark: '#000000',
+                brandMuted: '#333333',
+                brandLight: '#ffffff',
+                beige: '#eaba83ff'
+            }
         }
-      }
     }
-  </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-  <style> body { font-family: 'Inter', sans-serif; } </style>
+}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-brandLight text-brandDark"
-      style="background-image: url('{{ page_background_url }}'); background-size: cover; background-position: center;">
 
-<!-- Header -->
+<body class="text-brandDark">
+
+<!-- HEADER -->
 <header class="topbanner shadow-md py-4">
-  <div class="max-w-7xl mx-auto px-4 flex flex-wrap sm:flex-nowrap justify-between items-center gap-3">
-    <a href="/" class="flex-shrink-0">
-      <img src="{% static logo_image %}" alt="ShopEase Logo" class="h-10 sm:h-14 md:h-16 w-auto" />
-    </a>
-    <h1 class="text-lg sm:text-2xl font-bold mainheading text-brandDark size text-center w-full sm:w-auto">
-      Kids Collection
-    </h1> 
-    <a href="/" class="bg-black hover:bg-emerald-600 text-white px-3 py-2 rounded-full text-xs sm:text-sm md:text-base transition">
-      ← Back to Home
-    </a>
-  </div>
-</header> 
+    <div class="max-w-7xl mx-auto px-4 flex flex-wrap sm:flex-nowrap justify-between items-center gap-3">
 
-<!-- Category Section -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-  <h2 class="text-2xl sm:text-3xl font-semibold text-center mb-8 sm:mb-12 text-brandDark">Kids Gallery</h2>
+        <a href="/" class="flex-shrink-0">
+            <img src="{% static logo_image %}"
+                 alt="ShopEase Logo"
+                 class="h-10 sm:h-14 md:h-16 w-auto">
+        </a>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-10">
-    {% for item in kids_categories %}
-    <a href="{{ item.page_url }}" class="rounded-xl overflow-hidden shadow hover:shadow-xl transition transform hover:scale-105 bg-white card">
-      <img src="{% static item.image_path %}" alt="{{ item.name }}" class="w-full h-48 sm:h-64 object-cover" loading="lazy" decoding="async">
-      <div class="p-4 text-center">
-        <div class="flex items-start justify-center gap-3">
-          <h3 class="text-lg sm:text-xl font-semibold text-brandDark">{{ item.name }}</h3>
-          {% if item.is_under_maintenance %}<span class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-1 rounded-full">Maintenance</span>{% endif %}
-        </div>
-        <p class="text-brandMuted text-sm mt-2">{{ item.description }}</p>
-      </div>
-    </a>
-    {% empty %}
-    <div class="col-span-full bg-white/80 rounded-xl p-6 shadow text-center">
-      <p class="text-brandMuted">No kids categories found in the database.</p>
+        <h1 class="text-lg sm:text-2xl font-bold mainheading size text-center w-full sm:w-auto">
+            Kids Collection
+        </h1>
+
+        <a href="/"
+           class="bg-black hover:bg-emerald-600 text-white px-3 py-2 rounded-full text-xs sm:text-sm md:text-base transition">
+            ← Back to Home
+        </a>
+
     </div>
-    {% endfor %}
-  </div>
-</section>
+</header>
 
-<!-- Footer -->
-<footer class="footersection py-6 border-t mt-12 text-center text-sm sm:text-base">
-  <div class="w-full px-4 sm:px-10 text-brandMuted">
-    &copy; 2026 <strong class="text-brandDark">ShopEase</strong>. All rights reserved. | Built by <span class="text-black font-semibold">Varshak Shopeasy</span>
-  </div>
+<!-- ONLY THIS AREA SCROLLS -->
+<div class="scroll-container">
+
+    <!-- CATEGORY SECTION -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+
+        <h2 class="text-2xl sm:text-3xl font-semibold text-center mb-8 sm:mb-12">
+            Kids Gallery
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+
+            {% for item in kids_categories %}
+
+            <a href="{{ item.page_url }}"
+               class="card rounded-2xl overflow-hidden shadow-lg">
+
+                <img src="{% static item.image_path %}"
+                     alt="{{ item.name }}"
+                     class="w-full h-56 object-cover"
+                     loading="lazy"
+                     decoding="async">
+
+                <div class="p-5">
+
+                    <div class="flex flex-wrap items-center justify-center gap-2">
+
+                        <h3 class="text-lg sm:text-xl font-semibold text-center">
+                            {{ item.name }}
+                        </h3>
+
+                        {% if item.is_under_maintenance %}
+                        <span class="maintenance-badge text-xs font-bold px-2 py-1 rounded-full">
+                            Maintenance
+                        </span>
+                        {% endif %}
+
+                    </div>
+
+                    <p class="text-sm text-center mt-3">
+                        {{ item.description }}
+                    </p>
+
+                </div>
+
+            </a>
+
+            {% empty %}
+
+            <div class="col-span-full empty-box rounded-2xl p-8 text-center">
+                <p>No kids categories found in the database.</p>
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footersection py-6 text-center text-sm sm:text-base">
+    <div class="w-full px-4 sm:px-10">
+        &copy; 2026
+        <strong>ShopEase</strong>.
+        All rights reserved. |
+        Built by
+        <span class="font-semibold text-black">
+            Varshak Shopeasy
+        </span>
+    </div>
 </footer>
 
 </body>
