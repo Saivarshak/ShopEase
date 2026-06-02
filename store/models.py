@@ -277,6 +277,48 @@ class CartItem(models.Model):
         return f"{self.user} - {self.product} x {self.quantity}"
 
 
+class WishlistItem(models.Model):
+    wishlist_item_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wishlist_items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='wishlist_items')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "wishlist_items"
+        unique_together = ("user", "product")
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user} - {self.product}"
+
+
+class UserAddress(models.Model):
+    address_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='addresses')
+    full_name = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=20)
+    address = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    pincode = models.CharField(max_length=20)
+    country = models.CharField(max_length=100, default='India')
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "user_addresses"
+        ordering = ['-is_default', '-updated_at']
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.is_default:
+            UserAddress.objects.filter(user=self.user, is_default=True).exclude(address_id=self.address_id).update(is_default=False)
+
+    def __str__(self):
+        return f"{self.full_name} - {self.city}"
+
+
 class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -297,6 +339,10 @@ class Order(models.Model):
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_items = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=50, default='Placed')
+    tracking_number = models.CharField(max_length=120, blank=True, null=True)
+    courier_name = models.CharField(max_length=120, blank=True, null=True)
+    tracking_url = models.URLField(max_length=500, blank=True, null=True)
+    estimated_delivery = models.DateField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

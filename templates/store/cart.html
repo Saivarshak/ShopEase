@@ -90,6 +90,9 @@ body {
 .remove-form {
   margin-top: 12px;
 }
+.quantity-form { display: inline-flex; gap: 8px; align-items: center; margin: 10px 0; }
+.quantity-form input { width: 72px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; }
+.quantity-form button { border: none; background: #000; color: #fff; border-radius: 999px; padding: 9px 12px; font-weight: 700; cursor: pointer; }
 
 .remove-btn {
   border: none;
@@ -227,7 +230,16 @@ body {
               {% endif %}
             </div>
             <div class="stock">In stock</div>
-            <div>Quantity: {{ item.quantity }}</div>
+            {% if item.cart_item_id %}
+            <form method="post" action="{% url 'update_cart_item' item.cart_item_id %}" class="quantity-form">
+            {% else %}
+            <form method="post" action="{% url 'update_session_cart_item' item.session_item_key %}" class="quantity-form">
+            {% endif %}
+              {% csrf_token %}
+              <label>Qty</label>
+              <input type="number" name="quantity" min="1" value="{{ item.quantity }}">
+              <button type="submit">Update</button>
+            </form>
             <div class="price">Rs. {{ item.product.offer_price }}</div>
             {% if item.cart_item_id %}
             <form method="post" action="{% url 'remove_from_cart' item.cart_item_id %}" class="remove-form">

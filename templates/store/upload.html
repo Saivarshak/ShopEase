@@ -71,6 +71,17 @@
               {% endfor %}
             </select>
           </div>
+          <div class="field full">
+            <label>Fashion Category</label>
+            <select name="fashion_category_id">
+              <option value="">Use legacy category only</option>
+              {% for fashion_category in fashion_categories %}
+                <option value="{{ fashion_category.fashion_category_id }}" {% if product and product.fashion_category_id == fashion_category.fashion_category_id %}selected{% endif %}>
+                  {{ fashion_category.full_path }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
           <div class="field">
             <label>SKU</label>
             <input type="text" name="sku" value="{{ product.sku|default:'' }}" required>

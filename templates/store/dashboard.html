@@ -22,6 +22,11 @@
     .structure-preview li { margin: 7px 0; }
     .badge { display: inline-block; border-radius: 999px; padding: 3px 9px; background: #fef3c7; color: #92400e; font-size: 12px; font-weight: 700; }
     .table-card { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08); overflow-x: auto; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .stat { background: white; border-radius: 14px; padding: 18px; box-shadow: 0 14px 40px rgba(0,0,0,.08); }
+    .stat span { display:block; color:#475467; font-size:13px; text-transform:uppercase; font-weight:700; }
+    .stat strong { display:block; margin-top:8px; font-size:28px; }
+    .admin-links { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 14px 12px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: middle; }
     th { color: #475467; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
@@ -57,6 +62,22 @@
         <p style="margin:6px 0 0;color:#000000;">Add, edit, and remove products for men, women, and kids.</p>
       </div>
       <a href="{% url 'admin_product_add' %}" class="btn btn-primary">Add Product</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span>Total Products</span><strong>{{ total_products }}</strong></div>
+      <div class="stat"><span>Total Orders</span><strong>{{ total_orders }}</strong></div>
+      <div class="stat"><span>Total Customers</span><strong>{{ total_customers }}</strong></div>
+      <div class="stat"><span>Revenue</span><strong>Rs. {{ revenue }}</strong></div>
+      <div class="stat"><span>Low Stock Alerts</span><strong>{{ low_stock_count }}</strong></div>
+    </div>
+
+    <div class="admin-links">
+      <a href="{% url 'admin_orders' %}" class="btn btn-secondary">Orders</a>
+      <a href="{% url 'admin_customers' %}" class="btn btn-secondary">Customers</a>
+      <a href="{% url 'admin_inventory' %}" class="btn btn-secondary">Inventory</a>
+      <a href="{% url 'admin_categories' %}" class="btn btn-secondary">Categories</a>
+      <a href="{% url 'fashion_catalog' %}" class="btn btn-secondary">View Catalog</a>
     </div>
 
     <div class="admin-section">

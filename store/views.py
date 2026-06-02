@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 from django.db import connection, transaction
 from django.db.utils import OperationalError, ProgrammingError
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -27,6 +27,9 @@ from .models import (
     CartItem,
     Order,
     OrderItem,
+    WishlistItem,
+    UserAddress,
+    FashionCategory,
     MenCategory,
     WomenCategory,
     KidsCategory,
@@ -700,6 +703,85 @@ def _build_product_cards(products):
     return image_cards
 
 
+def _build_category_tree():
+    try:
+        categories = list(
+            FashionCategory.objects.filter(is_active=True)
+            .select_related('parent', 'root_category')
+            .order_by('level', 'sort_order', 'name')
+        )
+    except (ProgrammingError, OperationalError):
+        return []
+
+    children_by_parent = {}
+    for category in categories:
+        children_by_parent.setdefault(category.parent_id, []).append(category)
+
+    def serialize(category):
+        return {
+            'category': category,
+            'children': [serialize(child) for child in children_by_parent.get(category.fashion_category_id, [])],
+        }
+
+    return [serialize(category) for category in children_by_parent.get(None, [])]
+
+
+def _get_filtered_product_queryset(request, base_queryset):
+    query = (request.GET.get('q') or '').strip()
+    subcategory_id = (request.GET.get('subcategory') or '').strip()
+    min_price = _parse_decimal(request.GET.get('min_price'), default='0')
+    max_price = _parse_decimal(request.GET.get('max_price'), default='0')
+    sort = (request.GET.get('sort') or 'newest').strip()
+
+    products = base_queryset
+    if query:
+        products = products.filter(
+            Q(product_name__icontains=query) |
+            Q(brand__icontains=query) |
+            Q(category__category_name__icontains=query) |
+            Q(subcategory__subcategory_name__icontains=query) |
+            Q(fashion_category__name__icontains=query)
+        )
+    if subcategory_id:
+        products = products.filter(subcategory_id=subcategory_id)
+    if min_price > 0:
+        products = products.filter(offer_price__gte=min_price)
+    if max_price > 0:
+        products = products.filter(offer_price__lte=max_price)
+
+    sort_map = {
+        'price_asc': 'offer_price',
+        'price_desc': '-offer_price',
+        'name': 'product_name',
+        'newest': '-product_id',
+    }
+    return products.order_by(sort_map.get(sort, '-product_id')).distinct()
+
+
+def _catalog_context(request, products, page_title, search_placeholder_text='Search fashion...'):
+    products = _get_filtered_product_queryset(request, products)
+    subcategories = SubCategory.objects.filter(
+        product__in=products
+    ).select_related('category').distinct().order_by('category__category_name', 'subcategory_name')
+
+    return {
+        'page_title': page_title,
+        'search_placeholder_text': search_placeholder_text,
+        'image_cards': _build_product_cards(products),
+        'products_count': products.count(),
+        'subcategories': subcategories,
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'page_background_image': _get_site_asset('home_background', 'images/homebg.jpg'),
+        'page_background_url': _get_site_asset_url('home_background', 'images/homebg.jpg'),
+        'detail_url_name': 'catalog_product_detail',
+        'selected_query': request.GET.get('q', ''),
+        'selected_subcategory': request.GET.get('subcategory', ''),
+        'selected_min_price': request.GET.get('min_price', ''),
+        'selected_max_price': request.GET.get('max_price', ''),
+        'selected_sort': request.GET.get('sort', 'newest'),
+    }
+
+
 def store_asset(request, asset_path):
     normalized = Path((asset_path or '').replace('\\', '/').lstrip('/'))
 
@@ -1285,15 +1367,57 @@ def category_view(request, category_name):
 
     return render(request, template_name, context)
 
+
+def fashion_catalog(request):
+    products = Product.objects.filter(is_active=True).select_related('category', 'subcategory', 'fashion_category')
+    context = _catalog_context(request, products, 'Fashion Catalog', 'Search fashion products...')
+    context['category_tree'] = _build_category_tree()
+    return render(request, 'store/product-listing-generic.html', context)
+
+
+def fashion_category_listing(request, category_id):
+    fashion_category = get_object_or_404(FashionCategory, fashion_category_id=category_id, is_active=True)
+    if fashion_category.is_under_maintenance or 'accessor' in fashion_category.name.lower():
+        return render(request, 'store/under-maintenance.html', {
+            'page_title': fashion_category.name,
+            'status_message': 'This accessories category is currently under maintenance.',
+            'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+            'category_tree': _build_category_tree(),
+        })
+
+    descendant_ids = [fashion_category.fashion_category_id]
+    children = list(fashion_category.children.filter(is_active=True))
+    while children:
+        child = children.pop()
+        descendant_ids.append(child.fashion_category_id)
+        children.extend(list(child.children.filter(is_active=True)))
+
+    products = Product.objects.filter(
+        Q(fashion_category_id__in=descendant_ids) |
+        Q(category=fashion_category.root_category, subcategory__subcategory_name__iexact=fashion_category.name),
+        is_active=True,
+    ).select_related('category', 'subcategory', 'fashion_category')
+    context = _catalog_context(request, products, fashion_category.name, f'Search {fashion_category.name.lower()}...')
+    context['category_tree'] = _build_category_tree()
+    context['active_fashion_category'] = fashion_category
+    return render(request, 'store/product-listing-generic.html', context)
+
+
 def product_detail(request, product_id):
     product = get_object_or_404(Product.objects.select_related('category', 'subcategory'), product_id=product_id, is_active=True)
     variant = ProductVariant.objects.filter(product=product).first()
     fallback_image = _get_product_image_path(product, variant)
     size_variants = list(ProductVariant.objects.filter(product=product).exclude(size__isnull=True).exclude(size__exact='').order_by('variant_id'))
+    related_products = Product.objects.filter(
+        category=product.category,
+        is_active=True,
+    ).exclude(product_id=product.product_id).select_related('category', 'subcategory')[:4]
     return render(request, 'store/product-detail-generic.html', {
         'product': product,
         'variant': variant,
         'size_variants': size_variants,
+        'related_products': _build_product_cards(related_products),
+        'is_wishlisted': request.user.is_authenticated and WishlistItem.objects.filter(user=request.user, product=product).exists(),
         'total_stock': _get_total_stock(product),
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
         'detail_fallback_front': fallback_image,
@@ -1591,10 +1715,16 @@ def catalog_product_detail(request, product_id):
     variant = ProductVariant.objects.filter(product=product).first()
     fallback_image = _get_product_image_path(product, variant)
     size_variants = list(ProductVariant.objects.filter(product=product).exclude(size__isnull=True).exclude(size__exact='').order_by('variant_id'))
+    related_products = Product.objects.filter(
+        category=product.category,
+        is_active=True,
+    ).exclude(product_id=product.product_id).select_related('category', 'subcategory')[:4]
     return render(request, 'store/product-detail-generic.html', {
         'product': product,
         'variant': variant,
         'size_variants': size_variants,
+        'related_products': _build_product_cards(related_products),
+        'is_wishlisted': request.user.is_authenticated and WishlistItem.objects.filter(user=request.user, product=product).exists(),
         'total_stock': _get_total_stock(product),
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
         'detail_fallback_front': fallback_image,
@@ -1682,6 +1812,7 @@ def payment_gateway(request):
     cart_data = _get_effective_cart_data(request)
     cart_items, subtotal, total_items = _build_cart_summary(cart_data)
     razorpay_configuration_error = _get_razorpay_configuration_error()
+    default_address = UserAddress.objects.filter(user=request.user, is_default=True).first() or UserAddress.objects.filter(user=request.user).first()
     return render(request, 'store/payment.html', {
         'cart_items': cart_items,
         'subtotal': subtotal,
@@ -1690,6 +1821,7 @@ def payment_gateway(request):
         'default_email': request.user.email,
         'default_full_name': request.user.get_full_name() or request.user.username,
         'default_phone_number': _get_default_phone_number(request),
+        'default_address': default_address,
         'razorpay_mode': _get_razorpay_mode(),
         'razorpay_configuration_error': razorpay_configuration_error,
     })
@@ -1732,6 +1864,136 @@ def remove_session_cart_item(request, item_key):
     if request.method == 'POST':
         _remove_session_cart_item(request, item_key)
     return redirect('cart')
+
+
+def update_cart_item(request, cart_item_id):
+    if request.method != 'POST':
+        return redirect('cart')
+
+    quantity = max(1, int(request.POST.get('quantity') or 1))
+    if request.user.is_authenticated:
+        cart_item = CartItem.objects.filter(user=request.user, cart_item_id=cart_item_id).select_related('product').first()
+        if cart_item:
+            _set_user_cart_item(request.user, cart_item.product, quantity, selected_size=cart_item.selected_size, replace=True)
+            _set_session_cart(request, {})
+    return redirect('cart')
+
+
+def update_session_cart_item(request, item_key):
+    if request.method == 'POST':
+        quantity = max(1, int(request.POST.get('quantity') or 1))
+        session_cart = _get_session_cart(request)
+        if item_key in session_cart:
+            product = Product.objects.filter(product_id=session_cart[item_key]['product_id'], is_active=True).first()
+            if product:
+                _add_to_session_cart(
+                    request,
+                    product,
+                    quantity,
+                    selected_size=session_cart[item_key].get('selected_size'),
+                    replace=True,
+                )
+    return redirect('cart')
+
+
+def wishlist(request):
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('login')}?next=/wishlist/")
+
+    items = WishlistItem.objects.filter(user=request.user).select_related('product', 'product__category', 'product__subcategory')
+    wishlist_cards = []
+    for item in items:
+        variant = ProductVariant.objects.filter(product=item.product).first()
+        wishlist_cards.append({
+            'wishlist_item': item,
+            'product': item.product,
+            'image_path': _get_product_image_path(item.product, variant),
+        })
+
+    return render(request, 'store/wishlist.html', {
+        'wishlist_items': wishlist_cards,
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+    })
+
+
+def toggle_wishlist(request, product_id):
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('login')}?next={reverse('catalog_product_detail', kwargs={'product_id': product_id})}")
+
+    product = get_object_or_404(Product, product_id=product_id, is_active=True)
+    wishlist_item = WishlistItem.objects.filter(user=request.user, product=product).first()
+    if request.method == 'POST':
+        if wishlist_item:
+            wishlist_item.delete()
+            messages.success(request, 'Product removed from wishlist.')
+        else:
+            WishlistItem.objects.create(user=request.user, product=product)
+            messages.success(request, 'Product added to wishlist.')
+    return redirect(request.POST.get('next') or 'wishlist')
+
+
+def user_dashboard(request):
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('login')}?next=/dashboard/")
+
+    recent_orders = Order.objects.filter(user=request.user).prefetch_related('items__product')[:5]
+    addresses = UserAddress.objects.filter(user=request.user)
+    wishlist_items = WishlistItem.objects.filter(user=request.user).select_related('product')[:6]
+    return render(request, 'store/user-dashboard.html', {
+        'orders': recent_orders,
+        'addresses': addresses,
+        'wishlist_items': wishlist_items,
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+    })
+
+
+def profile_settings(request):
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('login')}?next=/dashboard/profile/")
+
+    if request.method == 'POST':
+        request.user.first_name = (request.POST.get('first_name') or '').strip()
+        request.user.last_name = (request.POST.get('last_name') or '').strip()
+        email = (request.POST.get('email') or '').strip().lower()
+        if email and not User.objects.filter(email__iexact=email).exclude(pk=request.user.pk).exists():
+            request.user.email = email
+            request.user.username = email
+        request.user.save(update_fields=['first_name', 'last_name', 'email', 'username'])
+        messages.success(request, 'Profile updated successfully.')
+        return redirect('user_dashboard')
+
+    return render(request, 'store/profile-settings.html', {
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+    })
+
+
+def address_book(request):
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('login')}?next=/dashboard/addresses/")
+
+    if request.method == 'POST':
+        address = UserAddress(
+            user=request.user,
+            full_name=(request.POST.get('full_name') or '').strip(),
+            phone_number=(request.POST.get('phone_number') or '').strip(),
+            address=(request.POST.get('address') or '').strip(),
+            city=(request.POST.get('city') or '').strip(),
+            state=(request.POST.get('state') or '').strip(),
+            pincode=(request.POST.get('pincode') or '').strip(),
+            country=(request.POST.get('country') or 'India').strip() or 'India',
+            is_default=request.POST.get('is_default') == 'on',
+        )
+        if all([address.full_name, address.phone_number, address.address, address.city, address.state, address.pincode]):
+            address.save()
+            messages.success(request, 'Address saved successfully.')
+        else:
+            messages.error(request, 'Please fill all required address fields.')
+        return redirect('address_book')
+
+    return render(request, 'store/address-book.html', {
+        'addresses': UserAddress.objects.filter(user=request.user),
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+    })
 
 
 def buy_now(request, product_id):
@@ -2416,8 +2678,19 @@ def admin_dashboard(request):
             'image_path': _get_product_image_path(product, variant),
         })
 
+    total_products = Product.objects.count()
+    total_orders = Order.objects.count()
+    total_customers = User.objects.filter(is_staff=False, is_superuser=False).count()
+    revenue = Order.objects.filter(payment_status__in=['Paid', 'Authorized', 'Captured']).aggregate(total=Sum('subtotal'))['total'] or Decimal('0')
+    low_stock_count = Product.objects.filter(productvariant__quantity__lte=5).distinct().count()
+
     return render(request, 'store/dashboard.html', {
         'products': product_rows,
+        'total_products': total_products,
+        'total_orders': total_orders,
+        'total_customers': total_customers,
+        'revenue': revenue,
+        'low_stock_count': low_stock_count,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
     })
 
@@ -2552,12 +2825,14 @@ def admin_product_form(request, product_id=None):
     existing_variants = list(ProductVariant.objects.filter(product=product).order_by('variant_id')) if product else []
     categories = Category.objects.order_by('category_name')
     subcategories = SubCategory.objects.select_related('category').order_by('subcategory_name')
+    fashion_categories = FashionCategory.objects.filter(is_active=True).select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
 
     if request.method == 'POST':
         product_name = (request.POST.get('product_name') or '').strip()
         brand = (request.POST.get('brand') or '').strip()
         category_id = request.POST.get('category_id')
         subcategory_id = request.POST.get('subcategory_id')
+        fashion_category_id = request.POST.get('fashion_category_id')
         sku = (request.POST.get('sku') or '').strip()
         price = _parse_decimal(request.POST.get('price'))
         discount_percent = _parse_decimal(request.POST.get('discount_percent'))
@@ -2588,6 +2863,7 @@ def admin_product_form(request, product_id=None):
             product.brand = brand or None
             product.category = category
             product.subcategory = subcategory
+            product.fashion_category = FashionCategory.objects.filter(fashion_category_id=fashion_category_id).first()
             product.sku = sku
             product.price = price
             product.discount_percent = discount_percent
@@ -2643,6 +2919,7 @@ def admin_product_form(request, product_id=None):
         ),
         'categories': categories,
         'subcategories': subcategories,
+        'fashion_categories': fashion_categories,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
         'page_title': 'Edit Product' if product else 'Add Product',
         'form_action_label': 'Update Product' if product else 'Add Product',
@@ -2659,6 +2936,125 @@ def admin_product_delete(request, product_id):
         product.delete()
         messages.success(request, 'Product deleted successfully.')
     return redirect('admin_dashboard')
+
+
+def admin_orders(request):
+    access_redirect = _require_shop_admin(request)
+    if access_redirect:
+        return access_redirect
+
+    orders_qs = Order.objects.select_related('user').prefetch_related('items__product')
+    status_filter = (request.GET.get('status') or '').strip()
+    if status_filter:
+        orders_qs = orders_qs.filter(status__iexact=status_filter)
+    return render(request, 'store/admin-orders.html', {
+        'orders': orders_qs,
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+    })
+
+
+def admin_order_update(request, order_id):
+    access_redirect = _require_shop_admin(request)
+    if access_redirect:
+        return access_redirect
+
+    order = get_object_or_404(Order, order_id=order_id)
+    if request.method == 'POST':
+        order.status = (request.POST.get('status') or order.status).strip()
+        order.payment_status = (request.POST.get('payment_status') or order.payment_status).strip()
+        order.courier_name = (request.POST.get('courier_name') or '').strip() or None
+        order.tracking_number = (request.POST.get('tracking_number') or '').strip() or None
+        order.tracking_url = (request.POST.get('tracking_url') or '').strip() or None
+        estimated_delivery = (request.POST.get('estimated_delivery') or '').strip()
+        order.estimated_delivery = estimated_delivery or None
+        order.save(update_fields=['status', 'payment_status', 'courier_name', 'tracking_number', 'tracking_url', 'estimated_delivery'])
+        messages.success(request, f'Order #{order.order_id} updated successfully.')
+    return redirect('admin_orders')
+
+
+def admin_customers(request):
+    access_redirect = _require_shop_admin(request)
+    if access_redirect:
+        return access_redirect
+
+    customers = User.objects.filter(is_staff=False, is_superuser=False).order_by('-date_joined')
+    rows = []
+    for customer in customers:
+        orders_qs = Order.objects.filter(user=customer)
+        rows.append({
+            'customer': customer,
+            'order_count': orders_qs.count(),
+            'total_spent': orders_qs.filter(payment_status__in=['Paid', 'Authorized', 'Captured']).aggregate(total=Sum('subtotal'))['total'] or Decimal('0'),
+            'latest_order': orders_qs.first(),
+        })
+    return render(request, 'store/admin-customers.html', {
+        'customers': rows,
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+    })
+
+
+def admin_customer_detail(request, user_id):
+    access_redirect = _require_shop_admin(request)
+    if access_redirect:
+        return access_redirect
+
+    customer = get_object_or_404(User, pk=user_id)
+    return render(request, 'store/admin-customer-detail.html', {
+        'customer': customer,
+        'orders': Order.objects.filter(user=customer).prefetch_related('items__product'),
+        'addresses': UserAddress.objects.filter(user=customer),
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+    })
+
+
+def admin_inventory(request):
+    access_redirect = _require_shop_admin(request)
+    if access_redirect:
+        return access_redirect
+
+    variants = ProductVariant.objects.select_related('product', 'product__category', 'product__subcategory').order_by('quantity', 'product__product_name')
+    return render(request, 'store/admin-inventory.html', {
+        'variants': variants,
+        'low_stock_threshold': 5,
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+    })
+
+
+def admin_categories(request):
+    access_redirect = _require_shop_admin(request)
+    if access_redirect:
+        return access_redirect
+
+    if request.method == 'POST':
+        name = (request.POST.get('name') or '').strip()
+        root_category_id = request.POST.get('root_category_id')
+        parent_id = request.POST.get('parent_id')
+        is_under_maintenance = request.POST.get('is_under_maintenance') == 'on'
+        root_category = Category.objects.filter(category_id=root_category_id).first()
+        parent = FashionCategory.objects.filter(fashion_category_id=parent_id).first()
+        if name and root_category:
+            FashionCategory.objects.create(
+                name=name,
+                slug=slugify(name)[:160],
+                root_category=root_category,
+                parent=parent,
+                level=(parent.level + 1) if parent else 0,
+                sort_order=FashionCategory.objects.count() + 1,
+                is_active=True,
+                is_under_maintenance=is_under_maintenance,
+            )
+            if parent:
+                SubCategory.objects.get_or_create(category=root_category, subcategory_name=name)
+            messages.success(request, 'Fashion category saved successfully.')
+        else:
+            messages.error(request, 'Category name and root category are required.')
+        return redirect('admin_categories')
+
+    return render(request, 'store/admin-categories.html', {
+        'categories': Category.objects.order_by('category_name'),
+        'fashion_categories': FashionCategory.objects.select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+    })
 
 
 def admin_backgrounds(request):

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#f6f8fb; }
+    .header { background:#000; color:#fff; padding:16px 28px; display:flex; justify-content:space-between; }
+    .header a { color:#fff; text-decoration:none; }
+    .wrap { max-width:760px; margin:32px auto; padding:0 20px; }
+    .panel { background:#fff; border-radius:8px; padding:24px; box-shadow:0 12px 32px rgba(0,0,0,.08); }
+    label { display:block; font-weight:700; margin-top:14px; }
+    input { width:100%; box-sizing:border-box; padding:12px; border:1px solid #cbd5e1; border-radius:6px; margin-top:6px; }
+    button { margin-top:18px; border:0; background:#000; color:#fff; border-radius:6px; padding:12px 16px; font-weight:700; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="header"><div>Profile</div><a href="{% url 'user_dashboard' %}">Dashboard</a></div>
+  <main class="wrap">
+    <form class="panel" method="post">
+      {% csrf_token %}
+      <label>First Name</label>
+      <input name="first_name" value="{{ request.user.first_name }}">
+      <label>Last Name</label>
+      <input name="last_name" value="{{ request.user.last_name }}">
+      <label>Email</label>
+      <input name="email" type="email" value="{{ request.user.email }}" required>
+      <button type="submit">Save Profile</button>
+    </form>
+  </main>
+</body>
+</html>

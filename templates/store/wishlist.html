@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wishlist</title>
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#f6f8fb; color:#111; }
+    .header { background:#000; color:#fff; padding:16px 28px; display:flex; justify-content:space-between; align-items:center; }
+    .header a { color:#fff; text-decoration:none; }
+    .wrap { max-width:1180px; margin:32px auto; padding:0 20px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; }
+    .card { background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 12px 32px rgba(0,0,0,.08); }
+    .card img { width:100%; height:260px; object-fit:cover; background:#f3f4f6; }
+    .body { padding:16px; }
+    .btn { border:0; border-radius:6px; padding:10px 14px; background:#000; color:#fff; font-weight:700; text-decoration:none; cursor:pointer; display:inline-block; margin-top:10px; }
+    .empty { background:#fff; border-radius:8px; padding:36px; text-align:center; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>Wishlist</div>
+    <div style="display:flex;gap:14px;align-items:center;">
+      {% include 'store/partials/profile_badge.html' %}
+      <a href="{% url 'user_dashboard' %}">Dashboard</a>
+      <a href="{% url 'fashion_catalog' %}">Catalog</a>
+    </div>
+  </div>
+  <main class="wrap">
+    {% if wishlist_items %}
+      <div class="grid">
+        {% for item in wishlist_items %}
+          <article class="card">
+            <img src="{% static item.image_path %}" alt="{{ item.product.product_name }}">
+            <div class="body">
+              <h3>{{ item.product.product_name }}</h3>
+              <p>Rs. {{ item.product.offer_price }}</p>
+              <a class="btn" href="{% url 'catalog_product_detail' item.product.product_id %}">View</a>
+              <form method="post" action="{% url 'toggle_wishlist' item.product.product_id %}" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'wishlist' %}">
+                <button class="btn" type="submit">Remove</button>
+              </form>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty">
+        <h2>Your wishlist is empty</h2>
+        <p>Save products you love and come back to them later.</p>
+        <a class="btn" href="{% url 'fashion_catalog' %}">Browse Catalog</a>
+      </div>
+    {% endif %}
+  </main>
+</body>
+</html>

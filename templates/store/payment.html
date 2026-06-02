@@ -276,7 +276,7 @@ body {
 <div class="wrapper">
   <div class="panel form-panel">
     <h1 class="title">Payment Details</h1>
-    <p class="subtitle">Complete your billing details, then continue with the Razorpay payment option below.</p>
+    <p class="subtitle">Add your shipping address, review the order summary, then continue to the payment page.</p>
     {% if messages %}
       {% for message in messages %}
         <div class="badge" style="background:#fff7ed;color:#000000;">{{ message }}</div>
@@ -300,15 +300,15 @@ body {
     <form method="post" action="{% url 'start_payment_gateway' %}" id="paymentForm">
       {% csrf_token %}
 
-      <h2 class="section-title">Billing Details</h2>
+      <h2 class="section-title">Shipping Address</h2>
       <div class="grid">
         <div class="field">
           <label>Full Name</label>
-          <input type="text" name="full_name" value="{{ default_full_name }}" placeholder="Enter your full name" required>
+          <input type="text" name="full_name" value="{% if default_address %}{{ default_address.full_name }}{% else %}{{ default_full_name }}{% endif %}" placeholder="Enter your full name" required>
         </div>
         <div class="field">
           <label>Phone Number</label>
-          <input type="text" name="phone_number" value="{{ default_phone_number }}" placeholder="Enter mobile number" required>
+          <input type="text" name="phone_number" value="{% if default_address %}{{ default_address.phone_number }}{% else %}{{ default_phone_number }}{% endif %}" placeholder="Enter mobile number" required>
         </div>
         <div class="field full">
           <label>Email</label>
@@ -316,19 +316,19 @@ body {
         </div>
         <div class="field full">
           <label>Address</label>
-          <input type="text" name="address" placeholder="Flat / House / Street" required>
+          <input type="text" name="address" value="{% if default_address %}{{ default_address.address }}{% endif %}" placeholder="Flat / House / Street" required>
         </div>
         <div class="field">
           <label>City</label>
-          <input type="text" name="city" placeholder="Enter city" required>
+          <input type="text" name="city" value="{% if default_address %}{{ default_address.city }}{% endif %}" placeholder="Enter city" required>
         </div>
         <div class="field">
           <label>State</label>
-          <input type="text" name="state" placeholder="Enter state" required>
+          <input type="text" name="state" value="{% if default_address %}{{ default_address.state }}{% endif %}" placeholder="Enter state" required>
         </div>
         <div class="field">
           <label>Pincode</label>
-          <input type="text" name="pincode" placeholder="Enter pincode" required>
+          <input type="text" name="pincode" value="{% if default_address %}{{ default_address.pincode }}{% endif %}" placeholder="Enter pincode" required>
         </div>
         <div class="field">
           <label>Country</label>

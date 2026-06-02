@@ -30,12 +30,20 @@
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
 }
     .action-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
-    .buy-btn, .cart-btn { background: #000000; border: 1px solid #000000; padding: 10px 14px; width: 100%; margin: 0; cursor: pointer; font-size: 16px; border-radius: 5px; color: #fff; transition: all 0.3s ease; }
-    .buy-btn:hover, .cart-btn:hover { background: #f97316; color: #fff; }
+    .buy-btn, .cart-btn, .wishlist-btn { background: #000000; border: 1px solid #000000; padding: 10px 14px; width: 100%; margin: 0; cursor: pointer; font-size: 16px; border-radius: 5px; color: #fff; transition: all 0.3s ease; }
+    .buy-btn:hover, .cart-btn:hover, .wishlist-btn:hover { background: #f97316; color: #fff; }
+    .wishlist-btn.active { background: #ec4899; border-color: #ec4899; }
     .quantity-selector { display: flex; align-items: center; gap: 10px; }
     .quantity-selector button { padding: 5px 12px; font-size: 18px; border: 1px solid #000000; background: #000000; color: white; cursor: pointer; border-radius: 4px; }
     .quantity-selector button:hover { background: #14b8a6; }
     .quantity-selector span { font-size: 18px; min-width: 20px; text-align: center; display: inline-block; }
+    .related { padding: 0 20px 28px; }
+    .related h2 { margin: 0 0 14px; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+    .related-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; text-decoration: none; color: #111; }
+    .related-card img { width: 100%; height: 190px; object-fit: cover; background: #f3f4f6; }
+    .related-card div { padding: 12px; }
+    .messages { margin: 14px 20px 0; padding: 12px; background: #fff7ed; border-radius: 8px; }
     @media (min-width: 768px) {
       main { flex-direction: row; align-items: stretch; }
       .product-images { flex: 1 1 50%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
@@ -49,6 +57,11 @@
       <a href="/"><img src="{% static logo_image %}" alt="ShopEase Logo"></a>
     </div>
   </header>
+  {% if messages %}
+    {% for message in messages %}
+      <div class="messages">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
 
   <main>
     <div class="product-images">
@@ -100,6 +113,11 @@
       </p>
       <div class="buy-section">
         <div class="action-buttons">
+          <form method="post" action="{% url 'toggle_wishlist' product.product_id %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button class="wishlist-btn {% if is_wishlisted %}active{% endif %}" type="submit">{% if is_wishlisted %}Remove Wishlist{% else %}Add Wishlist{% endif %}</button>
+          </form>
           <form method="post" action="{% url 'add_to_cart' product.product_id %}">
             {% csrf_token %}
             <input type="hidden" name="quantity" id="cartQuantityInput" value="1">
@@ -116,6 +134,22 @@
       </div>
     </div>
   </main>
+  {% if related_products %}
+  <section class="related">
+    <h2>Related Products</h2>
+    <div class="related-grid">
+      {% for card in related_products %}
+        <a class="related-card" href="{% url 'catalog_product_detail' card.product_id %}">
+          <img src="{% static card.image_path %}" alt="{{ card.product_name }}">
+          <div>
+            <strong>{{ card.product_name }}</strong><br>
+            Rs. {{ card.offer_price }}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 
   <script>
     let quantity = 1;

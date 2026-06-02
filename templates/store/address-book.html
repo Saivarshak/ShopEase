@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Addresses</title>
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#f6f8fb; }
+    .header { background:#000; color:#fff; padding:16px 28px; display:flex; justify-content:space-between; }
+    .header a { color:#fff; text-decoration:none; }
+    .wrap { max-width:980px; margin:32px auto; padding:0 20px; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .panel { background:#fff; border-radius:8px; padding:24px; box-shadow:0 12px 32px rgba(0,0,0,.08); }
+    label { display:block; font-weight:700; margin-top:12px; }
+    input { width:100%; box-sizing:border-box; padding:11px; border:1px solid #cbd5e1; border-radius:6px; margin-top:5px; }
+    button { margin-top:16px; border:0; background:#000; color:#fff; border-radius:6px; padding:12px 16px; font-weight:700; cursor:pointer; }
+    .row { border-top:1px solid #e5e7eb; padding:12px 0; }
+    @media(max-width:820px){ .wrap{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+  <div class="header"><div>Address Book</div><a href="{% url 'user_dashboard' %}">Dashboard</a></div>
+  <main class="wrap">
+    <form class="panel" method="post">
+      {% csrf_token %}
+      <h2>Add Address</h2>
+      <label>Full Name</label><input name="full_name" required>
+      <label>Phone Number</label><input name="phone_number" required>
+      <label>Address</label><input name="address" required>
+      <label>City</label><input name="city" required>
+      <label>State</label><input name="state" required>
+      <label>Pincode</label><input name="pincode" required>
+      <label>Country</label><input name="country" value="India" required>
+      <label><input type="checkbox" name="is_default" style="width:auto;"> Default address</label>
+      <button type="submit">Save Address</button>
+    </form>
+    <section class="panel">
+      <h2>Saved Addresses</h2>
+      {% for address in addresses %}
+        <div class="row">
+          <strong>{{ address.full_name }}</strong><br>
+          {{ address.address }}, {{ address.city }}, {{ address.state }} - {{ address.pincode }}<br>
+          {{ address.phone_number }}{% if address.is_default %} | Default{% endif %}
+        </div>
+      {% empty %}
+        <p>No addresses saved.</p>
+      {% endfor %}
+    </section>
+  </main>
+</body>
+</html>
