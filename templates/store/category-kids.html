@@ -12,110 +12,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-html,
-body{
-    height:100%;
-    overflow:hidden; /* Prevent page scrolling */
-    font-family:'Inter',sans-serif;
-}
-
-body{
-    background-image:url('{{ page_background_url }}');
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    background-attachment:fixed; /* Background never moves */
-    display:flex;
-    flex-direction:column;
-}
-
-/* Glass Header */
-.topbanner{
-    background:rgba(255,255,255,0.15);
-    backdrop-filter:blur(15px);
-    -webkit-backdrop-filter:blur(15px);
-    border-bottom:1px solid rgba(255,255,255,0.2);
-    flex-shrink:0;
-}
-
-/* Glass Footer */
-.footersection{
-    background:rgba(255,255,255,0.12);
-    backdrop-filter:blur(15px);
-    -webkit-backdrop-filter:blur(15px);
-    border-top:1px solid rgba(255,255,255,0.2);
-    flex-shrink:0;
-}
-
-/* Main Scroll Area */
-.scroll-container{
-    flex:1;
-    overflow-y:auto;
-    overflow-x:hidden;
-    padding-bottom:30px;
-
-    /* Hide Scrollbar */
-    scrollbar-width:none;
-    -ms-overflow-style:none;
-}
-
-.scroll-container::-webkit-scrollbar{
-    display:none;
-}
-
-/* Glass Cards */
-.card{
-    background:rgba(255,255,255,0.15);
-    backdrop-filter:blur(20px);
-    -webkit-backdrop-filter:blur(20px);
-    border:1px solid rgba(255,255,255,0.25);
-    transition:all 0.4s ease;
-}
-
-.card:hover{
-    transform:translateY(-8px) scale(1.03);
-    box-shadow:0 20px 40px rgba(0,0,0,0.2);
-}
-
-.mainheading{
-    font-family:"Barriecito",system-ui;
-    font-weight:400;
-}
-
-h1.size{
-    font-size:28px;
-}
-
-@media(min-width:640px){
-    h1.size{
-        font-size:35px;
-    }
-}
-
-img{
-    display:block;
-}
-
-.maintenance-badge{
-    background:rgba(255,193,7,0.2);
-    color:#7a5600;
-    backdrop-filter:blur(10px);
-}
-
-.empty-box{
-    background:rgba(255,255,255,0.18);
-    backdrop-filter:blur(15px);
-    border:1px solid rgba(255,255,255,0.2);
-}
-</style>
-
 <script>
 tailwind.config = {
     theme: {
@@ -133,6 +29,92 @@ tailwind.config = {
 }
 </script>
 
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,
+body{
+    height:100%;
+    overflow:hidden;
+    font-family:'Inter',sans-serif;
+}
+
+body{
+    background-image:url('{{ page_background_url }}');
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+    display:flex;
+    flex-direction:column;
+}
+
+/* HEADER */
+.topbanner{
+    background:rgba(255,255,255,0.28);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+    border-bottom:1px solid rgba(255,255,255,0.2);
+    flex-shrink:0;
+}
+
+/* FOOTER */
+.footersection{
+    background:rgba(255,255,255,0.28);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+    border-top:1px solid rgba(255,255,255,0.2);
+    flex-shrink:0;
+}
+
+/* SCROLL AREA */
+.scroll-container{
+    flex:1;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:20px;
+
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+.scroll-container::-webkit-scrollbar{
+    display:none;
+}
+
+/* ⭐ UNIFIED GLASS CARD (same as Men/Women) */
+.card{
+    background:rgba(255,255,255,0.22);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.15);
+    transition:all 0.3s ease;
+}
+
+.card:hover{
+    transform:translateY(-5px) scale(1.03);
+}
+
+/* TEXT */
+.mainheading{
+    font-family:"Barriecito",system-ui;
+}
+
+.maintenance-badge{
+    background:rgba(255,193,7,0.25);
+    color:#7a5600;
+    backdrop-filter:blur(10px);
+}
+</style>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -148,7 +130,7 @@ tailwind.config = {
                  class="h-10 sm:h-14 md:h-16 w-auto">
         </a>
 
-        <h1 class="text-lg sm:text-2xl font-bold mainheading size text-center w-full sm:w-auto">
+        <h1 class="text-lg sm:text-2xl font-bold mainheading text-center w-full sm:w-auto">
             Kids Collection
         </h1>
 
@@ -160,34 +142,32 @@ tailwind.config = {
     </div>
 </header>
 
-<!-- ONLY THIS AREA SCROLLS -->
+<!-- SCROLL AREA -->
 <div class="scroll-container">
 
-    <!-- CATEGORY SECTION -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
 
-        <h2 class="text-2xl sm:text-3xl font-semibold text-center mb-8 sm:mb-12">
+        <h2 class="text-2xl sm:text-3xl font-semibold text-center mb-10">
             Kids Gallery
         </h2>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
 
             {% for item in kids_categories %}
 
             <a href="{{ item.page_url }}"
-               class="card rounded-2xl overflow-hidden shadow-lg">
+               class="card rounded-xl overflow-hidden shadow-lg">
 
                 <img src="{% static item.image_path %}"
                      alt="{{ item.name }}"
                      class="w-full h-56 object-cover"
-                     loading="lazy"
-                     decoding="async">
+                     loading="lazy">
 
                 <div class="p-5">
 
-                    <div class="flex flex-wrap items-center justify-center gap-2">
+                    <div class="flex items-center justify-between gap-2">
 
-                        <h3 class="text-lg sm:text-xl font-semibold text-center">
+                        <h3 class="text-lg font-semibold">
                             {{ item.name }}
                         </h3>
 
@@ -199,7 +179,7 @@ tailwind.config = {
 
                     </div>
 
-                    <p class="text-sm text-center mt-3">
+                    <p class="text-sm mt-3 text-gray-700">
                         {{ item.description }}
                     </p>
 
@@ -209,7 +189,7 @@ tailwind.config = {
 
             {% empty %}
 
-            <div class="col-span-full empty-box rounded-2xl p-8 text-center">
+            <div class="col-span-full bg-white/30 backdrop-blur-xl rounded-xl p-8 text-center">
                 <p>No kids categories found in the database.</p>
             </div>
 
@@ -224,13 +204,8 @@ tailwind.config = {
 <!-- FOOTER -->
 <footer class="footersection py-6 text-center text-sm sm:text-base">
     <div class="w-full px-4 sm:px-10">
-        &copy; 2026
-        <strong>ShopEase</strong>.
-        All rights reserved. |
-        Built by
-        <span class="font-semibold text-black">
-            Varshak Shopeasy
-        </span>
+        &copy; 2026 <strong>ShopEase</strong>. All rights reserved. |
+        Built by <span class="font-semibold text-black">Varshak Shopeasy</span>
     </div>
 </footer>
 
