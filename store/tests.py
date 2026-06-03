@@ -50,6 +50,32 @@ class HostSecuritySettingsTests(TestCase):
         self.assertIn('https://existing.example.com', trusted_origins)
 
 
+class PublicSecurityTests(TestCase):
+    def test_login_rejects_external_next_redirects(self):
+        user = User.objects.create_user(
+            username='buyer@example.com',
+            email='buyer@example.com',
+            password='secret123',
+        )
+
+        response = self.client.post(
+            reverse('login'),
+            {
+                'email': user.email,
+                'password': 'secret123',
+                'next': 'https://evil.example/phish',
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('home'))
+
+    def test_public_products_api_is_read_only(self):
+        response = self.client.post(reverse('product-list'), {})
+
+        self.assertEqual(response.status_code, 405)
+
+
 class AdminProductUpdateTests(TestCase):
     def setUp(self):
         self.admin_user = User.objects.create_user(
@@ -58,7 +84,7 @@ class AdminProductUpdateTests(TestCase):
             password='secret123',
             is_staff=True,
         )
-        self.category = Category.objects.create(category_name='mens')
+        self.category, _ = Category.objects.get_or_create(category_name='mens')
         self.subcategory = SubCategory.objects.create(
             category=self.category,
             subcategory_name='shirts',
@@ -139,7 +165,7 @@ class RazorpayFlowTests(TestCase):
             email='buyer@example.com',
             password='secret123',
         )
-        self.category = Category.objects.create(category_name='mens')
+        self.category, _ = Category.objects.get_or_create(category_name='mens')
         self.subcategory = SubCategory.objects.create(
             category=self.category,
             subcategory_name='shirts',

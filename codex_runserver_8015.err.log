@@ -1,0 +1,58 @@
+Watching for file changes with StatReloader
+[03/Jun/2026 22:00:06] "GET / HTTP/1.1" 200 10409
+[03/Jun/2026 22:00:07] "GET /static/images/logo1.png HTTP/1.1" 200 90281
+[03/Jun/2026 22:00:08] "GET /assets/images/homebg.webp HTTP/1.1" 200 75842
+[03/Jun/2026 22:00:08] "GET /static/images/homebg.webp HTTP/1.1" 200 75842
+[03/Jun/2026 22:00:08] "GET /static/images/women.webp HTTP/1.1" 200 54694
+[03/Jun/2026 22:00:08] "GET /static/images/kids.webp HTTP/1.1" 200 73912
+[03/Jun/2026 22:00:08] "GET /static/images/men.webp HTTP/1.1" 200 64780
+[03/Jun/2026 22:00:26] "GET / HTTP/1.1" 200 10409
+[03/Jun/2026 22:00:26] "GET /assets/images/homebg.webp HTTP/1.1" 200 75842
+[03/Jun/2026 22:00:27] "GET /catalog/ HTTP/1.1" 200 8310
+[03/Jun/2026 22:00:27] "GET /assets/images/homebg.webp HTTP/1.1" 200 75842
+[03/Jun/2026 22:00:27] "GET /search/?q=shirt HTTP/1.1" 200 2696
+[03/Jun/2026 22:00:28] "GET /category_men/ HTTP/1.1" 200 23185
+[03/Jun/2026 22:00:28] "GET /assets/images/bg.webp HTTP/1.1" 200 27932
+[03/Jun/2026 22:00:28] "GET /static/images/T-shirt.jpg HTTP/1.1" 200 28841
+[03/Jun/2026 22:00:28] "GET /static/images/mens_shirts.webp HTTP/1.1" 200 69444
+[03/Jun/2026 22:00:28] "GET /static/images/menstshirts.webp HTTP/1.1" 200 51334
+[03/Jun/2026 22:00:28] "GET /static/images/mens_jeans.webp HTTP/1.1" 200 116432
+[03/Jun/2026 22:00:29] "GET /category_women/ HTTP/1.1" 200 9176
+[03/Jun/2026 22:00:29] "GET /assets/images/womenbg.webp HTTP/1.1" 200 17566
+[03/Jun/2026 22:00:29] "GET /static/images/mens_tshirts.webp HTTP/1.1" 200 31296
+[03/Jun/2026 22:00:29] "GET /static/images/women-western.webp HTTP/1.1" 200 40530
+[03/Jun/2026 22:00:29] "GET /static/images/women-ethnic.webp HTTP/1.1" 200 79764
+[03/Jun/2026 22:00:29] "GET /category_kids/ HTTP/1.1" 200 7951
+[03/Jun/2026 22:00:30] "GET /static/images/mens_shoes.webp HTTP/1.1" 200 53912
+[03/Jun/2026 22:00:30] "GET /static/images/kids-dresses.webp HTTP/1.1" 200 182986
+[03/Jun/2026 22:00:30] "GET /static/images/kids-tshirts.webp HTTP/1.1" 200 86418
+[03/Jun/2026 22:00:30] "GET /assets/images/kidsbg.webp HTTP/1.1" 200 47152
+[03/Jun/2026 22:00:30] "GET /static/images/kids-toys.webp HTTP/1.1" 200 212228
+[03/Jun/2026 22:00:30] "GET /cart/ HTTP/1.1" 200 3760
+[03/Jun/2026 22:00:30] "GET /login/ HTTP/1.1" 200 8980
+[03/Jun/2026 22:00:31] "GET /static/images/loginbg.jpg HTTP/1.1" 200 2702083
+[03/Jun/2026 22:00:31] "GET /register/ HTTP/1.1" 200 2850
+[03/Jun/2026 22:00:32] "GET /admin-panel/ HTTP/1.1" 302 0
+Internal Server Error: /admin-access/
+Traceback (most recent call last):
+  File "C:\Users\saiva\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\saiva\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\saiva\OneDrive\Desktop\Live project Online shoping\store\views.py", line 2788, in admin_access
+    next_url = _safe_redirect_target(request, request.GET.get('next') or request.POST.get('next'), reverse('admin_dashboard'))
+  File "C:\Users\saiva\OneDrive\Desktop\Live project Online shoping\store\views.py", line 794, in _safe_redirect_target
+    fallback_url = reverse(fallback) if isinstance(fallback, str) else fallback
+                   ~~~~~~~^^^^^^^^^^
+  File "C:\Users\saiva\AppData\Roaming\Python\Python313\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\saiva\AppData\Roaming\Python\Python313\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for '/admin-panel/' not found. '/admin-panel/' is not a valid view function or pattern name.
+[03/Jun/2026 22:00:32] "GET /admin-access/?next=/admin-panel/ HTTP/1.1" 500 88248
+C:\Users\saiva\OneDrive\Desktop\Live project Online shoping\store\views.py changed, reloading.
+Watching for file changes with StatReloader
+[03/Jun/2026 22:01:38] "GET /admin-panel/ HTTP/1.1" 302 0
+[03/Jun/2026 22:01:38] "GET /admin-access/?next=/admin-panel/ HTTP/1.1" 200 1996
+[03/Jun/2026 22:01:48] "POST /admin-access/?next=/admin-panel/ HTTP/1.1" 200 2124
+[03/Jun/2026 22:02:08] "POST /admin-access/?next=/admin-panel/ HTTP/1.1" 200 2124

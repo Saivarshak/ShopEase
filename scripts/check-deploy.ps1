@@ -10,5 +10,11 @@ $env:SECURE_CONTENT_TYPE_NOSNIFF = 'true'
 $env:SECURE_HSTS_SECONDS = '31536000'
 $env:SECURE_HSTS_INCLUDE_SUBDOMAINS = 'true'
 $env:SECURE_HSTS_PRELOAD = 'true'
+$env:DB_ENGINE = 'django.db.backends.postgresql'
+$env:DB_NAME = 'deploy_check'
+$env:DB_USER = 'deploy_check_user'
+$env:DB_PASSWORD = 'deploy_check_password'
+$env:DB_HOST = 'deploy-check-postgres.internal'
+$env:DB_PORT = '5432'
 
 python manage.py check --deploy

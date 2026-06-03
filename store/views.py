@@ -16,6 +16,7 @@ from django.db.models import Q, Sum
 from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.text import slugify
 from django.views.decorators.csrf import csrf_exempt
 import requests
@@ -748,7 +749,7 @@ def _build_product_cards(products):
     image_cards = []
 
     for product in products:
-        variant = ProductVariant.objects.filter(product=product).first()
+        variant = _get_first_variant(product)
         image_names = [variant.image1, variant.image2, variant.image3, variant.image4] if variant else []
 
         valid_images = []
@@ -773,6 +774,41 @@ def _build_product_cards(products):
         })
 
     return image_cards
+
+
+def _get_first_variant(product):
+    prefetched_variants = getattr(product, '_prefetched_objects_cache', {}).get('productvariant_set')
+    if prefetched_variants is not None:
+        return prefetched_variants[0] if prefetched_variants else None
+    return ProductVariant.objects.filter(product=product).first()
+
+
+def _get_product_variants(product):
+    prefetched_variants = getattr(product, '_prefetched_objects_cache', {}).get('productvariant_set')
+    if prefetched_variants is not None:
+        return list(prefetched_variants)
+    return list(ProductVariant.objects.filter(product=product))
+
+
+def _safe_redirect_target(request, raw_target, fallback='home'):
+    fallback_url = reverse(fallback) if isinstance(fallback, str) and not fallback.startswith('/') else fallback
+    target = (raw_target or '').strip()
+    if not target:
+        return fallback_url
+    if url_has_allowed_host_and_scheme(
+        target,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return target
+    return fallback_url
+
+
+def _parse_quantity(raw_value, default=1):
+    try:
+        return max(1, int(raw_value))
+    except (TypeError, ValueError):
+        return default
 
 
 def _build_category_tree():
@@ -995,7 +1031,11 @@ def _merge_session_cart_into_db(request, user):
 
 
 def _get_user_cart_items(user):
-    return CartItem.objects.filter(user=user, product__is_active=True).select_related('product')
+    return (
+        CartItem.objects.filter(user=user, product__is_active=True)
+        .select_related('product', 'product__category', 'product__subcategory')
+        .prefetch_related('product__productvariant_set')
+    )
 
 
 def _get_effective_cart_data(request):
@@ -1045,10 +1085,16 @@ def _build_cart_summary(cart_data):
     if hasattr(cart_data, 'model') and cart_data.model is CartItem:
         for item in cart_data:
             product = item.product
-            variant = ProductVariant.objects.filter(
-                product=product,
-                size__iexact=item.selected_size,
-            ).first() if item.selected_size else ProductVariant.objects.filter(product=product).first()
+            variants = _get_product_variants(product)
+            variant = next(
+                (
+                    candidate for candidate in variants
+                    if item.selected_size and (candidate.size or '').lower() == item.selected_size.lower()
+                ),
+                None,
+            )
+            if variant is None:
+                variant = variants[0] if variants else None
             line_total = product.offer_price * item.quantity
             subtotal += line_total
             total_items += item.quantity
@@ -1063,17 +1109,34 @@ def _build_cart_summary(cart_data):
                 'line_total': line_total,
             })
     else:
+        product_ids = [
+            item_data['product_id']
+            for item_data in cart_data.values()
+            if isinstance(item_data, dict) and item_data.get('product_id')
+        ]
+        products_by_id = {
+            product.product_id: product
+            for product in Product.objects.filter(product_id__in=product_ids, is_active=True)
+            .select_related('category', 'subcategory').prefetch_related('productvariant_set')
+            .prefetch_related('productvariant_set')
+        }
         for item_key, item_data in cart_data.items():
-            product = Product.objects.filter(product_id=item_data['product_id'], is_active=True).first()
+            product = products_by_id.get(item_data['product_id'])
             if not product:
                 continue
 
             selected_size = item_data.get('selected_size')
             quantity = int(item_data.get('quantity', 0))
-            variant = ProductVariant.objects.filter(
-                product=product,
-                size__iexact=selected_size,
-            ).first() if selected_size else ProductVariant.objects.filter(product=product).first()
+            variants = _get_product_variants(product)
+            variant = next(
+                (
+                    candidate for candidate in variants
+                    if selected_size and (candidate.size or '').lower() == selected_size.lower()
+                ),
+                None,
+            )
+            if variant is None:
+                variant = variants[0] if variants else None
             line_total = product.offer_price * quantity
             subtotal += line_total
             total_items += quantity
@@ -1093,14 +1156,19 @@ def _build_cart_summary(cart_data):
 # Home page
 
 def home(request):
-    products = Product.objects.all()
+    products = (
+        Product.objects.filter(is_active=True)
+        .select_related('category', 'subcategory').prefetch_related('productvariant_set')
+        .prefetch_related('productvariant_set')
+        .order_by('-product_id')[:12]
+    )
     categories = Category.objects.order_by('category_id')
     featured_products = []
     categories_context = []
     home_content = None
 
     for product in products:
-        variant = ProductVariant.objects.filter(product=product).first()
+        variant = _get_first_variant(product)
         featured_products.append({
             'product': product,
             'image_path': _get_product_image_path(product, variant),
@@ -1201,11 +1269,17 @@ def search_results(request):
                 Q(subcategory__subcategory_name__icontains='tshirt')
             )
 
-        products = Product.objects.filter(search_filter).distinct()
+        products = (
+            Product.objects.filter(search_filter, is_active=True)
+            .select_related('category', 'subcategory', 'fashion_category')
+            .prefetch_related('productvariant_set')
+            .distinct()
+            .order_by('-product_id')
+        )
 
     searched_products = []
     for product in products:
-        variant = ProductVariant.objects.filter(product=product).first()
+        variant = _get_first_variant(product)
         searched_products.append({
             'product': product,
             'image_path': _get_product_image_path(product, variant),
@@ -1383,7 +1457,7 @@ def category_view(request, category_name):
 
     normalized_name = category_lookup.get(category_name.lower(), category_name.lower())
     category = get_object_or_404(Category, category_name__iexact=normalized_name)
-    products = Product.objects.filter(category=category, is_active=True).select_related('category', 'subcategory')
+    products = Product.objects.filter(category=category, is_active=True).select_related('category', 'subcategory').prefetch_related('productvariant_set')
     template_name = template_lookup.get(category.category_name.lower(), 'store/category-men.html')
 
     context = {
@@ -1441,7 +1515,11 @@ def category_view(request, category_name):
 
 
 def fashion_catalog(request):
-    products = Product.objects.filter(is_active=True).select_related('category', 'subcategory', 'fashion_category')
+    products = (
+        Product.objects.filter(is_active=True)
+        .select_related('category', 'subcategory', 'fashion_category')
+        .prefetch_related('productvariant_set')
+    )
     context = _catalog_context(request, products, 'Fashion Catalog', 'Search fashion products...')
     context['category_tree'] = _build_category_tree()
     return render(request, 'store/product-listing-generic.html', context)
@@ -1468,7 +1546,7 @@ def fashion_category_listing(request, category_id):
         Q(fashion_category_id__in=descendant_ids) |
         Q(category=fashion_category.root_category, subcategory__subcategory_name__iexact=fashion_category.name),
         is_active=True,
-    ).select_related('category', 'subcategory', 'fashion_category')
+    ).select_related('category', 'subcategory', 'fashion_category').prefetch_related('productvariant_set')
     context = _catalog_context(request, products, fashion_category.name, f'Search {fashion_category.name.lower()}...')
     context['category_tree'] = _build_category_tree()
     context['active_fashion_category'] = fashion_category
@@ -1476,14 +1554,18 @@ def fashion_category_listing(request, category_id):
 
 
 def product_detail(request, product_id):
-    product = get_object_or_404(Product.objects.select_related('category', 'subcategory'), product_id=product_id, is_active=True)
-    variant = ProductVariant.objects.filter(product=product).first()
+    product = get_object_or_404(
+        Product.objects.select_related('category', 'subcategory').prefetch_related('productvariant_set'),
+        product_id=product_id,
+        is_active=True,
+    )
+    variant = _get_first_variant(product)
     fallback_image = _get_product_image_path(product, variant)
     size_variants = list(ProductVariant.objects.filter(product=product).exclude(size__isnull=True).exclude(size__exact='').order_by('variant_id'))
     related_products = Product.objects.filter(
         category=product.category,
         is_active=True,
-    ).exclude(product_id=product.product_id).select_related('category', 'subcategory')[:4]
+    ).exclude(product_id=product.product_id).select_related('category', 'subcategory').prefetch_related('productvariant_set')[:4]
     return render(request, 'store/product-detail-generic.html', {
         'product': product,
         'variant': variant,
@@ -1504,7 +1586,7 @@ def mens_tshirts(request):
         category__category_name__iexact='mens',
         subcategory__subcategory_name__iexact='t-shirts',
         is_active=True,
-    ).select_related('category', 'subcategory')
+    ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
 
     image_cards = []
     fallback_images = [
@@ -1515,7 +1597,7 @@ def mens_tshirts(request):
     ]
 
     for product in products:
-        variant = ProductVariant.objects.filter(product=product).first()
+        variant = _get_first_variant(product)
         image_names = [variant.image1, variant.image2, variant.image3, variant.image4] if variant else []
 
         valid_images = []
@@ -1550,7 +1632,7 @@ def mens_tshirts(request):
 
 def mens_tshirt_detail(request, product_id):
     product = get_object_or_404(
-        Product.objects.select_related('category', 'subcategory'),
+        Product.objects.select_related('category', 'subcategory').prefetch_related('productvariant_set'),
         product_id=product_id,
         category__category_name__iexact='mens',
         subcategory__subcategory_name__iexact='t-shirts',
@@ -1564,7 +1646,7 @@ def mens_jeans(request):
         category__category_name__iexact='mens',
         subcategory__subcategory_name__iexact='jeans',
         is_active=True,
-    ).select_related('category', 'subcategory')
+    ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
 
     image_cards = []
     fallback_images = [
@@ -1575,7 +1657,7 @@ def mens_jeans(request):
     ]
 
     for product in products:
-        variant = ProductVariant.objects.filter(product=product).first()
+        variant = _get_first_variant(product)
         image_names = [variant.image1, variant.image2, variant.image3, variant.image4] if variant else []
 
         valid_images = []
@@ -1610,7 +1692,7 @@ def mens_jeans(request):
 
 def mens_jeans_detail(request, product_id):
     product = get_object_or_404(
-        Product.objects.select_related('category', 'subcategory'),
+        Product.objects.select_related('category', 'subcategory').prefetch_related('productvariant_set'),
         product_id=product_id,
         category__category_name__iexact='mens',
         subcategory__subcategory_name__iexact='jeans',
@@ -1624,7 +1706,7 @@ def accessories_men(request):
         category__category_name__iexact='mens',
         subcategory__subcategory_name__icontains='accessor',
         is_active=True,
-    ).select_related('category', 'subcategory')
+    ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
 
     return render(request, 'store/accessories-men.html', {
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
@@ -1641,7 +1723,7 @@ def accessories_women(request):
     ).filter(
         Q(subcategory__subcategory_name__icontains='accessor') |
         Q(subcategory__subcategory_name__icontains='bag')
-    ).select_related('category', 'subcategory')
+    ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
 
     return render(request, 'store/accessories-women.html', {
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
@@ -1656,7 +1738,7 @@ def womens_ethnicware(request):
         category__category_name__iexact='womens',
         subcategory__subcategory_name__iexact='ethnic wear',
         is_active=True,
-    ).select_related('category', 'subcategory')
+    ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
     page_background_image = _get_page_asset('womens_ethnicware', 'background', 'images/ethicwearebg.jpeg')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Stylish Ethnic Wear for Women',
@@ -1674,7 +1756,7 @@ def womens_westernware(request):
         category__category_name__iexact='womens',
         subcategory__subcategory_name__iexact='western wear',
         is_active=True,
-    ).select_related('category', 'subcategory')
+    ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
     page_background_image = _get_page_asset('womens_westernware', 'background', 'images/westernware.jpg')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Stylish Western Wear for Women',
@@ -1692,7 +1774,7 @@ def womens_footwear(request):
         category__category_name__iexact='womens',
         subcategory__subcategory_name__iexact='footwear',
         is_active=True,
-    ).select_related('category', 'subcategory')
+    ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
     page_background_image = _get_page_asset('womens_footwear', 'background', 'images/women-footwear1.png')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': "Women's Footwear",
@@ -1713,7 +1795,7 @@ def kids_tshirts(request):
         Q(subcategory__subcategory_name__icontains='kids t-shirts') |
         Q(subcategory__subcategory_name__icontains='t-shirts') |
         Q(subcategory__subcategory_name__icontains='t shirts')
-    ).select_related('category', 'subcategory')
+    ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
     page_background_image = _get_page_asset('kids_tshirts', 'background', 'images/kidstshirtsbg.jpeg')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'T-Shirts for Kids',
@@ -1733,7 +1815,7 @@ def kids_dresses(request):
     ).filter(
         Q(subcategory__subcategory_name__icontains='kids dresses') |
         Q(subcategory__subcategory_name__icontains='dresses')
-    ).select_related('category', 'subcategory')
+    ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
     page_background_image = _get_page_asset('kids_dresses', 'background', 'images/kids-dresses.png')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Kids Dresses',
@@ -1751,7 +1833,7 @@ def kids_toys(request):
         category__category_name__iexact='kids',
         subcategory__subcategory_name__iexact='toys',
         is_active=True,
-    ).select_related('category', 'subcategory')
+    ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
     page_background_image = _get_page_asset('kids_toys', 'background', 'images/kids-toys.png')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Kids Toys',
@@ -1769,7 +1851,7 @@ def kids_footwear(request):
         category__category_name__iexact='kids',
         subcategory__subcategory_name__iexact='footwear',
         is_active=True,
-    ).select_related('category', 'subcategory')
+    ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
     page_background_image = _get_page_asset('kids_footwear', 'background', 'images/kids-footwear.png')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Kids Footwear',
@@ -1783,14 +1865,14 @@ def kids_footwear(request):
 
 
 def catalog_product_detail(request, product_id):
-    product = get_object_or_404(Product.objects.select_related('category', 'subcategory'), product_id=product_id, is_active=True)
-    variant = ProductVariant.objects.filter(product=product).first()
+    product = get_object_or_404(Product.objects.select_related('category', 'subcategory').prefetch_related('productvariant_set'), product_id=product_id, is_active=True)
+    variant = _get_first_variant(product)
     fallback_image = _get_product_image_path(product, variant)
     size_variants = list(ProductVariant.objects.filter(product=product).exclude(size__isnull=True).exclude(size__exact='').order_by('variant_id'))
     related_products = Product.objects.filter(
         category=product.category,
         is_active=True,
-    ).exclude(product_id=product.product_id).select_related('category', 'subcategory')[:4]
+    ).exclude(product_id=product.product_id).select_related('category', 'subcategory').prefetch_related('productvariant_set')[:4]
     return render(request, 'store/product-detail-generic.html', {
         'product': product,
         'variant': variant,
@@ -1809,7 +1891,7 @@ def catalog_product_detail(request, product_id):
 
 # Login page
 def login_view(request):
-    next_url = request.GET.get('next') or request.POST.get('next') or 'home'
+    next_url = _safe_redirect_target(request, request.GET.get('next') or request.POST.get('next'), 'home')
 
     if request.method == 'POST':
         email = (request.POST.get('email') or '').strip()
@@ -1839,7 +1921,7 @@ def logout_view(request):
 
 
 def register_view(request):
-    next_url = request.GET.get('next') or request.POST.get('next') or 'home'
+    next_url = _safe_redirect_target(request, request.GET.get('next') or request.POST.get('next'), 'home')
 
     if request.method == 'POST':
         email = (request.POST.get('email') or '').strip().lower()
@@ -1904,7 +1986,7 @@ def add_to_cart(request, product_id):
         return redirect('product_detail', product_id=product_id)
 
     product = get_object_or_404(Product, product_id=product_id, is_active=True)
-    quantity = max(1, int(request.POST.get('quantity', 1)))
+    quantity = _parse_quantity(request.POST.get('quantity', 1))
     selected_size = (request.POST.get('selected_size') or '').strip() or None
     if request.user.is_authenticated:
         added, available_stock = _set_user_cart_item(request.user, product, quantity, selected_size=selected_size)
@@ -1942,7 +2024,7 @@ def update_cart_item(request, cart_item_id):
     if request.method != 'POST':
         return redirect('cart')
 
-    quantity = max(1, int(request.POST.get('quantity') or 1))
+    quantity = _parse_quantity(request.POST.get('quantity') or 1)
     if request.user.is_authenticated:
         cart_item = CartItem.objects.filter(user=request.user, cart_item_id=cart_item_id).select_related('product').first()
         if cart_item:
@@ -1953,7 +2035,7 @@ def update_cart_item(request, cart_item_id):
 
 def update_session_cart_item(request, item_key):
     if request.method == 'POST':
-        quantity = max(1, int(request.POST.get('quantity') or 1))
+        quantity = _parse_quantity(request.POST.get('quantity') or 1)
         session_cart = _get_session_cart(request)
         if item_key in session_cart:
             product = Product.objects.filter(product_id=session_cart[item_key]['product_id'], is_active=True).first()
@@ -2073,7 +2155,7 @@ def buy_now(request, product_id):
         return redirect('product_detail', product_id=product_id)
 
     product = get_object_or_404(Product, product_id=product_id, is_active=True)
-    quantity = max(1, int(request.POST.get('quantity', 1)))
+    quantity = _parse_quantity(request.POST.get('quantity', 1))
     selected_size = (request.POST.get('selected_size') or '').strip() or None
     variant = ProductVariant.objects.filter(product=product, size__iexact=selected_size).first() if selected_size else ProductVariant.objects.filter(product=product).first()
     available_stock = max(0, getattr(variant, 'quantity', 0) or 0) if selected_size else sum(ProductVariant.objects.filter(product=product).values_list('quantity', flat=True))
@@ -2703,7 +2785,7 @@ def _require_shop_admin(request):
 
 
 def admin_access(request):
-    next_url = request.GET.get('next') or request.POST.get('next') or reverse('admin_dashboard')
+    next_url = _safe_redirect_target(request, request.GET.get('next') or request.POST.get('next'), reverse('admin_dashboard'))
     submitted_identifier = (request.POST.get('identifier') or request.POST.get('email') or '').strip()
 
     if _is_shop_admin(request.user):
@@ -2739,10 +2821,10 @@ def admin_dashboard(request):
     if access_redirect:
         return access_redirect
 
-    products = Product.objects.select_related('category', 'subcategory').order_by('-product_id')
+    products = Product.objects.select_related('category', 'subcategory').prefetch_related('productvariant_set').order_by('-product_id')
     product_rows = []
     for product in products:
-        variant = ProductVariant.objects.filter(product=product).first()
+        variant = _get_first_variant(product)
         product_rows.append({
             'product': product,
             'variant': variant,
@@ -2804,7 +2886,7 @@ def _parse_int(raw_value, default=0):
 
 
 def _get_total_stock(product):
-    return sum(ProductVariant.objects.filter(product=product).values_list('quantity', flat=True))
+    return sum((variant.quantity or 0) for variant in _get_product_variants(product))
 
 
 def _save_uploaded_product_image(uploaded_file, product_name, slot_name):
@@ -3252,12 +3334,12 @@ def mens_shirts(request):
         category__category_name__iexact='mens',
         subcategory__subcategory_name__iexact='shirts',
         is_active=True,
-    ).select_related('category', 'subcategory')
+    ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
 
     image_cards = []
 
     for product in products:
-        variant = ProductVariant.objects.filter(product=product).first()
+        variant = _get_first_variant(product)
         image_names = [variant.image1, variant.image2, variant.image3, variant.image4] if variant else []
 
         valid_images = []
@@ -3294,6 +3376,6 @@ def mens_shirts(request):
 from rest_framework import viewsets
 from .serializers import ProductSerializer  # you need this serializer
 
-class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+class ProductViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Product.objects.filter(is_active=True).select_related('category', 'subcategory', 'fashion_category')
     serializer_class = ProductSerializer 
