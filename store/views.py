@@ -846,59 +846,17 @@ def _build_category_tree():
     return [serialize(category) for category in children_by_parent.get(None, [])]
 
 
-def _get_filtered_product_queryset(request, base_queryset):
-    query = (request.GET.get('q') or '').strip()
-    subcategory_id = (request.GET.get('subcategory') or '').strip()
-    min_price = _parse_decimal(request.GET.get('min_price'), default='0')
-    max_price = _parse_decimal(request.GET.get('max_price'), default='0')
-    sort = (request.GET.get('sort') or 'newest').strip()
-
-    products = base_queryset
-    if query:
-        products = products.filter(
-            Q(product_name__icontains=query) |
-            Q(brand__icontains=query) |
-            Q(category__category_name__icontains=query) |
-            Q(subcategory__subcategory_name__icontains=query) |
-            Q(fashion_category__name__icontains=query)
-        )
-    if subcategory_id:
-        products = products.filter(subcategory_id=subcategory_id)
-    if min_price > 0:
-        products = products.filter(offer_price__gte=min_price)
-    if max_price > 0:
-        products = products.filter(offer_price__lte=max_price)
-
-    sort_map = {
-        'price_asc': 'offer_price',
-        'price_desc': '-offer_price',
-        'name': 'product_name',
-        'newest': '-product_id',
-    }
-    return products.order_by(sort_map.get(sort, '-product_id')).distinct()
-
-
 def _catalog_context(request, products, page_title, search_placeholder_text='Search fashion...'):
-    products = _get_filtered_product_queryset(request, products)
-    subcategories = SubCategory.objects.filter(
-        product__in=products
-    ).select_related('category').distinct().order_by('category__category_name', 'subcategory_name')
+    products = products.order_by('-product_id').distinct()
 
     return {
         'page_title': page_title,
-        'search_placeholder_text': search_placeholder_text,
         'image_cards': _build_product_cards(products),
         'products_count': products.count(),
-        'subcategories': subcategories,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
         'page_background_image': _get_site_asset('home_background', 'images/homebg.jpg'),
         'page_background_url': _get_site_asset_url('home_background', 'images/homebg.jpg'),
         'detail_url_name': 'catalog_product_detail',
-        'selected_query': request.GET.get('q', ''),
-        'selected_subcategory': request.GET.get('subcategory', ''),
-        'selected_min_price': request.GET.get('min_price', ''),
-        'selected_max_price': request.GET.get('max_price', ''),
-        'selected_sort': request.GET.get('sort', 'newest'),
     }
 
 
@@ -2988,6 +2946,28 @@ def _save_background_asset_record(choice, image_path, is_active):
     return asset
 
 
+def _delete_background_file_if_unused(image_path, fallback_path):
+    normalized = _normalize_image_asset_path(image_path)
+    if not normalized or normalized == _normalize_image_asset_path(fallback_path):
+        return False
+
+    if SiteAsset.objects.filter(image_path=normalized).exists():
+        return False
+    if PageAsset.objects.filter(image_path=normalized).exists():
+        return False
+
+    file_path = Path(settings.BASE_DIR) / 'static' / normalized
+    try:
+        file_path.relative_to(Path(settings.BASE_DIR) / 'static' / 'images')
+    except ValueError:
+        return False
+
+    if file_path.exists():
+        file_path.unlink()
+        return True
+    return False
+
+
 def _unique_fashion_slug(name, parent, category_id=None):
     base_slug = slugify(name)[:150] or 'fashion-category'
     slug = base_slug
@@ -3282,6 +3262,7 @@ def admin_backgrounds(request):
         return access_redirect
 
     if request.method == 'POST':
+        action = (request.POST.get('action') or 'save_background').strip()
         choice_id = request.POST.get('choice_id')
         selected_choice = None
         for choice in BACKGROUND_ASSET_CHOICES:
@@ -3292,6 +3273,18 @@ def admin_backgrounds(request):
 
         if selected_choice is None:
             messages.error(request, 'Choose a valid background section to update.')
+            return redirect('admin_backgrounds')
+
+        if action == 'delete_background':
+            asset = _get_background_asset_record(selected_choice)
+            previous_path = getattr(asset, 'image_path', '') or ''
+            if asset:
+                asset.image_path = selected_choice['fallback']
+                asset.is_active = True
+                asset.save()
+            deleted = _delete_background_file_if_unused(previous_path, selected_choice['fallback'])
+            message_suffix = ' The uploaded file was removed.' if deleted else ''
+            messages.success(request, f"{selected_choice['label']} reset to its default background.{message_suffix}")
             return redirect('admin_backgrounds')
 
         uploaded_path = _save_uploaded_asset_image(

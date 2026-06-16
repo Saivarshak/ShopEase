@@ -16,8 +16,8 @@
     .btn-secondary { background: #000000; color: white; }
     .btn:hover { background: #f97316; color: white; }
     .message { margin-bottom: 16px; padding: 14px; border-radius: 12px; background: #ecfdf3; color: #000000; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
-    .asset-card { background: white; border-radius: 18px; padding: 18px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+    .asset-card { background: white; border-radius: 8px; padding: 18px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08); }
     .preview { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; background: #e5e7eb; display: block; }
     .asset-title { margin: 14px 0 4px; font-size: 18px; }
     .meta { color: #000000; font-size: 13px; margin: 0 0 14px; word-break: break-all; }
@@ -25,6 +25,10 @@
     label { font-weight: 700; font-size: 14px; }
     input[type="text"], input[type="file"] { border: 1px solid #d0d5dd; border-radius: 12px; padding: 11px 13px; font-size: 14px; background: white; }
     .inline { display: flex; align-items: center; gap: 8px; margin: 8px 0 14px; font-weight: 700; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn-danger { background:#000; color:#fff; }
+    .btn-danger:hover { background:#ec4899; }
+    .hint { color:#475467; font-size:12px; margin-top:6px; line-height:1.4; }
     @media (max-width: 720px) {
       .header { padding: 14px 18px; }
       .wrap { margin: 22px auto; padding: 0 14px; }
@@ -50,9 +54,9 @@
     <div class="topbar">
       <div>
         <h1 style="margin:0;">Background Images</h1>
-        <p style="margin:6px 0 0;color:#000000;">Change storefront page backgrounds from one admin section.</p>
+        <p style="margin:6px 0 0;color:#000000;">Upload, preview, replace, reset, and assign a unique background to each storefront page.</p>
       </div>
-      <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Products</a>
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
     </div>
 
     <div class="grid">
@@ -60,7 +64,7 @@
         <form class="asset-card" method="post" enctype="multipart/form-data">
           {% csrf_token %}
           <input type="hidden" name="choice_id" value="{{ background.choice_id }}">
-          <img class="preview" src="{{ background.current_url }}" alt="{{ background.label }}">
+          <img class="preview" data-preview-image src="{{ background.current_url }}" alt="{{ background.label }}">
           <h2 class="asset-title">{{ background.label }}</h2>
           <p class="meta">Current: {{ background.current_path }}</p>
 
@@ -70,16 +74,31 @@
           </div>
           <div class="field">
             <label>Upload New Image</label>
-            <input type="file" name="background_upload" accept="image/*">
+            <input type="file" name="background_upload" accept="image/*" data-preview-input>
+            <div class="hint">Choosing a file previews it immediately. Saving replaces the page background.</div>
           </div>
           <label class="inline">
             <input type="checkbox" name="is_active" {% if background.is_active %}checked{% endif %}>
             Active
           </label>
-          <button type="submit" class="btn btn-primary">Save Background</button>
+          <div class="actions">
+            <button type="submit" name="action" value="save_background" class="btn btn-primary">Save Background</button>
+            <button type="submit" name="action" value="delete_background" class="btn btn-danger" onclick="return confirm('Reset this page to its default background?')">Delete Background</button>
+          </div>
         </form>
       {% endfor %}
     </div>
   </div>
+  <script>
+    document.querySelectorAll('[data-preview-input]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const file = input.files && input.files[0];
+        const form = input.closest('form');
+        const preview = form ? form.querySelector('[data-preview-image]') : null;
+        if (!file || !preview) return;
+        preview.src = URL.createObjectURL(file);
+      });
+    });
+  </script>
 </body>
 </html>

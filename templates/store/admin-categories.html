@@ -1,4 +1,4 @@
-{% load static %}
+{% load static store_assets %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,7 +41,6 @@
     <div>Category Card Management</div>
     <div style="display:flex;gap:14px;align-items:center;">
       <a href="{% url 'admin_dashboard' %}">Dashboard</a>
-      <a href="{% url 'fashion_catalog' %}">View Catalog</a>
     </div>
   </div>
 
@@ -119,7 +118,7 @@
                 <input type="hidden" name="action" value="save_fashion_category">
                 <input type="hidden" name="fashion_category_id" value="{{ category.fashion_category_id }}">
                 {% if category.image %}
-                  <img class="preview" src="{% static category.image %}" alt="{{ category.name }}">
+                  <img class="preview" src="{% asset_src category.image %}" alt="{{ category.name }}">
                 {% endif %}
 
                 <label>Name</label>
