@@ -1,4 +1,4 @@
-{% load static %}
+{% load static store_assets %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -473,7 +473,7 @@
       <div class="product-list">
         {% for item in order_items %}
           <article class="product-card">
-            <img src="{% static item.image_path %}" alt="{{ item.product.product_name }}">
+            <img src="{% asset_src item.image_path %}" alt="{{ item.product.product_name }}">
             <div>
               <h3 class="product-name">{{ item.product.product_name }}</h3>
               <p class="product-meta">

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static store_assets %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -190,7 +190,7 @@
       {% for category in categories_context %}
       <a href="{% url category.route_name %}" class="block">
         <div class="rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105">
-          <img src="{% static category.image_path %}" alt="{{ category.name }}" class="w-full h-64 object-cover" loading="lazy" decoding="async" />
+          <img src="{% asset_src category.image_path %}" alt="{{ category.name }}" class="w-full h-64 object-cover" loading="lazy" decoding="async" />
           <div class="bg-white p-5 text-center">
             <h4 class="text-2xl font-semibold text-brandDark">{{ category.name }}</h4>
             <p class="text-brandMuted mt-2">{{ category.description }}</p>
@@ -210,7 +210,7 @@
     {% for item in featured_products %}
       <a href="{% url 'catalog_product_detail' item.product.product_id %}" class="block">
         <div class="rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105 bg-white">
-          <img src="{% static item.image_path %}" alt="{{ item.product.product_name }}" class="w-full h-64 object-cover" loading="lazy" decoding="async" />
+          <img src="{% asset_src item.image_path %}" alt="{{ item.product.product_name }}" class="w-full h-64 object-cover" loading="lazy" decoding="async" />
           <div class="p-5 text-center">
             <h4 class="text-xl font-semibold text-brandDark">{{ item.product.product_name }}</h4>
             <p class="text-brandMuted mt-2">{{ item.product.brand }}</p>

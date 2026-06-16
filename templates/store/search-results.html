@@ -1,4 +1,4 @@
-{% load static %}
+{% load static store_assets %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,7 +55,7 @@
         {% for item in searched_products %}
       <a href="{% url 'catalog_product_detail' item.product.product_id %}" class="block">
             <div class="rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105 bg-white">
-              <img src="{% static item.image_path %}" alt="{{ item.product.product_name }}" class="w-full h-64 object-cover" />
+              <img src="{% asset_src item.image_path %}" alt="{{ item.product.product_name }}" class="w-full h-64 object-cover" />
               <div class="p-5 text-center">
                 <h4 class="text-xl font-semibold text-[#000000]">{{ item.product.product_name }}</h4>
                 <p class="text-[#5e5d5d] mt-2">{{ item.product.brand }}</p>

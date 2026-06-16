@@ -102,6 +102,17 @@ def _asset_public_url(asset_path):
     return reverse('store_asset', kwargs={'asset_path': normalized})
 
 
+def _normalize_image_asset_path(raw_path):
+    normalized = (raw_path or '').strip().replace('\\', '/').lstrip('/')
+    if not normalized:
+        return ''
+    if normalized.startswith('static/'):
+        normalized = normalized[len('static/'):]
+    if '/' not in normalized:
+        normalized = f'images/{normalized}'
+    return normalized
+
+
 def _get_site_asset_url(asset_key, fallback):
     return _asset_public_url(_get_site_asset(asset_key, fallback))
 
@@ -235,9 +246,10 @@ def _get_product_image_path(product, variant):
     image_names = [variant.image1, variant.image2, variant.image3, variant.image4] if variant else []
 
     for image_name in image_names:
-        if not image_name:
+        normalized_image_name = _normalize_image_asset_path(image_name)
+        if not normalized_image_name:
             continue
-        resolved = _asset_exists(f'images/{image_name}')
+        resolved = _asset_exists(normalized_image_name)
         if resolved:
             return resolved
     return _asset_exists(fallback_image) or fallback_image

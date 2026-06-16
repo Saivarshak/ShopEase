@@ -1,4 +1,4 @@
-{% load static %}
+{% load static store_assets %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -279,16 +279,16 @@
   <main>
     <div class="product-images">
       {% if variant and variant.image1 %}
-        <img src="{% static 'images/'|add:variant.image1 %}" alt="{{ product.product_name }} Front">
+        <img src="{% asset_src variant.image1 %}" alt="{{ product.product_name }} Front">
       {% endif %}
       {% if variant and variant.image2 %}
-        <img src="{% static 'images/'|add:variant.image2 %}" alt="{{ product.product_name }} Back">
+        <img src="{% asset_src variant.image2 %}" alt="{{ product.product_name }} Back">
       {% endif %}
       {% if variant and variant.image3 %}
-        <img src="{% static 'images/'|add:variant.image3 %}" alt="{{ product.product_name }} Side">
+        <img src="{% asset_src variant.image3 %}" alt="{{ product.product_name }} Side">
       {% endif %}
       {% if variant and variant.image4 %}
-        <img src="{% static 'images/'|add:variant.image4 %}" alt="{{ product.product_name }} Closeup">
+        <img src="{% asset_src variant.image4 %}" alt="{{ product.product_name }} Closeup">
       {% endif %}
       {% if not variant or not variant.image1 and not variant.image2 and not variant.image3 and not variant.image4 %}
         <img src="{% static detail_fallback_front %}" alt="{{ product.product_name }}">
