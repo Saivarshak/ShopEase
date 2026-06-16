@@ -2755,7 +2755,7 @@ def _require_shop_admin(request):
 
 
 def admin_access(request):
-    next_url = _safe_redirect_target(request, request.GET.get('next') or request.POST.get('next'), reverse('admin_dashboard'))
+    next_url = _safe_redirect_target(request, request.GET.get('next') or request.POST.get('next'), reverse('admin_control_center'))
     submitted_identifier = (request.POST.get('identifier') or request.POST.get('email') or '').strip()
 
     if _is_shop_admin(request.user):
@@ -2787,11 +2787,35 @@ def admin_access(request):
 
 
 def admin_dashboard(request):
-    access_redirect = _require_shop_admin(request)
-    if access_redirect:
-        return access_redirect
+    return redirect('admin_control_center')
 
-    products = Product.objects.select_related('category', 'subcategory').prefetch_related('productvariant_set').order_by('-product_id')
+
+def _build_admin_background_rows():
+    background_rows = []
+    for choice in BACKGROUND_ASSET_CHOICES:
+        try:
+            asset = _get_background_asset_record(choice)
+        except (ProgrammingError, OperationalError):
+            asset = None
+
+        saved_path = getattr(asset, 'image_path', '') or ''
+        if choice['scope'] == 'site':
+            current_path = _get_site_asset(choice['asset_key'], choice['fallback'])
+        else:
+            current_path = _get_page_asset(choice['page_key'], choice['asset_key'], choice['fallback'])
+
+        background_rows.append({
+            **choice,
+            'choice_id': f"{choice['scope']}:{choice['page_key']}:{choice['asset_key']}",
+            'saved_path': saved_path,
+            'current_path': current_path,
+            'current_url': _asset_public_url(current_path),
+            'is_active': getattr(asset, 'is_active', True),
+        })
+    return background_rows
+
+
+def _build_admin_product_rows(products):
     product_rows = []
     for product in products:
         variant = _get_first_variant(product)
@@ -2801,20 +2825,101 @@ def admin_dashboard(request):
             'total_stock': _get_total_stock(product),
             'image_path': _get_product_image_path(product, variant),
         })
+    return product_rows
+
+
+def _build_admin_customer_rows(customers):
+    rows = []
+    for customer in customers:
+        orders_qs = Order.objects.filter(user=customer)
+        rows.append({
+            'customer': customer,
+            'order_count': orders_qs.count(),
+            'total_spent': orders_qs.filter(payment_status__in=['Paid', 'Authorized', 'Captured']).aggregate(total=Sum('subtotal'))['total'] or Decimal('0'),
+            'latest_order': orders_qs.first(),
+        })
+    return rows
+
+
+def admin_control_center(request):
+    access_redirect = _require_shop_admin(request)
+    if access_redirect:
+        return access_redirect
+
+    if request.method == 'POST':
+        action = (request.POST.get('action') or '').strip()
+        if action == 'save_home_content':
+            home_content = HomeContent.objects.filter(is_active=True).first() or HomeContent(is_active=True)
+            content_fields = [
+                'hero_subtitle', 'hero_title', 'hero_highlight', 'hero_tagline',
+                'hero_button_text', 'hero_button_url', 'search_placeholder',
+                'search_button_text', 'category_section_title', 'featured_section_title',
+                'footer_text', 'footer_brand_text', 'footer_builder_text',
+            ]
+            for field in content_fields:
+                setattr(home_content, field, (request.POST.get(field) or '').strip() or None)
+            home_content.save()
+            messages.success(request, 'Website content updated successfully.')
+            return redirect('admin_control_center')
+
+        if action == 'save_site_asset':
+            asset_key = (request.POST.get('asset_key') or '').strip()
+            typed_path = _normalize_admin_asset_path(request.POST.get('image_path'))
+            uploaded_path = _save_uploaded_asset_image(request.FILES.get('asset_upload'), asset_key or 'site-asset')
+            final_path = uploaded_path or typed_path
+            if not asset_key or not final_path:
+                messages.error(request, 'Asset key and image are required.')
+            elif not _asset_exists(final_path):
+                messages.error(request, 'That asset image was not found in the static images folder.')
+            else:
+                asset = SiteAsset.objects.filter(asset_key=asset_key).first() or SiteAsset(asset_key=asset_key)
+                asset.image_path = final_path
+                asset.is_active = request.POST.get('is_active') == 'on'
+                asset.save()
+                messages.success(request, f'{asset_key} asset updated successfully.')
+            return redirect('admin_control_center')
+
+    products = Product.objects.select_related('category', 'subcategory').prefetch_related('productvariant_set').order_by('-product_id')
+    product_rows = _build_admin_product_rows(products)
 
     total_products = Product.objects.count()
     total_orders = Order.objects.count()
     total_customers = User.objects.filter(is_staff=False, is_superuser=False).count()
     revenue = Order.objects.filter(payment_status__in=['Paid', 'Authorized', 'Captured']).aggregate(total=Sum('subtotal'))['total'] or Decimal('0')
     low_stock_count = Product.objects.filter(productvariant__quantity__lte=5).distinct().count()
+    orders = Order.objects.select_related('user').prefetch_related('items__product').order_by('-created_at')
+    customers = User.objects.filter(is_staff=False, is_superuser=False).order_by('-date_joined')
+    variants = ProductVariant.objects.select_related('product', 'product__category', 'product__subcategory').order_by('quantity', 'product__product_name')
+    categories = Category.objects.order_by('category_name')
+    subcategories = SubCategory.objects.select_related('category').order_by('subcategory_name')
+    fashion_categories = FashionCategory.objects.filter(is_active=True).select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
+    all_fashion_categories = FashionCategory.objects.select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
+    root_nodes = FashionCategory.objects.filter(parent__isnull=True).select_related('root_category').order_by('sort_order', 'name')
+    card_groups = [{
+        'root': root_node,
+        'cards': root_node.children.select_related('root_category', 'parent').order_by('sort_order', 'name'),
+    } for root_node in root_nodes]
+    home_content = HomeContent.objects.filter(is_active=True).first()
 
-    return render(request, 'store/dashboard.html', {
+    return render(request, 'store/admin-control-center.html', {
         'products': product_rows,
+        'orders': orders[:25],
+        'customers': _build_admin_customer_rows(customers[:25]),
+        'variants': variants[:100],
+        'categories': categories,
+        'subcategories': subcategories,
+        'fashion_categories': fashion_categories,
+        'all_fashion_categories': all_fashion_categories,
+        'card_groups': card_groups,
+        'backgrounds': _build_admin_background_rows(),
+        'home_content': home_content,
+        'site_assets': SiteAsset.objects.order_by('asset_key'),
         'total_products': total_products,
         'total_orders': total_orders,
         'total_customers': total_customers,
         'revenue': revenue,
         'low_stock_count': low_stock_count,
+        'low_stock_threshold': 5,
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
     })
 
@@ -3073,7 +3178,7 @@ def admin_product_form(request, product_id=None):
                 variant.save()
 
             messages.success(request, 'Product saved successfully.')
-            return redirect('admin_dashboard')
+            return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
     return render(request, 'store/upload.html', {
         'product': product,
@@ -3099,7 +3204,7 @@ def admin_product_delete(request, product_id):
     if request.method == 'POST':
         product.delete()
         messages.success(request, 'Product deleted successfully.')
-    return redirect('admin_dashboard')
+    return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
 
 def admin_orders(request):
@@ -3133,7 +3238,7 @@ def admin_order_update(request, order_id):
         order.estimated_delivery = estimated_delivery or None
         order.save(update_fields=['status', 'payment_status', 'courier_name', 'tracking_number', 'tracking_url', 'estimated_delivery'])
         messages.success(request, f'Order #{order.order_id} updated successfully.')
-    return redirect('admin_orders')
+    return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
 
 def admin_customers(request):
@@ -3198,7 +3303,7 @@ def admin_categories(request):
             category_name = category.name
             category.delete()
             messages.success(request, f'"{category_name}" category card deleted successfully.')
-            return redirect('admin_categories')
+            return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
         name = (request.POST.get('name') or '').strip()
         root_category_id = request.POST.get('root_category_id')
@@ -3236,7 +3341,7 @@ def admin_categories(request):
             messages.success(request, 'Fashion category card saved successfully.')
         else:
             messages.error(request, 'Category name and root category are required.')
-        return redirect('admin_categories')
+        return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
     fashion_categories = FashionCategory.objects.select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
     root_nodes = FashionCategory.objects.filter(parent__isnull=True).select_related('root_category').order_by('sort_order', 'name')
@@ -3273,7 +3378,7 @@ def admin_backgrounds(request):
 
         if selected_choice is None:
             messages.error(request, 'Choose a valid background section to update.')
-            return redirect('admin_backgrounds')
+            return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
         if action == 'delete_background':
             asset = _get_background_asset_record(selected_choice)
@@ -3285,7 +3390,7 @@ def admin_backgrounds(request):
             deleted = _delete_background_file_if_unused(previous_path, selected_choice['fallback'])
             message_suffix = ' The uploaded file was removed.' if deleted else ''
             messages.success(request, f"{selected_choice['label']} reset to its default background.{message_suffix}")
-            return redirect('admin_backgrounds')
+            return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
         uploaded_path = _save_uploaded_asset_image(
             request.FILES.get('background_upload'),
@@ -3296,7 +3401,7 @@ def admin_backgrounds(request):
 
         if not _asset_exists(final_path):
             messages.error(request, 'That image was not found in the static images folder.')
-            return redirect('admin_backgrounds')
+            return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
         _save_background_asset_record(
             selected_choice,
@@ -3304,7 +3409,7 @@ def admin_backgrounds(request):
             request.POST.get('is_active') == 'on',
         )
         messages.success(request, f"{selected_choice['label']} updated successfully.")
-        return redirect('admin_backgrounds')
+        return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
     background_rows = []
     for choice in BACKGROUND_ASSET_CHOICES:

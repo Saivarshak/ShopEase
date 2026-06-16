@@ -29,7 +29,7 @@
   <div class="header">
     <div>{{ page_title }}</div>
     <div style="display:flex;gap:12px;align-items:center;">
-      <a href="{% url 'admin_dashboard' %}">Back to Dashboard</a>
+      <a href="{% url 'admin_control_center' %}">Back to Dashboard</a>
       <a href="{% url 'logout' %}">Logout</a>
     </div>
   </div>
@@ -142,7 +142,7 @@
 
         <div class="actions">
           <button type="submit" class="btn btn-primary">{{ form_action_label }}</button>
-          <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Cancel</a>
+          <a href="{% url 'admin_control_center' %}" class="btn btn-secondary">Cancel</a>
         </div>
       </form>
     </div>

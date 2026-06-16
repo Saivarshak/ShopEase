@@ -1,0 +1,214 @@
+{% load static store_assets %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopEase Admin Control Center</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <style>
+    :root {
+      --bg: #f3f6fb; --surface: #fff; --surface-soft: #f8fafc; --text: #000; --muted: #475467;
+      --line: #e5e7eb; --shadow: 0 14px 40px rgba(0,0,0,.08); --radius: 8px; --brand: #000;
+      --hover: #8b5cf6; --success: #027a48; --warning: #b54708; --danger: #b42318; --info: #185fa5;
+    }
+    [data-theme="dark"] {
+      --bg: #111827; --surface: #1f2937; --surface-soft: #111827; --text: #f9fafb; --muted: #cbd5e1;
+      --line: #374151; --shadow: 0 14px 40px rgba(0,0,0,.28); --brand: #000;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+    .shell { min-height: 100vh; display: grid; grid-template-columns: 260px minmax(0, 1fr); }
+    .sidebar { position: sticky; top: 0; height: 100vh; background: var(--brand); color: #fff; padding: 22px 18px; display: flex; flex-direction: column; gap: 22px; }
+    .brand { display: flex; align-items: center; gap: 12px; padding: 0 6px 18px; border-bottom: 1px solid rgba(255,255,255,.14); }
+    .brand-mark { width: 42px; height: 42px; border-radius: var(--radius); background: #fff; color: #000; display: grid; place-items: center; font-weight: 800; }
+    .brand strong { display: block; font-size: 18px; } .brand span { color: rgba(255,255,255,.72); font-size: 12px; }
+    .nav { display: grid; gap: 7px; overflow-y: auto; padding-right: 2px; }
+    .nav a { min-height: 40px; border-radius: var(--radius); display: flex; align-items: center; gap: 10px; padding: 0 12px; color: rgba(255,255,255,.82); font-weight: 700; font-size: 14px; }
+    .nav a:hover, .nav a.active { background: rgba(255,255,255,.14); color: #fff; }
+    .main { min-width: 0; }
+    .top-header { min-height: 72px; background: #000; color: #fff; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .menu-toggle { display: none; width: 42px; height: 42px; border: 0; border-radius: var(--radius); background: rgba(255,255,255,.14); color: #fff; cursor: pointer; }
+    .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .content { width: min(1280px, calc(100% - 40px)); margin: 32px auto; }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 700; margin-bottom: 16px; }
+    .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; flex-wrap: wrap; margin-bottom: 22px; }
+    h1 { font-size: clamp(28px, 4vw, 38px); line-height: 1.1; } .lead { color: var(--muted); margin-top: 7px; line-height: 1.5; }
+    .btn { min-height: 40px; border: 0; border-radius: 999px; background: #000; color: #fff; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; cursor: pointer; }
+    .btn:hover { background: var(--hover); } .btn-light { background: #fff; color: #000; } .btn-danger:hover { background: #ec4899; }
+    .grid-metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .metric, .panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .metric { padding: 18px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between; }
+    .metric span { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; font-weight: 800; display: flex; gap: 7px; align-items: center; }
+    .metric strong { font-size: clamp(24px, 3vw, 32px); margin-top: 8px; display: block; }
+    .panel { padding: 20px; margin-bottom: 22px; scroll-margin-top: 90px; }
+    .panel-head { display: flex; justify-content: space-between; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+    .panel-title { font-size: 20px; font-weight: 800; } .muted { color: var(--muted); }
+    .split { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 18px; }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .mini-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; background: var(--surface-soft); }
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); }
+    table { width: 100%; min-width: 820px; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 14px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+    th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; font-weight: 800; }
+    tr:last-child td { border-bottom: 0; }
+    .product-img, .preview { object-fit: cover; background: #e5e7eb; border-radius: var(--radius); }
+    .product-img { width: 64px; height: 64px; } .preview { width: 100%; aspect-ratio: 16 / 9; display: block; margin-bottom: 12px; }
+    .badge { display: inline-flex; min-height: 24px; align-items: center; border-radius: 999px; padding: 0 9px; font-size: 12px; font-weight: 800; }
+    .ok { background: #ecfdf3; color: var(--success); } .low { background: #fff7ed; color: var(--warning); } .out { background: #fef3f2; color: var(--danger); } .info { background: #e6f1fb; color: var(--info); }
+    .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    form .field { display: grid; gap: 6px; margin-bottom: 12px; }
+    label { color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+    input, select, textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: var(--radius); padding: 10px 11px; background: #fff; color: #000; }
+    textarea { min-height: 78px; resize: vertical; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .messages { margin-bottom: 16px; display: grid; gap: 8px; } .message { border-radius: var(--radius); background: #ecfdf3; padding: 12px 14px; }
+    .chart-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .chart-box { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; min-width: 0; }
+    .chart-box h3 { margin-bottom: 12px; } .chart-canvas { height: 240px; position: relative; }
+    .modal { width: min(860px, calc(100% - 28px)); border: 0; border-radius: var(--radius); padding: 0; box-shadow: var(--shadow); }
+    .modal::backdrop { background: rgba(0,0,0,.48); } .modal-body { padding: 22px; background: var(--surface); color: var(--text); }
+    .module-note { border: 1px dashed var(--line); border-radius: var(--radius); padding: 16px; background: var(--surface-soft); color: var(--muted); }
+    @media (max-width: 1160px) { .shell { grid-template-columns: 86px minmax(0,1fr); } .sidebar { align-items: center; padding: 18px 12px; } .brand div:not(.brand-mark), .nav span { display: none; } .nav a { width: 48px; justify-content: center; padding: 0; } .grid-metrics { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (max-width: 860px) { .shell { display: block; } .sidebar { position: fixed; z-index: 20; inset: 0 auto 0 0; width: 280px; align-items: stretch; transform: translateX(-100%); transition: transform .25s ease; } body.sidebar-open .sidebar { transform: translateX(0); } .brand div:not(.brand-mark), .nav span { display: block; } .nav a { width: auto; justify-content: flex-start; padding: 0 12px; } .menu-toggle { display: inline-grid; place-items: center; } .content { width: min(100% - 28px, 1280px); margin: 24px auto; } .split, .chart-row { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .grid-metrics, .form-grid { grid-template-columns: 1fr; } .top-header { padding: 0 16px; } .btn { width: 100%; } .header-actions { width: 100%; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" id="adminSidebar">
+      <div class="brand"><div class="brand-mark">SE</div><div><strong>ShopEase</strong><span>Admin Control Center</span></div></div>
+      <nav class="nav" aria-label="Admin navigation">
+        <a class="active" href="#overview"><i class="ti ti-dashboard"></i><span>Overview</span></a>
+        <a href="#products"><i class="ti ti-package"></i><span>Products</span></a>
+        <a href="#categories"><i class="ti ti-category"></i><span>Categories</span></a>
+        <a href="#orders"><i class="ti ti-receipt"></i><span>Orders</span></a>
+        <a href="#users"><i class="ti ti-users"></i><span>Users</span></a>
+        <a href="#inventory"><i class="ti ti-building-warehouse"></i><span>Inventory</span></a>
+        <a href="#media"><i class="ti ti-photo"></i><span>Banners & Backgrounds</span></a>
+        <a href="#content"><i class="ti ti-text-caption"></i><span>Website Content</span></a>
+        <a href="#analytics"><i class="ti ti-chart-bar"></i><span>Analytics</span></a>
+        <a href="#settings"><i class="ti ti-settings"></i><span>Settings</span></a>
+        <a href="#extensions"><i class="ti ti-puzzle"></i><span>Coupons, Reviews, Notifications</span></a>
+        <a href="{% url 'home' %}"><i class="ti ti-home"></i><span>Storefront</span></a>
+        <a href="{% url 'logout' %}"><i class="ti ti-logout"></i><span>Logout</span></a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="top-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="menu-toggle" id="sidebarToggle" type="button" aria-controls="adminSidebar" aria-expanded="false"><i class="ti ti-menu-2"></i></button>
+          <strong>ShopEase Admin</strong>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-light" type="button" id="themeToggle"><i class="ti ti-moon"></i> Theme</button>
+          <button class="btn btn-light" type="button" data-open-modal="addProductModal"><i class="ti ti-plus"></i> Add Product</button>
+        </div>
+      </header>
+
+      <section class="content">
+        {% if messages %}<div class="messages">{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}</div>{% endif %}
+        <nav class="breadcrumb"><a href="{% url 'admin_control_center' %}">Admin</a><i class="ti ti-chevron-right"></i><span>Control Center</span></nav>
+
+        <section class="topbar" id="overview">
+          <div><h1>Central Admin Dashboard</h1><p class="lead">Manage the entire eCommerce platform from one responsive control center at <strong>/admin_panel</strong>.</p></div>
+          <a class="btn" href="#media"><i class="ti ti-photo-edit"></i> Manage Images</a>
+        </section>
+
+        <section class="grid-metrics">
+          <div class="metric"><div><span><i class="ti ti-package"></i>Total Products</span><strong>{{ total_products }}</strong></div><small class="muted">Active catalog records</small></div>
+          <div class="metric"><div><span><i class="ti ti-receipt"></i>Total Orders</span><strong>{{ total_orders }}</strong></div><small class="muted">Checkout orders</small></div>
+          <div class="metric"><div><span><i class="ti ti-users"></i>Customers</span><strong>{{ total_customers }}</strong></div><small class="muted">Registered shoppers</small></div>
+          <div class="metric"><div><span><i class="ti ti-currency-rupee"></i>Revenue</span><strong>Rs. {{ revenue }}</strong></div><small class="muted">Paid orders</small></div>
+          <div class="metric"><div><span><i class="ti ti-alert-triangle"></i>Low Stock</span><strong>{{ low_stock_count }}</strong></div><small class="muted">Needs attention</small></div>
+        </section>
+
+        <section class="panel" id="products">
+          <div class="panel-head"><div><h2 class="panel-title">Product Management</h2><p class="muted">Add, edit, delete, price, stock, and image controls.</p></div><button class="btn" type="button" data-open-modal="addProductModal">Add Product</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Image</th><th>Name</th><th>Category</th><th>SKU</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+            {% for row in products %}
+            <tr>
+              <td><img class="product-img" src="{% asset_src row.image_path %}" alt="{{ row.product.product_name }}"></td>
+              <td>{{ row.product.product_name }}<br><span class="muted">{{ row.product.brand|default:"No brand" }}</span></td>
+              <td>{{ row.product.category.category_name }} / {{ row.product.subcategory.subcategory_name }}</td>
+              <td>{{ row.product.sku }}</td><td>Rs. {{ row.product.offer_price }}</td><td>{{ row.total_stock }}</td>
+              <td>{% if row.product.is_active %}<span class="badge ok">Active</span>{% else %}<span class="badge out">Hidden</span>{% endif %}</td>
+              <td><div class="actions"><button class="btn" type="button" data-open-modal="editProduct{{ row.product.product_id }}">Edit</button><form method="post" action="{% url 'admin_product_delete' row.product.product_id %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><button class="btn btn-danger" type="submit" onclick="return confirm('Delete this product?')">Delete</button></form></div></td>
+            </tr>
+            {% empty %}<tr><td colspan="8" style="text-align:center;padding:32px;">No products available.</td></tr>{% endfor %}
+          </tbody></table></div>
+        </section>
+
+        <section class="panel" id="categories">
+          <div class="panel-head"><div><h2 class="panel-title">Category Management</h2><p class="muted">Create and update storefront category cards.</p></div></div>
+          <div class="split">
+            <form method="post" action="{% url 'admin_categories' %}" enctype="multipart/form-data" class="mini-card">
+              {% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><input type="hidden" name="action" value="save_fashion_category">
+              <div class="field"><label>Name</label><input name="name" required></div>
+              <div class="field"><label>Root Category</label><select name="root_category_id" required><option value="">Select root</option>{% for category in categories %}<option value="{{ category.category_id }}">{{ category.category_name }}</option>{% endfor %}</select></div>
+              <div class="field"><label>Parent</label><select name="parent_id"><option value="">Top level</option>{% for category in all_fashion_categories %}<option value="{{ category.fashion_category_id }}">{{ category.full_path }}</option>{% endfor %}</select></div>
+              <div class="field"><label>Description</label><textarea name="description"></textarea></div>
+              <div class="field"><label>Image Upload</label><input type="file" name="image_upload" accept="image/*"></div>
+              <label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_active" checked> Active</label>
+              <button class="btn" type="submit">Save Category</button>
+            </form>
+            <div class="cards-grid">{% for group in card_groups %}{% for category in group.cards %}<form class="mini-card" method="post" action="{% url 'admin_categories' %}" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><input type="hidden" name="action" value="save_fashion_category"><input type="hidden" name="fashion_category_id" value="{{ category.fashion_category_id }}">{% if category.image %}<img class="preview" src="{% asset_src category.image %}" alt="{{ category.name }}">{% endif %}<div class="field"><label>Name</label><input name="name" value="{{ category.name }}" required></div><input type="hidden" name="root_category_id" value="{{ category.root_category_id }}"><input type="hidden" name="parent_id" value="{{ category.parent_id|default:'' }}"><div class="field"><label>Image Path</label><input name="image" value="{{ category.image|default:'' }}"></div><label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_active" {% if category.is_active %}checked{% endif %}> Active</label><div class="actions"><button class="btn" type="submit">Update</button><button class="btn btn-danger" type="submit" name="action" value="delete_fashion_category" onclick="return confirm('Delete this category card?')">Delete</button></div></form>{% endfor %}{% empty %}<div class="module-note">No category cards configured.</div>{% endfor %}</div>
+          </div>
+        </section>
+
+        <section class="panel" id="orders">
+          <div class="panel-head"><div><h2 class="panel-title">Order Management</h2><p class="muted">Update order, payment, and tracking details.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Tracking</th><th>Update</th></tr></thead><tbody>{% for order in orders %}<tr><td>#{{ order.order_id }}<br><span class="muted">{{ order.created_at }}</span></td><td>{{ order.full_name }}<br><span class="muted">{{ order.email }}</span></td><td>Rs. {{ order.subtotal }}</td><td>{{ order.status }} / {{ order.payment_status }}</td><td>{{ order.tracking_number|default:"-" }}</td><td><form class="actions" method="post" action="{% url 'admin_order_update' order.order_id %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><select name="status"><option value="Placed" {% if order.status == "Placed" %}selected{% endif %}>Placed</option><option value="Packed" {% if order.status == "Packed" %}selected{% endif %}>Packed</option><option value="Shipped" {% if order.status == "Shipped" %}selected{% endif %}>Shipped</option><option value="Delivered" {% if order.status == "Delivered" %}selected{% endif %}>Delivered</option><option value="Cancelled" {% if order.status == "Cancelled" %}selected{% endif %}>Cancelled</option></select><select name="payment_status"><option value="Pending" {% if order.payment_status == "Pending" %}selected{% endif %}>Pending</option><option value="Paid" {% if order.payment_status == "Paid" %}selected{% endif %}>Paid</option><option value="Failed" {% if order.payment_status == "Failed" %}selected{% endif %}>Failed</option><option value="Refunded" {% if order.payment_status == "Refunded" %}selected{% endif %}>Refunded</option></select><input name="tracking_number" value="{{ order.tracking_number|default:'' }}" placeholder="Tracking"><button class="btn" type="submit">Save</button></form></td></tr>{% empty %}<tr><td colspan="6" style="text-align:center;padding:32px;">No orders found.</td></tr>{% endfor %}</tbody></table></div>
+        </section>
+
+        <section class="panel" id="users"><div class="panel-head"><div><h2 class="panel-title">User Management</h2><p class="muted">Customer accounts, order counts, and lifetime spend.</p></div></div><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Email</th><th>Joined</th><th>Orders</th><th>Total Spent</th><th>Latest Order</th></tr></thead><tbody>{% for row in customers %}<tr><td>{{ row.customer.get_full_name|default:row.customer.username }}</td><td>{{ row.customer.email }}</td><td>{{ row.customer.date_joined }}</td><td>{{ row.order_count }}</td><td>Rs. {{ row.total_spent }}</td><td>{% if row.latest_order %}#{{ row.latest_order.order_id }}{% else %}-{% endif %}</td></tr>{% empty %}<tr><td colspan="6" style="text-align:center;padding:32px;">No customers yet.</td></tr>{% endfor %}</tbody></table></div></section>
+
+        <section class="panel" id="inventory"><div class="panel-head"><div><h2 class="panel-title">Inventory / Stock Management</h2><p class="muted">Low stock threshold: {{ low_stock_threshold }} units.</p></div></div><div class="table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Size</th><th>Color</th><th>Stock</th><th>Availability</th><th>Action</th></tr></thead><tbody>{% for variant in variants %}<tr><td>{{ variant.product.product_name }}</td><td>{{ variant.product.category.category_name }} / {{ variant.product.subcategory.subcategory_name }}</td><td>{{ variant.size|default:"Free Size" }}</td><td>{{ variant.color|default:"-" }}</td><td>{{ variant.quantity }}</td><td>{% if variant.quantity <= 0 %}<span class="badge out">Out of Stock</span>{% elif variant.quantity <= low_stock_threshold %}<span class="badge low">Low Stock</span>{% else %}<span class="badge ok">Available</span>{% endif %}</td><td><button class="btn" type="button" data-open-modal="editProduct{{ variant.product.product_id }}">Edit Stock</button></td></tr>{% empty %}<tr><td colspan="7" style="text-align:center;padding:32px;">No inventory records.</td></tr>{% endfor %}</tbody></table></div></section>
+
+        <section class="panel" id="media"><div class="panel-head"><div><h2 class="panel-title">Banner & Background/Image Management</h2><p class="muted">Upload local images, preview, replace, and assign page backgrounds.</p></div></div><h3 style="margin-bottom:12px;">Site Assets / Banners</h3><div class="cards-grid">{% for asset in site_assets %}<form class="mini-card" method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="save_site_asset"><div class="field"><label>Asset Key</label><input name="asset_key" value="{{ asset.asset_key }}" required></div>{% if asset.image_path %}<img class="preview" data-preview-image src="{% asset_src asset.image_path %}" alt="{{ asset.asset_key }}">{% endif %}<div class="field"><label>Image Path</label><input name="image_path" value="{{ asset.image_path }}"></div><div class="field"><label>Upload Replacement</label><input type="file" name="asset_upload" accept="image/*" data-preview-input></div><label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_active" {% if asset.is_active %}checked{% endif %}> Active</label><button class="btn" type="submit">Save Asset</button></form>{% empty %}<form class="mini-card" method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="save_site_asset"><div class="field"><label>Asset Key</label><input name="asset_key" placeholder="logo" required></div><div class="field"><label>Upload Image</label><input type="file" name="asset_upload" accept="image/*" required></div><label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_active" checked> Active</label><button class="btn" type="submit">Create Asset</button></form>{% endfor %}</div><h3 style="margin:22px 0 12px;">Page Backgrounds</h3><div class="cards-grid">{% for background in backgrounds %}<form class="mini-card" method="post" action="{% url 'admin_backgrounds' %}" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><input type="hidden" name="choice_id" value="{{ background.choice_id }}"><img class="preview" data-preview-image src="{{ background.current_url }}" alt="{{ background.label }}"><strong>{{ background.label }}</strong><p class="muted" style="word-break:break-all;">{{ background.current_path }}</p><div class="field"><label>Image Path</label><input name="image_path" value="{{ background.saved_path }}" placeholder="{{ background.fallback }}"></div><div class="field"><label>Upload Background</label><input type="file" name="background_upload" accept="image/*" data-preview-input></div><label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_active" {% if background.is_active %}checked{% endif %}> Active</label><div class="actions"><button class="btn" name="action" value="save_background" type="submit">Save</button><button class="btn btn-danger" name="action" value="delete_background" type="submit">Reset</button></div></form>{% endfor %}</div></section>
+
+        <section class="panel" id="content"><div class="panel-head"><div><h2 class="panel-title">Website Content Management</h2><p class="muted">Home page filter/search remains unchanged; only editable content text is centralized here.</p></div></div><form method="post">{% csrf_token %}<input type="hidden" name="action" value="save_home_content"><div class="form-grid"><div class="field"><label>Hero Subtitle</label><input name="hero_subtitle" value="{{ home_content.hero_subtitle|default:'' }}"></div><div class="field"><label>Hero Title</label><input name="hero_title" value="{{ home_content.hero_title|default:'' }}"></div><div class="field"><label>Hero Highlight</label><input name="hero_highlight" value="{{ home_content.hero_highlight|default:'' }}"></div><div class="field"><label>Hero Button Text</label><input name="hero_button_text" value="{{ home_content.hero_button_text|default:'' }}"></div><div class="field full"><label>Hero Tagline</label><textarea name="hero_tagline">{{ home_content.hero_tagline|default:'' }}</textarea></div><div class="field"><label>Search Placeholder</label><input name="search_placeholder" value="{{ home_content.search_placeholder|default:'' }}"></div><div class="field"><label>Search Button Text</label><input name="search_button_text" value="{{ home_content.search_button_text|default:'' }}"></div><div class="field"><label>Category Section Title</label><input name="category_section_title" value="{{ home_content.category_section_title|default:'' }}"></div><div class="field"><label>Featured Section Title</label><input name="featured_section_title" value="{{ home_content.featured_section_title|default:'' }}"></div><div class="field full"><label>Footer Text</label><input name="footer_text" value="{{ home_content.footer_text|default:'' }}"></div></div><button class="btn" type="submit">Save Website Content</button></form></section>
+
+        <section id="analytics" class="chart-row"><div class="chart-box"><h3>Orders Snapshot</h3><div class="chart-canvas"><canvas id="ordersChart"></canvas></div></div><div class="chart-box"><h3>Platform Mix</h3><div class="chart-canvas"><canvas id="categoryChart"></canvas></div></div></section>
+
+        <section class="panel" id="settings"><div class="panel-head"><div><h2 class="panel-title">Settings Management</h2><p class="muted">Operational settings currently come from environment variables and Django settings.</p></div></div><div class="cards-grid"><div class="mini-card"><strong>Admin Access</strong><p class="muted">Managed by staff/superuser accounts and configured admin email.</p></div><div class="mini-card"><strong>Payments</strong><p class="muted">Razorpay configuration is read from secure environment settings.</p></div><div class="mini-card"><strong>Static & Uploaded Images</strong><p class="muted">Admin uploads are stored under the configured static image asset path and rendered dynamically.</p></div></div></section>
+
+        <section class="panel" id="extensions"><div class="panel-head"><div><h2 class="panel-title">Coupons, Offers, Reviews, Ratings & Notifications</h2><p class="muted">These modules are visible in the central dashboard but no database-backed implementation exists yet in this codebase.</p></div></div><div class="cards-grid"><div class="module-note"><strong>Coupons & Offers</strong><br>No coupon model or API is configured yet.</div><div class="module-note"><strong>Reviews & Ratings</strong><br>No review/rating model or moderation workflow is configured yet.</div><div class="module-note"><strong>Notifications</strong><br>No notification delivery model or queue is configured yet.</div></div></section>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="modal" id="addProductModal"><div class="modal-body"><div class="panel-head"><h2 class="panel-title">Add Product</h2><button class="btn" type="button" data-close-modal>Close</button></div>{% include "store/partials/admin_product_fields.html" with action_url="admin_product_add" product=None variant=None submit_label="Add Product" %}</div></dialog>
+  {% for row in products %}
+    <dialog class="modal" id="editProduct{{ row.product.product_id }}"><div class="modal-body"><div class="panel-head"><h2 class="panel-title">Edit {{ row.product.product_name }}</h2><button class="btn" type="button" data-close-modal>Close</button></div>{% include "store/partials/admin_product_fields.html" with action_url="admin_product_edit" product=row.product variant=row.variant product_id=row.product.product_id submit_label="Update Product" %}</div></dialog>
+  {% endfor %}
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script>
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    if (sidebarToggle) sidebarToggle.addEventListener('click', () => {
+      const open = document.body.classList.toggle('sidebar-open');
+      sidebarToggle.setAttribute('aria-expanded', String(open));
+    });
+    document.querySelectorAll('.nav a[href^="#"]').forEach((link) => link.addEventListener('click', () => document.body.classList.remove('sidebar-open')));
+    document.querySelectorAll('[data-open-modal]').forEach((button) => button.addEventListener('click', () => document.getElementById(button.dataset.openModal)?.showModal()));
+    document.querySelectorAll('[data-close-modal]').forEach((button) => button.addEventListener('click', () => button.closest('dialog')?.close()));
+    document.querySelectorAll('[data-preview-input]').forEach((input) => input.addEventListener('change', () => {
+      const file = input.files && input.files[0], preview = input.closest('form')?.querySelector('[data-preview-image]');
+      if (file && preview) preview.src = URL.createObjectURL(file);
+    }));
+    const theme = localStorage.getItem('shopease-admin-theme') || 'light';
+    document.documentElement.dataset.theme = theme;
+    document.getElementById('themeToggle')?.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next; localStorage.setItem('shopease-admin-theme', next);
+    });
+    new Chart(document.getElementById('ordersChart'), { type:'bar', data:{ labels:['Products','Orders','Customers','Low Stock'], datasets:[{ data:[{{ total_products }}, {{ total_orders }}, {{ total_customers }}, {{ low_stock_count }}], backgroundColor:['#3266ad','#1D9E75','#D85A30','#BA7517'], borderRadius:6 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} } });
+    new Chart(document.getElementById('categoryChart'), { type:'doughnut', data:{ labels:['Revenue','Orders','Customers'], datasets:[{ data:[{{ revenue|default:0 }}, {{ total_orders }}, {{ total_customers }}], backgroundColor:['#3266ad','#1D9E75','#D85A30'], borderWidth:2 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} } });
+  </script>
+</body>
+</html>

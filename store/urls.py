@@ -48,6 +48,7 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('logout/', views.logout_view, name='logout'),
     path('admin-access/', views.admin_access, name='admin_access'),
+    path('admin_panel', views.admin_control_center, name='admin_control_center'),
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-panel/backgrounds/', views.admin_backgrounds, name='admin_backgrounds'),
     path('admin-panel/orders/', views.admin_orders, name='admin_orders'),
