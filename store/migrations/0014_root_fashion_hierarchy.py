@@ -184,6 +184,7 @@ def seed_root_hierarchy(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ('store', '0013_align_kids_fashion_labels'),
