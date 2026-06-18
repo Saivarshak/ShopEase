@@ -16,6 +16,16 @@ urlpatterns = [
 
     # Home page
     path('', views.home, name='home'),
+    path('men/', views.category_view, {'category_name': 'men'}, name='men_root'),
+    path('women/', views.category_view, {'category_name': 'women'}, name='women_root'),
+    path('kids/', views.category_view, {'category_name': 'kids'}, name='kids_root'),
+    path('accessories/common/', views.shared_accessories, name='shared_accessories'),
+    path('men/<path:category_path>/<slug:product_slug>/', views.fashion_product_slug_detail, {'gender_slug': 'men'}, name='fashion_product_slug_detail'),
+    path('men/<path:category_path>/', views.fashion_category_slug_listing, {'gender_slug': 'men'}, name='fashion_category_slug_listing'),
+    path('women/<path:category_path>/<slug:product_slug>/', views.fashion_product_slug_detail, {'gender_slug': 'women'}, name='fashion_product_slug_detail'),
+    path('women/<path:category_path>/', views.fashion_category_slug_listing, {'gender_slug': 'women'}, name='fashion_category_slug_listing'),
+    path('kids/<path:category_path>/<slug:product_slug>/', views.fashion_product_slug_detail, {'gender_slug': 'kids'}, name='fashion_product_slug_detail'),
+    path('kids/<path:category_path>/', views.fashion_category_slug_listing, {'gender_slug': 'kids'}, name='fashion_category_slug_listing'),
     path('contact-us/', views.contact_us, name='contact_us'),
     path('contact.html', views.contact_us, name='contact_html'),
     path('privacy-policy/', views.privacy_policy, name='privacy_policy'),

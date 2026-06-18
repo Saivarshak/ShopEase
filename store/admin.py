@@ -15,7 +15,7 @@ class SubCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('product_id', 'product_name', 'brand', 'category', 'subcategory', 'fashion_category', 'price', 'discount_percent', 'offer_price', 'is_active')
+    list_display = ('product_id', 'product_name', 'slug', 'brand', 'category', 'subcategory', 'fashion_category', 'price', 'discount_percent', 'offer_price', 'is_active')
     list_filter = ('category', 'subcategory', 'fashion_category', 'is_active')
     search_fields = ('product_name', 'brand', 'sku')
 
@@ -44,7 +44,7 @@ class PageAssetAdmin(admin.ModelAdmin):
 class FashionCategoryAdmin(admin.ModelAdmin):
     list_display = ('fashion_category_id', 'name', 'parent', 'root_category', 'level', 'sort_order', 'is_under_maintenance', 'is_active')
     list_filter = ('root_category', 'is_under_maintenance', 'is_active')
-    search_fields = ('name', 'slug', 'description', 'page_url')
+    search_fields = ('name', 'slug', 'description', 'page_url', 'banner_image')
 
 
 @admin.register(WishlistItem)

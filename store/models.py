@@ -2,6 +2,7 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 from django.conf import settings
 from django.db import models
+from django.utils.text import slugify
 
 
 def _calculate_offer_price(price, discount_percent):
@@ -63,6 +64,7 @@ class FashionCategory(models.Model):
     level = models.PositiveSmallIntegerField(default=0)
     sort_order = models.PositiveIntegerField(default=0)
     image = models.CharField(max_length=255, blank=True, null=True)
+    banner_image = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     page_url = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)
@@ -213,6 +215,7 @@ class HomeContent(models.Model):
 class Product(models.Model):
     product_id = models.AutoField(primary_key=True)
     product_name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=180, unique=True, blank=True, null=True)
     brand = models.CharField(max_length=100, blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
@@ -238,6 +241,15 @@ class Product(models.Model):
         db_table = "products"
 
     def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.product_name)[:160] or 'product'
+            slug = base_slug
+            counter = 2
+            while Product.objects.filter(slug=slug).exclude(product_id=self.product_id).exists():
+                suffix = f'-{counter}'
+                slug = f'{base_slug[:180 - len(suffix)]}{suffix}'
+                counter += 1
+            self.slug = slug
         self.offer_price = _calculate_offer_price(self.price, self.discount_percent)
         super().save(*args, **kwargs)
 
