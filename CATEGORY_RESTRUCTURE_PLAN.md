@@ -59,7 +59,7 @@
 - Legacy storefront URLs redirect permanently:
   - `/mens_tshirts/` -> `/men/casual-wear/t-shirts/`
   - `/mens_jeans/` -> `/men/casual-wear/jeans/`
-  - `/mens_shirts/` -> `/men/formal-wear/dress-shirts/`
+  - `/mens_shirts/` -> `/men/formal-wear/formal-shirts/`
   - `/womens_ethnicware/` -> `/women/casual-wear/`
   - `/womens_westernware/` -> `/women/casual-wear/`
   - `/womens_footwear/` -> `/women/footwear/`
@@ -80,11 +80,11 @@
 ## Sample Seed Data
 
 - Men, Women, and Kids each receive:
-  - Casual Wear: T-Shirts, Polo Shirts, Jeans, Hoodies & Sweatshirts, Shorts
-  - Formal Wear: Suits, Dress Shirts, Blazers, Dress Trousers, Tuxedos
-  - Footwear: Sneakers, Boots, Dress Shoes, Loafers
-  - Outerwear: Overcoats, Trench Coats, Puffer Jackets
-  - Accessories: Bags, Belts, Watches, Sunglasses, Wallets
+  - Casual Wear: T-Shirts, Polo Shirts, Jeans, Hoodies & Sweatshirts, Shorts, Dresses
+  - Formal Wear: Formal Shirts, Suits, Blazers, Dress Trousers, Tuxedos
+  - Ethnic Wear: Kurtas, Sarees, Lehengas, Sherwanis, Ethnic Dresses
+  - Footwear: Sneakers, Sandals, Boots, Dress Shoes, Loafers
+  - Accessories: Bags, Belts, Watches, Sunglasses, Wallets, Toys
 - Top-level Accessories receives:
   - Common For All Genders
   - Bags, Watches, Sunglasses, Wallets, Other Future Accessories

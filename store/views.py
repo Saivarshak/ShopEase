@@ -795,6 +795,20 @@ def _build_fashion_category_cards(root_category):
         return []
 
 
+def _build_fashion_child_cards(parent_category):
+    cards = []
+    for item in parent_category.children.filter(is_active=True).order_by('sort_order', 'name'):
+        cards.append({
+            'id': item.fashion_category_id,
+            'name': item.name,
+            'image_path': _resolve_static_image_path(item.image, _get_fashion_card_fallback(item)),
+            'description': item.description or f'Explore {item.name.lower()} in {parent_category.name.lower()}.',
+            'page_url': item.page_url or _get_fashion_category_url(item),
+            'is_under_maintenance': _is_maintenance_category(item),
+        })
+    return cards
+
+
 def _build_product_cards(products):
     image_cards = []
 
@@ -897,6 +911,13 @@ def _catalog_context(request, products, page_title, search_placeholder_text='Sea
         'page_background_url': _get_site_asset_url('home_background', 'images/homebg.jpg'),
         'detail_url_name': 'catalog_product_detail',
     }
+
+
+def _listing_page_title(fashion_category):
+    if fashion_category.parent_id and fashion_category.parent.parent_id:
+        main_name = fashion_category.parent.name.replace(' Wear', '')
+        return f'All {main_name} {fashion_category.name}'
+    return fashion_category.name
 
 
 def store_asset(request, asset_path):
@@ -1601,13 +1622,25 @@ def fashion_category_slug_listing(request, gender_slug, category_path):
             'category_tree': _build_category_tree(),
         })
 
+    child_cards = _build_fashion_child_cards(fashion_category)
+    if child_cards:
+        return render(request, 'store/category-children.html', {
+            'page_title': fashion_category.name,
+            'parent_category': fashion_category,
+            'category_cards': child_cards,
+            'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+            'page_background_image': _resolve_static_image_path(fashion_category.banner_image, _get_fashion_card_fallback(fashion_category)),
+            'page_background_url': _asset_public_url(_resolve_static_image_path(fashion_category.banner_image, _get_fashion_card_fallback(fashion_category))),
+            'category_tree': _build_category_tree(),
+        })
+
     descendant_ids = _get_descendant_category_ids(fashion_category)
     products = Product.objects.filter(
         Q(fashion_category_id__in=descendant_ids) |
         Q(category=fashion_category.root_category, subcategory__subcategory_name__iexact=fashion_category.name),
         is_active=True,
     ).select_related('category', 'subcategory', 'fashion_category', 'fashion_category__parent', 'fashion_category__root_category').prefetch_related('productvariant_set')
-    context = _catalog_context(request, products, fashion_category.name, f'Search {fashion_category.name.lower()}...')
+    context = _catalog_context(request, products, _listing_page_title(fashion_category), f'Search {fashion_category.name.lower()}...')
     context['category_tree'] = _build_category_tree()
     context['active_fashion_category'] = fashion_category
     return render(request, 'store/product-listing-generic.html', context)
@@ -2950,11 +2983,13 @@ def _build_admin_product_rows(products):
     product_rows = []
     for product in products:
         variant = _get_first_variant(product)
+        hierarchy_label = product.fashion_category.full_path if product.fashion_category_id else f'{product.category.category_name} > {product.subcategory.subcategory_name}'
         product_rows.append({
             'product': product,
             'variant': variant,
             'total_stock': _get_total_stock(product),
             'image_path': _get_product_image_path(product, variant),
+            'hierarchy_label': hierarchy_label,
         })
     return product_rows
 
@@ -3010,7 +3045,7 @@ def admin_control_center(request):
                 messages.success(request, f'{asset_key} asset updated successfully.')
             return redirect('admin_control_center')
 
-    products = Product.objects.select_related('category', 'subcategory').prefetch_related('productvariant_set').order_by('-product_id')
+    products = Product.objects.select_related('category', 'subcategory', 'fashion_category', 'fashion_category__parent', 'fashion_category__root_category').prefetch_related('productvariant_set').order_by('-product_id')
     product_rows = _build_admin_product_rows(products)
 
     total_products = Product.objects.count()
@@ -3023,7 +3058,7 @@ def admin_control_center(request):
     variants = ProductVariant.objects.select_related('product', 'product__category', 'product__subcategory').order_by('quantity', 'product__product_name')
     categories = Category.objects.order_by('category_name')
     subcategories = SubCategory.objects.select_related('category').order_by('subcategory_name')
-    fashion_categories = FashionCategory.objects.filter(is_active=True).select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
+    fashion_categories = FashionCategory.objects.filter(is_active=True, level__gte=2).select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
     all_fashion_categories = FashionCategory.objects.select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
     root_nodes = FashionCategory.objects.filter(parent__isnull=True).select_related('root_category').order_by('sort_order', 'name')
     card_groups = [{
@@ -3225,7 +3260,7 @@ def admin_product_form(request, product_id=None):
     existing_variants = list(ProductVariant.objects.filter(product=product).order_by('variant_id')) if product else []
     categories = Category.objects.order_by('category_name')
     subcategories = SubCategory.objects.select_related('category').order_by('subcategory_name')
-    fashion_categories = FashionCategory.objects.filter(is_active=True).select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
+    fashion_categories = FashionCategory.objects.filter(is_active=True, level__gte=2).select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
 
     if request.method == 'POST':
         product_name = (request.POST.get('product_name') or '').strip()
@@ -3253,7 +3288,10 @@ def admin_product_form(request, product_id=None):
 
         category = Category.objects.filter(category_id=category_id).first()
         subcategory = SubCategory.objects.filter(subcategory_id=subcategory_id).first()
-        fashion_category = FashionCategory.objects.filter(fashion_category_id=fashion_category_id).select_related('root_category').first()
+        fashion_category = FashionCategory.objects.filter(fashion_category_id=fashion_category_id).select_related('root_category', 'parent').first()
+        if fashion_category and fashion_category.children.filter(is_active=True).exists():
+            messages.error(request, 'Choose a sub category leaf for the product, not a gender or main category.')
+            return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
         if fashion_category and fashion_category.root_category:
             category = fashion_category.root_category
             subcategory, _ = SubCategory.objects.get_or_create(
@@ -3582,7 +3620,7 @@ def admin_backgrounds(request):
 
 
 def mens_shirts(request):
-    return redirect('/men/formal-wear/dress-shirts/', permanent=True)
+    return redirect('/men/formal-wear/formal-shirts/', permanent=True)
     products = Product.objects.filter(
         category__category_name__iexact='mens',
         subcategory__subcategory_name__iexact='shirts',

@@ -54,7 +54,7 @@
             <input type="text" name="brand" value="{{ product.brand|default:'' }}">
           </div>
           <div class="field">
-            <label>Category</label>
+            <label>Gender</label>
             <select name="category_id" required>
               <option value="">Select category</option>
               {% for category in categories %}
@@ -63,7 +63,7 @@
             </select>
           </div>
           <div class="field">
-            <label>Subcategory</label>
+            <label>Legacy Subcategory</label>
             <select name="subcategory_id" required>
               <option value="">Select subcategory</option>
               {% for subcategory in subcategories %}
@@ -72,7 +72,7 @@
             </select>
           </div>
           <div class="field full">
-            <label>Fashion Category</label>
+            <label>Storefront Sub Category</label>
             <select name="fashion_category_id">
               <option value="">Use legacy category only</option>
               {% for fashion_category in fashion_categories %}
@@ -81,6 +81,7 @@
                 </option>
               {% endfor %}
             </select>
+            <small>Choose a leaf path like Men > Casual Wear > T-Shirts. This controls the customer listing and product detail route.</small>
           </div>
           <div class="field">
             <label>SKU</label>

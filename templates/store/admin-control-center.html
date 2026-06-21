@@ -128,13 +128,13 @@
         </section>
 
         <section class="panel" id="products">
-          <div class="panel-head"><div><h2 class="panel-title">Product Management</h2><p class="muted">Add, edit, delete, price, stock, and image controls.</p></div><button class="btn" type="button" data-open-modal="addProductModal">Add Product</button></div>
-          <div class="table-wrap"><table><thead><tr><th>Image</th><th>Name</th><th>Category</th><th>SKU</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+          <div class="panel-head"><div><h2 class="panel-title">Product Management</h2><p class="muted">Assign every product to Gender > Main Category > Sub Category without changing cart, order, or payment behavior.</p></div><button class="btn" type="button" data-open-modal="addProductModal">Add Product</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Image</th><th>Name</th><th>Storefront Path</th><th>SKU</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead><tbody>
             {% for row in products %}
             <tr>
               <td><img class="product-img" src="{% asset_src row.image_path %}" alt="{{ row.product.product_name }}"></td>
               <td>{{ row.product.product_name }}<br><span class="muted">{{ row.product.brand|default:"No brand" }}</span></td>
-              <td>{{ row.product.category.category_name }} / {{ row.product.subcategory.subcategory_name }}</td>
+              <td>{{ row.hierarchy_label }}</td>
               <td>{{ row.product.sku }}</td><td>Rs. {{ row.product.offer_price }}</td><td>{{ row.total_stock }}</td>
               <td>{% if row.product.is_active %}<span class="badge ok">Active</span>{% else %}<span class="badge out">Hidden</span>{% endif %}</td>
               <td><div class="actions"><button class="btn" type="button" data-open-modal="editProduct{{ row.product.product_id }}">Edit</button><form method="post" action="{% url 'admin_product_delete' row.product.product_id %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><button class="btn btn-danger" type="submit" onclick="return confirm('Delete this product?')">Delete</button></form></div></td>
@@ -144,13 +144,13 @@
         </section>
 
         <section class="panel" id="categories">
-          <div class="panel-head"><div><h2 class="panel-title">Category Management</h2><p class="muted">Create and update storefront category cards.</p></div></div>
+          <div class="panel-head"><div><h2 class="panel-title">Category Management</h2><p class="muted">Manage Gender roots, required main categories, and product-listing sub categories.</p></div></div>
           <div class="split">
             <form method="post" action="{% url 'admin_categories' %}" enctype="multipart/form-data" class="mini-card">
               {% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><input type="hidden" name="action" value="save_fashion_category">
               <div class="field"><label>Name</label><input name="name" required></div>
-              <div class="field"><label>Root Category</label><select name="root_category_id" required><option value="">Select root</option>{% for category in categories %}<option value="{{ category.category_id }}">{{ category.category_name }}</option>{% endfor %}</select></div>
-              <div class="field"><label>Parent</label><select name="parent_id"><option value="">Top level</option>{% for category in all_fashion_categories %}<option value="{{ category.fashion_category_id }}">{{ category.full_path }}</option>{% endfor %}</select></div>
+              <div class="field"><label>Gender</label><select name="root_category_id" required><option value="">Select gender</option>{% for category in categories %}<option value="{{ category.category_id }}">{{ category.category_name }}</option>{% endfor %}</select></div>
+              <div class="field"><label>Parent Main Category</label><select name="parent_id"><option value="">Create gender root/main category</option>{% for category in all_fashion_categories %}<option value="{{ category.fashion_category_id }}">{{ category.full_path }}</option>{% endfor %}</select></div>
               <div class="field"><label>Description</label><textarea name="description"></textarea></div>
               <div class="field"><label>Image Upload</label><input type="file" name="image_upload" accept="image/*"></div>
               <div class="field"><label>Banner Upload</label><input type="file" name="banner_upload" accept="image/*"></div>

@@ -39,7 +39,7 @@
 </head>
 <body>
   <div class="header">
-    <div>Category Card Management</div>
+    <div>Navigation Hierarchy Management</div>
     <div style="display:flex;gap:14px;align-items:center;">
       <a href="{% url 'admin_control_center' %}">Dashboard</a>
     </div>
@@ -50,8 +50,8 @@
       <form class="panel" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <input type="hidden" name="action" value="save_fashion_category">
-        <h1>Add Category Card</h1>
-        <p>Create cards for Men, Women, Kids, or Accessories pages. Accessories cards can stay visible while sending customers to the maintenance page.</p>
+        <h1>Add Category</h1>
+        <p>Create or update Gender, Main Category, and Sub Category records used by storefront navigation.</p>
         {% if messages %}
           <div class="messages">
             {% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}
@@ -61,7 +61,7 @@
         <label>Name</label>
         <input name="name" required placeholder="Example: Cargo Pants">
 
-        <label>Root Category</label>
+        <label>Gender</label>
         <select name="root_category_id" required>
           <option value="">Select root</option>
           {% for category in categories %}
@@ -69,9 +69,9 @@
           {% endfor %}
         </select>
 
-        <label>Parent Category</label>
+        <label>Parent Main Category</label>
         <select name="parent_id">
-          <option value="">Top level fashion root</option>
+          <option value="">Create gender root/main category</option>
           {% for category in fashion_categories %}
             <option value="{{ category.fashion_category_id }}">{{ category.full_path }}</option>
           {% endfor %}
@@ -103,14 +103,14 @@
         <label class="check"><input type="checkbox" name="is_under_maintenance"> Under maintenance</label>
 
         <div class="actions">
-          <button class="btn" type="submit">Save Category Card</button>
+          <button class="btn" type="submit">Save Category</button>
         </div>
       </form>
     </section>
 
     <section class="panel">
-      <h1>Existing Category Cards</h1>
-      <p>Edit the cards shown on each fashion page. Turning off Active hides a card without deleting it.</p>
+      <h1>Existing Hierarchy</h1>
+      <p>Edit the categories shown between Gender and Product Listing pages. Turning off Active hides a category without deleting it.</p>
 
       {% for group in card_groups %}
         <div class="group">
@@ -134,7 +134,7 @@
 
                 <div class="row">
                   <div>
-                    <label>Root</label>
+                    <label>Gender</label>
                     <select name="root_category_id" required>
                       {% for root_category in categories %}
                         <option value="{{ root_category.category_id }}" {% if category.root_category_id == root_category.category_id %}selected{% endif %}>{{ root_category.category_name }}</option>
@@ -142,9 +142,9 @@
                     </select>
                   </div>
                   <div>
-                    <label>Parent</label>
+                    <label>Parent Main Category</label>
                     <select name="parent_id">
-                      <option value="">Top level fashion root</option>
+                      <option value="">Create gender root/main category</option>
                       {% for parent in fashion_categories %}
                         {% if parent.fashion_category_id != category.fashion_category_id %}
                           <option value="{{ parent.fashion_category_id }}" {% if category.parent_id == parent.fashion_category_id %}selected{% endif %}>{{ parent.full_path }}</option>
