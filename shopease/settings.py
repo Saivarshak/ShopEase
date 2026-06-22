@@ -125,6 +125,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'store.middleware.StorefrontSyncMiddleware',
 ]
 
 ROOT_URLCONF = 'shopease.urls'
@@ -298,3 +299,4 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '').strip()
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '').strip()
 EMAIL_USE_TLS = (os.getenv('EMAIL_USE_TLS', 'true').strip().lower() == 'true')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@shopease.local').strip()
+

@@ -9,6 +9,10 @@ services:
     preDeployCommand: python manage.py migrate --noinput
     startCommand: gunicorn shopease.wsgi:application
     healthCheckPath: /health/
+    disk:
+      name: shopease-media
+      mountPath: /opt/render/project/src/media
+      sizeGB: 1
     envVars:
       - key: DJANGO_ENV
         value: production

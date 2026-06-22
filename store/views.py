@@ -41,16 +41,18 @@ from .models import (
 
 
 def _asset_exists(normalized_path):
-    normalized = Path(normalized_path.replace('\\', '/').lstrip('/'))
-    candidate_paths = []
+    normalized = Path((normalized_path or '').replace('\\', '/').lstrip('/'))
+    if not normalized or normalized.is_absolute() or '..' in normalized.parts:
+        return None
 
+    candidate_paths = []
     if normalized.suffix.lower() != '.webp':
         candidate_paths.append(normalized.with_suffix('.webp'))
     candidate_paths.append(normalized)
 
     image_name = normalized.name
     fallback_image_path = Path('images') / image_name
-    if normalized.parent != Path('images'):
+    if normalized.parts[:1] != ('images',):
         if fallback_image_path.suffix.lower() != '.webp':
             candidate_paths.append(fallback_image_path.with_suffix('.webp'))
         candidate_paths.append(fallback_image_path)
@@ -61,11 +63,15 @@ def _asset_exists(normalized_path):
         if candidate_key in seen:
             continue
         seen.add(candidate_key)
-        static_candidate = Path(settings.BASE_DIR) / 'static' / candidate
-        if static_candidate.exists():
-            return candidate_key
+        if candidate.parts[:1] == ('uploads',):
+            media_candidate = Path(settings.MEDIA_ROOT) / candidate
+            if media_candidate.exists():
+                return candidate_key
+        elif candidate.parts[:1] == ('images',):
+            static_candidate = Path(settings.BASE_DIR) / 'static' / candidate
+            if static_candidate.exists():
+                return candidate_key
     return None
-
 
 def _get_site_asset(asset_key, fallback):
     try:
@@ -923,16 +929,19 @@ def _listing_page_title(fashion_category):
 def store_asset(request, asset_path):
     normalized = Path((asset_path or '').replace('\\', '/').lstrip('/'))
 
-    if normalized.is_absolute() or '..' in normalized.parts or normalized.parts[:1] != ('images',):
+    if normalized.is_absolute() or '..' in normalized.parts or normalized.parts[:1] not in {('images',), ('uploads',)}:
         raise Http404('Asset not found.')
 
     resolved = _asset_exists(normalized.as_posix())
     if not resolved:
         raise Http404('Asset not found.')
 
-    file_path = Path(settings.BASE_DIR) / 'static' / resolved
+    resolved_path = Path(resolved)
+    if resolved_path.parts[:1] == ('uploads',):
+        file_path = Path(settings.MEDIA_ROOT) / resolved_path
+    else:
+        file_path = Path(settings.BASE_DIR) / 'static' / resolved_path
     return FileResponse(file_path.open('rb'))
-
 
 def _get_session_cart(request):
     session_cart = request.session.get('cart', {})
@@ -2994,6 +3003,26 @@ def _build_admin_product_rows(products):
     return product_rows
 
 
+
+def _admin_product_payload(product):
+    product = Product.objects.select_related('category', 'subcategory', 'fashion_category', 'fashion_category__parent').prefetch_related('productvariant_set').get(product_id=product.product_id)
+    variant = _get_first_variant(product)
+    image_path = _get_product_image_path(product, variant)
+    hierarchy_label = product.fashion_category.full_path if product.fashion_category_id else f'{product.category.category_name} > {product.subcategory.subcategory_name}'
+    return {
+        'id': product.product_id,
+        'name': product.product_name,
+        'brand': product.brand or 'No brand',
+        'sku': product.sku,
+        'price': str(product.offer_price),
+        'stock': _get_total_stock(product),
+        'active': product.is_active,
+        'image_path': image_path,
+        'image_url': _asset_public_url(image_path),
+        'hierarchy_label': hierarchy_label,
+    }
+
+
 def _build_admin_customer_rows(customers):
     rows = []
     for customer in customers:
@@ -3025,23 +3054,50 @@ def admin_control_center(request):
             for field in content_fields:
                 setattr(home_content, field, (request.POST.get(field) or '').strip() or None)
             home_content.save()
-            messages.success(request, 'Website content updated successfully.')
+            response = _json_admin_response(request, True, 'Website settings updated successfully.')
+            if response:
+                return response
+            messages.success(request, 'Website settings updated successfully.')
             return redirect('admin_control_center')
 
         if action == 'save_site_asset':
             asset_key = (request.POST.get('asset_key') or '').strip()
             typed_path = _normalize_admin_asset_path(request.POST.get('image_path'))
-            uploaded_path = _save_uploaded_asset_image(request.FILES.get('asset_upload'), asset_key or 'site-asset')
+            try:
+                uploaded_path = _save_uploaded_asset_image(request.FILES.get('asset_upload'), asset_key or 'site-asset')
+            except ValueError as exc:
+                response = _json_admin_response(request, False, str(exc))
+                if response:
+                    return response
+                messages.error(request, str(exc))
+                return redirect('admin_control_center')
             final_path = uploaded_path or typed_path
             if not asset_key or not final_path:
+                response = _json_admin_response(request, False, 'Asset key and image are required.')
+                if response:
+                    return response
                 messages.error(request, 'Asset key and image are required.')
             elif not _asset_exists(final_path):
-                messages.error(request, 'That asset image was not found in the static images folder.')
+                response = _json_admin_response(request, False, 'That asset image was not found.')
+                if response:
+                    return response
+                messages.error(request, 'That asset image was not found.')
             else:
                 asset = SiteAsset.objects.filter(asset_key=asset_key).first() or SiteAsset(asset_key=asset_key)
+                previous_path = asset.image_path
                 asset.image_path = final_path
                 asset.is_active = request.POST.get('is_active') == 'on'
                 asset.save()
+                _delete_replaced_uploaded_assets([previous_path], [final_path])
+                response = _json_admin_response(request, True, f'{asset_key} asset updated successfully.', {
+                    'asset': {
+                        'key': asset.asset_key,
+                        'path': asset.image_path,
+                        'url': _asset_public_url(asset.image_path),
+                    }
+                })
+                if response:
+                    return response
                 messages.success(request, f'{asset_key} asset updated successfully.')
             return redirect('admin_control_center')
 
@@ -3130,20 +3186,46 @@ def _get_total_stock(product):
     return sum((variant.quantity or 0) for variant in _get_product_variants(product))
 
 
-def _save_uploaded_product_image(uploaded_file, product_name, slot_name):
+ALLOWED_UPLOAD_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
+
+
+def _is_ajax_request(request):
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.headers.get('accept') == 'application/json'
+
+
+def _json_admin_response(request, success, message, payload=None, status=None):
+    if not _is_ajax_request(request):
+        return None
+    return JsonResponse({
+        'success': bool(success),
+        'message': message,
+        **(payload or {}),
+    }, status=status or (200 if success else 400))
+
+
+def _validate_upload_file(uploaded_file):
+    if not uploaded_file:
+        return ''
+    extension = Path(uploaded_file.name).suffix.lower()
+    if extension not in ALLOWED_UPLOAD_EXTENSIONS:
+        raise ValueError('Only JPG, JPEG, PNG, and WEBP images are supported.')
+    return extension
+
+
+def _save_uploaded_image(uploaded_file, folder, base_name):
     if not uploaded_file:
         return None
 
-    extension = Path(uploaded_file.name).suffix or '.jpg'
-    safe_name = slugify(product_name) or 'product'
-    filename = f"{safe_name}_{slot_name}{extension.lower()}"
-    target_dir = Path(settings.BASE_DIR) / 'static' / 'images'
+    extension = _validate_upload_file(uploaded_file)
+    safe_name = slugify(base_name) or 'image'
+    target_dir = Path(settings.MEDIA_ROOT) / 'uploads' / folder
     target_dir.mkdir(parents=True, exist_ok=True)
+    filename = f"{safe_name}{extension}"
     target_path = target_dir / filename
 
     counter = 1
     while target_path.exists():
-        filename = f"{safe_name}_{slot_name}_{counter}{extension.lower()}"
+        filename = f"{safe_name}_{counter}{extension}"
         target_path = target_dir / filename
         counter += 1
 
@@ -3151,32 +3233,59 @@ def _save_uploaded_product_image(uploaded_file, product_name, slot_name):
         for chunk in uploaded_file.chunks():
             destination.write(chunk)
 
-    return filename
+    return (Path('uploads') / folder / filename).as_posix()
+
+
+def _save_uploaded_product_image(uploaded_file, product_name, slot_name):
+    return _save_uploaded_image(uploaded_file, 'products', f'{product_name}-{slot_name}')
 
 
 def _save_uploaded_asset_image(uploaded_file, asset_name):
-    if not uploaded_file:
-        return None
+    return _save_uploaded_image(uploaded_file, 'assets', asset_name)
 
-    extension = Path(uploaded_file.name).suffix or '.jpg'
-    safe_name = slugify(asset_name) or 'background'
-    filename = f"{safe_name}{extension.lower()}"
-    target_dir = Path(settings.BASE_DIR) / 'static' / 'images'
-    target_dir.mkdir(parents=True, exist_ok=True)
-    target_path = target_dir / filename
 
-    counter = 1
-    while target_path.exists():
-        filename = f"{safe_name}_{counter}{extension.lower()}"
-        target_path = target_dir / filename
-        counter += 1
+def _is_uploaded_asset_path(image_path):
+    normalized = Path((image_path or '').replace('\\', '/').lstrip('/'))
+    return bool(normalized.parts[:1] == ('uploads',) and '..' not in normalized.parts and not normalized.is_absolute())
 
-    with target_path.open('wb+') as destination:
-        for chunk in uploaded_file.chunks():
-            destination.write(chunk)
 
-    return f'images/{filename}'
+def _uploaded_asset_is_referenced(image_path):
+    normalized = _normalize_image_asset_path(image_path)
+    if not normalized or not _is_uploaded_asset_path(normalized):
+        return True
+    variant_filter = (
+        Q(image1=normalized) | Q(image2=normalized) |
+        Q(image3=normalized) | Q(image4=normalized)
+    )
+    return any([
+        ProductVariant.objects.filter(variant_filter).exists(),
+        FashionCategory.objects.filter(Q(image=normalized) | Q(banner_image=normalized)).exists(),
+        SiteAsset.objects.filter(image_path=normalized).exists(),
+        PageAsset.objects.filter(image_path=normalized).exists(),
+    ])
 
+
+def _delete_uploaded_asset_if_unused(image_path):
+    normalized = _normalize_image_asset_path(image_path)
+    if not normalized or not _is_uploaded_asset_path(normalized) or _uploaded_asset_is_referenced(normalized):
+        return False
+    file_path = Path(settings.MEDIA_ROOT) / normalized
+    try:
+        file_path.relative_to(Path(settings.MEDIA_ROOT) / 'uploads')
+    except ValueError:
+        return False
+    if file_path.exists():
+        file_path.unlink()
+        return True
+    return False
+
+
+def _delete_replaced_uploaded_assets(old_paths, new_paths):
+    new_path_set = {_normalize_image_asset_path(path) for path in new_paths if path}
+    for old_path in old_paths:
+        normalized = _normalize_image_asset_path(old_path)
+        if normalized and normalized not in new_path_set:
+            _delete_uploaded_asset_if_unused(normalized)
 
 def _normalize_admin_asset_path(raw_path):
     normalized = (raw_path or '').strip().replace('\\', '/').lstrip('/')
@@ -3221,23 +3330,7 @@ def _delete_background_file_if_unused(image_path, fallback_path):
     normalized = _normalize_image_asset_path(image_path)
     if not normalized or normalized == _normalize_image_asset_path(fallback_path):
         return False
-
-    if SiteAsset.objects.filter(image_path=normalized).exists():
-        return False
-    if PageAsset.objects.filter(image_path=normalized).exists():
-        return False
-
-    file_path = Path(settings.BASE_DIR) / 'static' / normalized
-    try:
-        file_path.relative_to(Path(settings.BASE_DIR) / 'static' / 'images')
-    except ValueError:
-        return False
-
-    if file_path.exists():
-        file_path.unlink()
-        return True
-    return False
-
+    return _delete_uploaded_asset_if_unused(normalized)
 
 def _unique_fashion_slug(name, parent, category_id=None):
     base_slug = slugify(name)[:150] or 'fashion-category'
@@ -3290,6 +3383,9 @@ def admin_product_form(request, product_id=None):
         subcategory = SubCategory.objects.filter(subcategory_id=subcategory_id).first()
         fashion_category = FashionCategory.objects.filter(fashion_category_id=fashion_category_id).select_related('root_category', 'parent').first()
         if fashion_category and fashion_category.children.filter(is_active=True).exists():
+            response = _json_admin_response(request, False, 'Choose a sub category leaf for the product, not a gender or main category.')
+            if response:
+                return response
             messages.error(request, 'Choose a sub category leaf for the product, not a gender or main category.')
             return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
         if fashion_category and fashion_category.root_category:
@@ -3299,6 +3395,9 @@ def admin_product_form(request, product_id=None):
                 subcategory_name=fashion_category.name,
             )
         if not all([product_name, category, subcategory, sku]):
+            response = _json_admin_response(request, False, 'Product name, category/subcategory or fashion category, and SKU are required.')
+            if response:
+                return response
             messages.error(request, 'Product name, category/subcategory or fashion category, and SKU are required.')
         else:
             if product is None:
@@ -3316,13 +3415,24 @@ def admin_product_form(request, product_id=None):
             product.is_active = is_active
             product.save()
 
+            old_image_paths = []
+            for old_variant in existing_variants:
+                old_image_paths.extend([old_variant.image1, old_variant.image2, old_variant.image3, old_variant.image4])
+
             if variant is None:
                 variant = ProductVariant(product=product)
 
-            uploaded_image1_name = _save_uploaded_product_image(image1_upload, product.product_name, 'image1')
-            uploaded_image2_name = _save_uploaded_product_image(image2_upload, product.product_name, 'image2')
-            uploaded_image3_name = _save_uploaded_product_image(image3_upload, product.product_name, 'image3')
-            uploaded_image4_name = _save_uploaded_product_image(image4_upload, product.product_name, 'image4')
+            try:
+                uploaded_image1_name = _save_uploaded_product_image(image1_upload, product.product_name, 'image1')
+                uploaded_image2_name = _save_uploaded_product_image(image2_upload, product.product_name, 'image2')
+                uploaded_image3_name = _save_uploaded_product_image(image3_upload, product.product_name, 'image3')
+                uploaded_image4_name = _save_uploaded_product_image(image4_upload, product.product_name, 'image4')
+            except ValueError as exc:
+                response = _json_admin_response(request, False, str(exc))
+                if response:
+                    return response
+                messages.error(request, str(exc))
+                return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
             final_image1 = uploaded_image1_name or image1
             final_image2 = uploaded_image2_name or image2
@@ -3353,6 +3463,12 @@ def admin_product_form(request, product_id=None):
                 variant.image4 = final_image4
                 variant.save()
 
+            _delete_replaced_uploaded_assets(old_image_paths, [final_image1, final_image2, final_image3, final_image4])
+            response = _json_admin_response(request, True, 'Product saved successfully.', {
+                'product': _admin_product_payload(product),
+            })
+            if response:
+                return response
             messages.success(request, 'Product saved successfully.')
             return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
@@ -3378,7 +3494,14 @@ def admin_product_delete(request, product_id):
 
     product = get_object_or_404(Product, product_id=product_id)
     if request.method == 'POST':
+        old_paths = []
+        for old_variant in ProductVariant.objects.filter(product=product):
+            old_paths.extend([old_variant.image1, old_variant.image2, old_variant.image3, old_variant.image4])
         product.delete()
+        _delete_replaced_uploaded_assets(old_paths, [])
+        response = _json_admin_response(request, True, 'Product deleted successfully.', {'deleted_id': product_id})
+        if response:
+            return response
         messages.success(request, 'Product deleted successfully.')
     return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
@@ -3477,7 +3600,12 @@ def admin_categories(request):
         if action == 'delete_fashion_category':
             category = get_object_or_404(FashionCategory, fashion_category_id=fashion_category_id)
             category_name = category.name
+            old_paths = [category.image, category.banner_image]
             category.delete()
+            _delete_replaced_uploaded_assets(old_paths, [])
+            response = _json_admin_response(request, True, f'"{category_name}" category card deleted successfully.', {'deleted_id': fashion_category_id})
+            if response:
+                return response
             messages.success(request, f'"{category_name}" category card deleted successfully.')
             return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
@@ -3488,9 +3616,16 @@ def admin_categories(request):
         description = (request.POST.get('description') or '').strip()
         page_url = (request.POST.get('page_url') or '').strip()
         image_path = _normalize_admin_asset_path(request.POST.get('image'))
-        uploaded_image_path = _save_uploaded_asset_image(request.FILES.get('image_upload'), name)
         banner_image_path = _normalize_admin_asset_path(request.POST.get('banner_image'))
-        uploaded_banner_path = _save_uploaded_asset_image(request.FILES.get('banner_upload'), f'{name}-banner')
+        try:
+            uploaded_image_path = _save_uploaded_asset_image(request.FILES.get('image_upload'), name)
+            uploaded_banner_path = _save_uploaded_asset_image(request.FILES.get('banner_upload'), f'{name}-banner')
+        except ValueError as exc:
+            response = _json_admin_response(request, False, str(exc))
+            if response:
+                return response
+            messages.error(request, str(exc))
+            return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
         is_under_maintenance = request.POST.get('is_under_maintenance') == 'on'
         is_active = request.POST.get('is_active') == 'on'
         root_category = Category.objects.filter(category_id=root_category_id).first()
@@ -3508,6 +3643,7 @@ def admin_categories(request):
             category.parent = parent
             category.level = (parent.level + 1) if parent else 0
             category.sort_order = sort_order or FashionCategory.objects.count() + 1
+            previous_paths = [category.image, category.banner_image]
             category.image = final_image_path or None
             category.banner_image = final_banner_path or None
             category.description = description or None
@@ -3515,11 +3651,28 @@ def admin_categories(request):
             category.is_active = is_active
             category.is_under_maintenance = is_under_maintenance
             category.save()
+            _delete_replaced_uploaded_assets(previous_paths, [category.image, category.banner_image])
 
             if parent:
                 SubCategory.objects.get_or_create(category=root_category, subcategory_name=name)
+            response = _json_admin_response(request, True, 'Fashion category card saved successfully.', {
+                'category': {
+                    'id': category.fashion_category_id,
+                    'name': category.name,
+                    'image': category.image or '',
+                    'image_url': _asset_public_url(category.image) if category.image else '',
+                    'banner_image': category.banner_image or '',
+                    'is_active': category.is_active,
+                    'is_under_maintenance': category.is_under_maintenance,
+                }
+            })
+            if response:
+                return response
             messages.success(request, 'Fashion category card saved successfully.')
         else:
+            response = _json_admin_response(request, False, 'Category name and root category are required.')
+            if response:
+                return response
             messages.error(request, 'Category name and root category are required.')
         return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
@@ -3569,26 +3722,59 @@ def admin_backgrounds(request):
                 asset.save()
             deleted = _delete_background_file_if_unused(previous_path, selected_choice['fallback'])
             message_suffix = ' The uploaded file was removed.' if deleted else ''
-            messages.success(request, f"{selected_choice['label']} reset to its default background.{message_suffix}")
+            message = f"{selected_choice['label']} reset to its default background.{message_suffix}"
+            response = _json_admin_response(request, True, message, {
+                'background': {
+                    'choice_id': choice_id,
+                    'path': selected_choice['fallback'],
+                    'url': _asset_public_url(selected_choice['fallback']),
+                }
+            })
+            if response:
+                return response
+            messages.success(request, message)
             return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
-        uploaded_path = _save_uploaded_asset_image(
-            request.FILES.get('background_upload'),
-            f"{selected_choice['page_key'] or 'site'}-{selected_choice['asset_key']}",
-        )
+        try:
+            uploaded_path = _save_uploaded_asset_image(
+                request.FILES.get('background_upload'),
+                f"{selected_choice['page_key'] or 'site'}-{selected_choice['asset_key']}",
+            )
+        except ValueError as exc:
+            response = _json_admin_response(request, False, str(exc))
+            if response:
+                return response
+            messages.error(request, str(exc))
+            return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
         typed_path = _normalize_admin_asset_path(request.POST.get('image_path'))
         final_path = uploaded_path or typed_path or selected_choice['fallback']
 
         if not _asset_exists(final_path):
-            messages.error(request, 'That image was not found in the static images folder.')
+            response = _json_admin_response(request, False, 'That image was not found.')
+            if response:
+                return response
+            messages.error(request, 'That image was not found.')
             return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
+        previous_asset = _get_background_asset_record(selected_choice)
+        previous_path = getattr(previous_asset, 'image_path', '') or ''
         _save_background_asset_record(
             selected_choice,
             final_path,
             request.POST.get('is_active') == 'on',
         )
-        messages.success(request, f"{selected_choice['label']} updated successfully.")
+        _delete_replaced_uploaded_assets([previous_path], [final_path])
+        message = f"{selected_choice['label']} updated successfully."
+        response = _json_admin_response(request, True, message, {
+            'background': {
+                'choice_id': choice_id,
+                'path': final_path,
+                'url': _asset_public_url(final_path),
+            }
+        })
+        if response:
+            return response
+        messages.success(request, message)
         return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
 
     background_rows = []
