@@ -3,6 +3,8 @@ from pathlib import Path
 from django import template
 from django.conf import settings
 from django.urls import reverse
+from django.db.utils import OperationalError, ProgrammingError
+from store.models import UploadedImage
 
 
 register = template.Library()
@@ -10,6 +12,11 @@ PLACEHOLDER_ASSET = 'images/placeholder.svg'
 
 
 def _asset_file_exists(candidate):
+    if candidate.parts[:1] == ('dbuploads',):
+        try:
+            return UploadedImage.objects.filter(path=candidate.as_posix()).exists()
+        except (ProgrammingError, OperationalError):
+            return False
     if candidate.parts[:1] == ('uploads',):
         return (Path(settings.MEDIA_ROOT) / candidate).exists()
     if candidate.parts[:1] == ('images',):
@@ -28,7 +35,7 @@ def asset_src(asset_path):
         normalized = f'images/{normalized}'
 
     candidate = Path(normalized)
-    if candidate.is_absolute() or '..' in candidate.parts or candidate.parts[:1] not in {('images',), ('uploads',)}:
+    if candidate.is_absolute() or '..' in candidate.parts or candidate.parts[:1] not in {('images',), ('uploads',), ('dbuploads',)}:
         candidate = Path(PLACEHOLDER_ASSET)
     elif not _asset_file_exists(candidate):
         image_fallback = Path('images') / candidate.name

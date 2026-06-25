@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import json
 import time
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib import messages
@@ -37,6 +38,7 @@ from .models import (
     SiteAsset,
     PageAsset,
     HomeContent,
+    UploadedImage,
 )
 
 
@@ -52,7 +54,7 @@ def _asset_exists(normalized_path):
 
     image_name = normalized.name
     fallback_image_path = Path('images') / image_name
-    if normalized.parts[:1] != ('images',):
+    if normalized.parts[:1] not in {('images',), (DB_UPLOAD_PREFIX,)}:
         if fallback_image_path.suffix.lower() != '.webp':
             candidate_paths.append(fallback_image_path.with_suffix('.webp'))
         candidate_paths.append(fallback_image_path)
@@ -63,7 +65,13 @@ def _asset_exists(normalized_path):
         if candidate_key in seen:
             continue
         seen.add(candidate_key)
-        if candidate.parts[:1] == ('uploads',):
+        if candidate.parts[:1] == (DB_UPLOAD_PREFIX,):
+            try:
+                if UploadedImage.objects.filter(path=candidate_key).exists():
+                    return candidate_key
+            except (ProgrammingError, OperationalError):
+                continue
+        elif candidate.parts[:1] == ('uploads',):
             media_candidate = Path(settings.MEDIA_ROOT) / candidate
             if media_candidate.exists():
                 return candidate_key
@@ -72,7 +80,6 @@ def _asset_exists(normalized_path):
             if static_candidate.exists():
                 return candidate_key
     return None
-
 def _get_site_asset(asset_key, fallback):
     try:
         asset = SiteAsset.objects.filter(asset_key=asset_key, is_active=True).first()
@@ -109,15 +116,21 @@ def _asset_public_url(asset_path):
 
 
 def _normalize_image_asset_path(raw_path):
+    if _is_forbidden_image_reference(raw_path):
+        return ''
     normalized = (raw_path or '').strip().replace('\\', '/').lstrip('/')
     if not normalized:
         return ''
     if normalized.startswith('static/'):
         normalized = normalized[len('static/'):]
-    if '/' not in normalized:
+    path = Path(normalized)
+    if path.is_absolute() or '..' in path.parts:
+        return ''
+    if path.parts[:1] not in {('images',), ('uploads',), (DB_UPLOAD_PREFIX,)}:
+        if '/' in normalized:
+            return ''
         normalized = f'images/{normalized}'
     return normalized
-
 
 def _get_site_asset_url(asset_key, fallback):
     return _asset_public_url(_get_site_asset(asset_key, fallback))
@@ -929,7 +942,7 @@ def _listing_page_title(fashion_category):
 def store_asset(request, asset_path):
     normalized = Path((asset_path or '').replace('\\', '/').lstrip('/'))
 
-    if normalized.is_absolute() or '..' in normalized.parts or normalized.parts[:1] not in {('images',), ('uploads',)}:
+    if normalized.is_absolute() or '..' in normalized.parts or normalized.parts[:1] not in {('images',), ('uploads',), (DB_UPLOAD_PREFIX,)}:
         raise Http404('Asset not found.')
 
     resolved = _asset_exists(normalized.as_posix())
@@ -937,12 +950,22 @@ def store_asset(request, asset_path):
         raise Http404('Asset not found.')
 
     resolved_path = Path(resolved)
+    if resolved_path.parts[:1] == (DB_UPLOAD_PREFIX,):
+        image = UploadedImage.objects.filter(path=resolved_path.as_posix()).first()
+        if image is None:
+            raise Http404('Asset not found.')
+        response = HttpResponse(bytes(image.data), content_type=image.content_type or 'application/octet-stream')
+        response['Cache-Control'] = 'no-store, max-age=0'
+        response['Content-Length'] = str(image.size or len(image.data))
+        return response
     if resolved_path.parts[:1] == ('uploads',):
         file_path = Path(settings.MEDIA_ROOT) / resolved_path
-    else:
-        file_path = Path(settings.BASE_DIR) / 'static' / resolved_path
-    return FileResponse(file_path.open('rb'))
+        response = FileResponse(file_path.open('rb'))
+        response['Cache-Control'] = 'no-store, max-age=0'
+        return response
 
+    file_path = Path(settings.BASE_DIR) / 'static' / resolved_path
+    return FileResponse(file_path.open('rb'))
 def _get_session_cart(request):
     session_cart = request.session.get('cart', {})
     normalized_cart = {}
@@ -3192,6 +3215,8 @@ def _get_total_stock(product):
 
 
 ALLOWED_UPLOAD_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
+DB_UPLOAD_PREFIX = 'dbuploads'
+UPLOAD_PATH_PREFIXES = {('uploads',), (DB_UPLOAD_PREFIX,)}
 MAX_UPLOAD_IMAGE_BYTES = int(getattr(settings, 'MAX_UPLOAD_IMAGE_BYTES', 10 * 1024 * 1024))
 
 
@@ -3221,30 +3246,37 @@ def _validate_upload_file(uploaded_file):
     return extension
 
 
+def _content_type_for_extension(extension, uploaded_file):
+    provided_type = (getattr(uploaded_file, 'content_type', '') or '').strip().lower()
+    if provided_type in {'image/jpeg', 'image/png', 'image/webp'}:
+        return provided_type
+    return {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.webp': 'image/webp',
+    }.get(extension, 'application/octet-stream')
+
+
 def _save_uploaded_image(uploaded_file, folder, base_name):
     if not uploaded_file:
         return None
 
     extension = _validate_upload_file(uploaded_file)
     safe_name = slugify(base_name) or 'image'
-    target_dir = Path(settings.MEDIA_ROOT) / 'uploads' / folder
-    target_dir.mkdir(parents=True, exist_ok=True)
-    filename = f"{safe_name}{extension}"
-    target_path = target_dir / filename
+    token = uuid4().hex[:12]
+    filename = f"{safe_name}-{token}{extension}"
+    stored_path = (Path(DB_UPLOAD_PREFIX) / folder / filename).as_posix()
+    image_bytes = b''.join(uploaded_file.chunks())
 
-    counter = 1
-    while target_path.exists():
-        filename = f"{safe_name}_{counter}{extension}"
-        target_path = target_dir / filename
-        counter += 1
-
-    with target_path.open('wb+') as destination:
-        for chunk in uploaded_file.chunks():
-            destination.write(chunk)
-
-    return (Path('uploads') / folder / filename).as_posix()
-
-
+    UploadedImage.objects.create(
+        path=stored_path,
+        original_name=Path(uploaded_file.name).name[:255],
+        content_type=_content_type_for_extension(extension, uploaded_file),
+        data=image_bytes,
+        size=len(image_bytes),
+    )
+    return stored_path
 def _save_uploaded_product_image(uploaded_file, product_name, slot_name):
     return _save_uploaded_image(uploaded_file, 'products', f'{product_name}-{slot_name}')
 
@@ -3255,7 +3287,7 @@ def _save_uploaded_asset_image(uploaded_file, asset_name):
 
 def _is_uploaded_asset_path(image_path):
     normalized = Path((image_path or '').replace('\\', '/').lstrip('/'))
-    return bool(normalized.parts[:1] == ('uploads',) and '..' not in normalized.parts and not normalized.is_absolute())
+    return bool(normalized.parts[:1] in UPLOAD_PATH_PREFIXES and '..' not in normalized.parts and not normalized.is_absolute())
 
 
 def _uploaded_asset_is_referenced(image_path):
@@ -3278,7 +3310,13 @@ def _delete_uploaded_asset_if_unused(image_path):
     normalized = _normalize_image_asset_path(image_path)
     if not normalized or not _is_uploaded_asset_path(normalized) or _uploaded_asset_is_referenced(normalized):
         return False
-    file_path = Path(settings.MEDIA_ROOT) / normalized
+
+    normalized_path = Path(normalized)
+    if normalized_path.parts[:1] == (DB_UPLOAD_PREFIX,):
+        deleted_count, _ = UploadedImage.objects.filter(path=normalized).delete()
+        return bool(deleted_count)
+
+    file_path = Path(settings.MEDIA_ROOT) / normalized_path
     try:
         file_path.relative_to(Path(settings.MEDIA_ROOT) / 'uploads')
     except ValueError:
@@ -3287,8 +3325,6 @@ def _delete_uploaded_asset_if_unused(image_path):
         file_path.unlink()
         return True
     return False
-
-
 def _delete_replaced_uploaded_assets(old_paths, new_paths):
     new_path_set = {_normalize_image_asset_path(path) for path in new_paths if path}
     for old_path in old_paths:
@@ -3296,16 +3332,35 @@ def _delete_replaced_uploaded_assets(old_paths, new_paths):
         if normalized and normalized not in new_path_set:
             _delete_uploaded_asset_if_unused(normalized)
 
+def _is_forbidden_image_reference(raw_path):
+    value = (raw_path or '').strip()
+    lowered = value.lower()
+    return bool(
+        lowered.startswith(('blob:', 'file:', 'filesystem:'))
+        or lowered.startswith(('http://localhost', 'https://localhost', 'http://127.0.0.1', 'https://127.0.0.1'))
+        or lowered.startswith('c:/')
+        or lowered.startswith('c:\\')
+        or lowered.startswith('\\\\')
+        or ':\\' in lowered
+    )
+
+
 def _normalize_admin_asset_path(raw_path):
+    if _is_forbidden_image_reference(raw_path):
+        return ''
     normalized = (raw_path or '').strip().replace('\\', '/').lstrip('/')
     if not normalized:
         return ''
     if normalized.startswith('static/'):
         normalized = normalized[len('static/'):]
-    if '/' not in normalized:
+    path = Path(normalized)
+    if path.is_absolute() or '..' in path.parts:
+        return ''
+    if path.parts[:1] not in {('images',), ('uploads',), (DB_UPLOAD_PREFIX,)}:
+        if '/' in normalized:
+            return ''
         normalized = f'images/{normalized}'
     return normalized
-
 
 def _get_background_asset_record(choice):
     if choice['scope'] == 'site':
@@ -3663,8 +3718,10 @@ def _save_admin_category_from_request(request):
     sort_order = max(0, _parse_int(request.POST.get('sort_order'), 0))
     description = (request.POST.get('description') or '').strip()
     page_url = (request.POST.get('page_url') or '').strip()
-    image_path = _normalize_admin_asset_path(request.POST.get('image'))
-    banner_image_path = _normalize_admin_asset_path(request.POST.get('banner_image'))
+    raw_image_input = request.POST.get('image')
+    image_path = _normalize_admin_asset_path(raw_image_input)
+    raw_banner_image_input = request.POST.get('banner_image')
+    banner_image_path = _normalize_admin_asset_path(raw_banner_image_input)
     is_under_maintenance = request.POST.get('is_under_maintenance') == 'on'
     is_active = request.POST.get('is_active') == 'on'
 
@@ -3696,8 +3753,10 @@ def _save_admin_category_from_request(request):
     if category is None:
         category = FashionCategory()
 
-    final_image_path = uploaded_image_path or image_path or (category.image if category.fashion_category_id else '')
-    final_banner_path = uploaded_banner_path or banner_image_path or (category.banner_image if category.fashion_category_id else '')
+    preserve_existing_image = raw_image_input is None and category.fashion_category_id and not _is_forbidden_image_reference(category.image)
+    final_image_path = uploaded_image_path or image_path or (category.image if preserve_existing_image else '')
+    preserve_existing_banner = raw_banner_image_input is None and category.fashion_category_id and not _is_forbidden_image_reference(category.banner_image)
+    final_banner_path = uploaded_banner_path or banner_image_path or (category.banner_image if preserve_existing_banner else '')
     previous_paths = [category.image, category.banner_image]
 
     category.name = name

@@ -176,6 +176,23 @@ class PageAsset(models.Model):
         return f"{self.page_key}:{self.asset_key}"
 
 
+class UploadedImage(models.Model):
+    uploaded_image_id = models.AutoField(primary_key=True)
+    path = models.CharField(max_length=255, unique=True)
+    original_name = models.CharField(max_length=255, blank=True, null=True)
+    content_type = models.CharField(max_length=100, blank=True, null=True)
+    data = models.BinaryField()
+    size = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "uploaded_images"
+        managed = True
+
+    def __str__(self):
+        return self.path
+
+
 class HomeContent(models.Model):
     home_content_id = models.AutoField(primary_key=True)
     hero_subtitle = models.CharField(max_length=255, blank=True, null=True)

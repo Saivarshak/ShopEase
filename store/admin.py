@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, SubCategory, Product, ProductVariant, SiteAsset, PageAsset, FashionCategory, WishlistItem, UserAddress, Order, OrderItem
+from .models import Category, SubCategory, Product, ProductVariant, SiteAsset, PageAsset, FashionCategory, WishlistItem, UserAddress, Order, OrderItem, UploadedImage
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -47,6 +47,12 @@ class FashionCategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'slug', 'description', 'page_url', 'banner_image')
 
 
+
+@admin.register(UploadedImage)
+class UploadedImageAdmin(admin.ModelAdmin):
+    list_display = ('uploaded_image_id', 'path', 'original_name', 'content_type', 'size', 'created_at')
+    search_fields = ('path', 'original_name', 'content_type')
+    readonly_fields = ('path', 'original_name', 'content_type', 'size', 'created_at')
 @admin.register(WishlistItem)
 class WishlistItemAdmin(admin.ModelAdmin):
     list_display = ('wishlist_item_id', 'user', 'product', 'created_at')

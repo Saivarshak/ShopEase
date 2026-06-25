@@ -12,7 +12,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from shopease.settings import _build_host_security_settings
-from store.models import CartItem, Category, FashionCategory, Order, OrderItem, Product, ProductVariant, SubCategory
+from store.models import CartItem, Category, FashionCategory, Order, OrderItem, Product, ProductVariant, SubCategory, UploadedImage
 
 
 class PublicPolicyPagesTests(TestCase):
@@ -144,7 +144,10 @@ class AdminCategoryImageUploadTests(TestCase):
             payload = response.json()
             self.assertTrue(payload['success'])
             self.casual.refresh_from_db()
-            self.assertTrue(self.casual.image.startswith('uploads/assets/casual-wear'))
+            self.assertTrue(self.casual.image.startswith('dbuploads/assets/casual-wear'))
+            stored_image = UploadedImage.objects.get(path=self.casual.image)
+            self.assertEqual(bytes(stored_image.data), b'fake image content')
+            self.assertEqual(stored_image.content_type, 'image/jpeg')
             self.assertEqual(payload['category']['image'], self.casual.image)
             self.assertIn(self.casual.image, payload['category']['image_url'])
 
@@ -181,6 +184,76 @@ class AdminCategoryImageUploadTests(TestCase):
         self.assertFalse(payload['success'])
         self.assertIn('Only JPG', payload['message'])
 
+    def test_category_replacement_updates_database_path_and_removes_old_upload(self):
+        self.client.force_login(self.admin_user)
+        first_upload = SimpleUploadedFile('first.webp', b'first image', content_type='image/webp')
+        second_upload = SimpleUploadedFile('second.png', b'second image', content_type='image/png')
+
+        first_response = self.client.post(
+            reverse('admin_categories'),
+            {
+                'action': 'save_fashion_category',
+                'fashion_category_id': self.casual.fashion_category_id,
+                'name': 'Casual Wear',
+                'root_category_id': self.root_category.category_id,
+                'parent_id': self.root.fashion_category_id,
+                'sort_order': '1',
+                'is_active': 'on',
+                'image': self.casual.image,
+                'image_upload': first_upload,
+            },
+            HTTP_ACCEPT='application/json',
+        )
+        self.assertEqual(first_response.status_code, 200)
+        old_path = first_response.json()['category']['image']
+        self.assertTrue(UploadedImage.objects.filter(path=old_path).exists())
+
+        second_response = self.client.post(
+            reverse('admin_categories'),
+            {
+                'action': 'save_fashion_category',
+                'fashion_category_id': self.casual.fashion_category_id,
+                'name': 'Casual Wear',
+                'root_category_id': self.root_category.category_id,
+                'parent_id': self.root.fashion_category_id,
+                'sort_order': '1',
+                'is_active': 'on',
+                'image': old_path,
+                'image_upload': second_upload,
+            },
+            HTTP_ACCEPT='application/json',
+        )
+        self.assertEqual(second_response.status_code, 200)
+        new_path = second_response.json()['category']['image']
+        self.assertNotEqual(old_path, new_path)
+        self.assertFalse(UploadedImage.objects.filter(path=old_path).exists())
+        self.assertEqual(bytes(UploadedImage.objects.get(path=new_path).data), b'second image')
+        self.casual.refresh_from_db()
+        self.assertEqual(self.casual.image, new_path)
+
+    def test_category_save_rejects_local_and_temporary_image_paths(self):
+        self.client.force_login(self.admin_user)
+
+        response = self.client.post(
+            reverse('admin_categories'),
+            {
+                'action': 'save_fashion_category',
+                'fashion_category_id': self.casual.fashion_category_id,
+                'name': 'Casual Wear',
+                'root_category_id': self.root_category.category_id,
+                'parent_id': self.root.fashion_category_id,
+                'sort_order': '1',
+                'is_active': 'on',
+                'image': r'C:\Users\saiva\Desktop\casual.jpg',
+                'banner_image': 'blob:https://example.com/123',
+            },
+            HTTP_ACCEPT='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.casual.refresh_from_db()
+        self.assertIsNone(self.casual.image)
+        self.assertIsNone(self.casual.banner_image)
     def test_category_api_create_update_get_and_delete_return_json(self):
         self.client.force_login(self.admin_user)
 
