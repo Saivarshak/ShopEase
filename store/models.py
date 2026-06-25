@@ -105,7 +105,7 @@ class MenCategory(models.Model):
 
     class Meta:
         db_table = "men_categories"
-        managed = False
+        managed = True
 
     def __str__(self):
         return self.category_name
@@ -123,7 +123,7 @@ class WomenCategory(models.Model):
 
     class Meta:
         db_table = "women_categories"
-        managed = False
+        managed = True
 
     def __str__(self):
         return self.category_name
@@ -141,7 +141,7 @@ class KidsCategory(models.Model):
 
     class Meta:
         db_table = "kids_categories"
-        managed = False
+        managed = True
 
     def __str__(self):
         return self.category_name
@@ -155,7 +155,7 @@ class SiteAsset(models.Model):
 
     class Meta:
         db_table = "site_assets"
-        managed = False
+        managed = True
 
     def __str__(self):
         return self.asset_key
@@ -170,7 +170,7 @@ class PageAsset(models.Model):
 
     class Meta:
         db_table = "page_assets"
-        managed = False
+        managed = True
 
     def __str__(self):
         return f"{self.page_key}:{self.asset_key}"
@@ -206,7 +206,7 @@ class HomeContent(models.Model):
 
     class Meta:
         db_table = "home_content"
-        managed = False
+        managed = True
 
     def __str__(self):
         return self.hero_title or "Home Content"

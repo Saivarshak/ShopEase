@@ -2924,6 +2924,11 @@ def _is_shop_admin(user):
 def _require_shop_admin(request):
     if _is_shop_admin(request.user):
         return None
+    if _is_ajax_request(request):
+        return JsonResponse({
+            'success': False,
+            'message': 'Admin login is required. Please sign in again.',
+        }, status=401)
     return redirect(f"{reverse('admin_access')}?next={request.path}")
 
 
@@ -3187,6 +3192,7 @@ def _get_total_stock(product):
 
 
 ALLOWED_UPLOAD_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
+MAX_UPLOAD_IMAGE_BYTES = int(getattr(settings, 'MAX_UPLOAD_IMAGE_BYTES', 10 * 1024 * 1024))
 
 
 def _is_ajax_request(request):
@@ -3207,6 +3213,9 @@ def _validate_upload_file(uploaded_file):
     if not uploaded_file:
         return ''
     extension = Path(uploaded_file.name).suffix.lower()
+    if uploaded_file.size and uploaded_file.size > MAX_UPLOAD_IMAGE_BYTES:
+        max_mb = MAX_UPLOAD_IMAGE_BYTES // (1024 * 1024)
+        raise ValueError(f'Image files must be {max_mb}MB or smaller.')
     if extension not in ALLOWED_UPLOAD_EXTENSIONS:
         raise ValueError('Only JPG, JPEG, PNG, and WEBP images are supported.')
     return extension
@@ -3588,94 +3597,144 @@ def admin_inventory(request):
     })
 
 
+def _admin_category_payload(category):
+    return {
+        'id': category.fashion_category_id,
+        'name': category.name,
+        'slug': category.slug,
+        'full_path': category.full_path,
+        'root_category_id': category.root_category_id,
+        'parent_id': category.parent_id,
+        'level': category.level,
+        'sort_order': category.sort_order,
+        'description': category.description or '',
+        'page_url': category.page_url or '',
+        'image': category.image or '',
+        'image_url': _asset_public_url(category.image) if category.image else '',
+        'banner_image': category.banner_image or '',
+        'banner_image_url': _asset_public_url(category.banner_image) if category.banner_image else '',
+        'is_active': category.is_active,
+        'is_under_maintenance': category.is_under_maintenance,
+    }
+
+
+def _admin_category_list_payload():
+    categories = FashionCategory.objects.select_related('root_category', 'parent').order_by(
+        'root_category__category_name', 'level', 'sort_order', 'name'
+    )
+    return [_admin_category_payload(category) for category in categories]
+
+
+def _delete_admin_category(category_id):
+    if not category_id:
+        return False, 'Category id is required.', {}, 400
+
+    category = FashionCategory.objects.filter(fashion_category_id=category_id).first()
+    if category is None:
+        return False, 'Category card was not found.', {}, 404
+
+    category_name = category.name
+    old_paths = [category.image, category.banner_image]
+    deleted_id = category.fashion_category_id
+    category.delete()
+    _delete_replaced_uploaded_assets(old_paths, [])
+    return True, f'"{category_name}" category card deleted successfully.', {'deleted_id': deleted_id}, 200
+
+
+def _is_descendant_category(candidate_parent, category):
+    current = candidate_parent
+    while current:
+        if current.fashion_category_id == category.fashion_category_id:
+            return True
+        current = current.parent
+    return False
+
+
+def _save_admin_category_from_request(request):
+    action = (request.POST.get('action') or 'save_fashion_category').strip()
+    fashion_category_id = request.POST.get('fashion_category_id')
+
+    if action == 'delete_fashion_category':
+        return _delete_admin_category(fashion_category_id)
+
+    name = (request.POST.get('name') or '').strip()
+    root_category_id = request.POST.get('root_category_id')
+    parent_id = request.POST.get('parent_id')
+    sort_order = max(0, _parse_int(request.POST.get('sort_order'), 0))
+    description = (request.POST.get('description') or '').strip()
+    page_url = (request.POST.get('page_url') or '').strip()
+    image_path = _normalize_admin_asset_path(request.POST.get('image'))
+    banner_image_path = _normalize_admin_asset_path(request.POST.get('banner_image'))
+    is_under_maintenance = request.POST.get('is_under_maintenance') == 'on'
+    is_active = request.POST.get('is_active') == 'on'
+
+    if not name:
+        return False, 'Category name is required.', {}, 400
+
+    root_category = Category.objects.filter(category_id=root_category_id).first()
+    if root_category is None:
+        return False, 'Root category is required.', {}, 400
+
+    category = FashionCategory.objects.filter(fashion_category_id=fashion_category_id).first() if fashion_category_id else None
+    if fashion_category_id and category is None:
+        return False, 'Category card was not found.', {}, 404
+
+    parent = None
+    if parent_id:
+        parent = FashionCategory.objects.filter(fashion_category_id=parent_id).first()
+        if parent is None:
+            return False, 'Parent category was not found.', {}, 400
+        if category and _is_descendant_category(parent, category):
+            return False, 'A category cannot be moved under itself or its child category.', {}, 400
+
+    try:
+        uploaded_image_path = _save_uploaded_asset_image(request.FILES.get('image_upload'), name)
+        uploaded_banner_path = _save_uploaded_asset_image(request.FILES.get('banner_upload'), f'{name}-banner')
+    except ValueError as exc:
+        return False, str(exc), {}, 400
+
+    if category is None:
+        category = FashionCategory()
+
+    final_image_path = uploaded_image_path or image_path or (category.image if category.fashion_category_id else '')
+    final_banner_path = uploaded_banner_path or banner_image_path or (category.banner_image if category.fashion_category_id else '')
+    previous_paths = [category.image, category.banner_image]
+
+    category.name = name
+    category.slug = _unique_fashion_slug(name, parent, category.fashion_category_id)
+    category.root_category = root_category
+    category.parent = parent
+    category.level = (parent.level + 1) if parent else 0
+    category.sort_order = sort_order or FashionCategory.objects.count() + 1
+    category.image = final_image_path or None
+    category.banner_image = final_banner_path or None
+    category.description = description or None
+    category.page_url = page_url or None
+    category.is_active = is_active
+    category.is_under_maintenance = is_under_maintenance
+    category.save()
+    _delete_replaced_uploaded_assets(previous_paths, [category.image, category.banner_image])
+
+    if parent:
+        SubCategory.objects.get_or_create(category=root_category, subcategory_name=name)
+
+    return True, 'Operation completed successfully.', {'category': _admin_category_payload(category)}, 200
+
 def admin_categories(request):
     access_redirect = _require_shop_admin(request)
     if access_redirect:
         return access_redirect
 
     if request.method == 'POST':
-        action = (request.POST.get('action') or 'save_fashion_category').strip()
-        fashion_category_id = request.POST.get('fashion_category_id')
-
-        if action == 'delete_fashion_category':
-            category = get_object_or_404(FashionCategory, fashion_category_id=fashion_category_id)
-            category_name = category.name
-            old_paths = [category.image, category.banner_image]
-            category.delete()
-            _delete_replaced_uploaded_assets(old_paths, [])
-            response = _json_admin_response(request, True, f'"{category_name}" category card deleted successfully.', {'deleted_id': fashion_category_id})
-            if response:
-                return response
-            messages.success(request, f'"{category_name}" category card deleted successfully.')
-            return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
-
-        name = (request.POST.get('name') or '').strip()
-        root_category_id = request.POST.get('root_category_id')
-        parent_id = request.POST.get('parent_id')
-        sort_order = max(0, _parse_int(request.POST.get('sort_order'), 0))
-        description = (request.POST.get('description') or '').strip()
-        page_url = (request.POST.get('page_url') or '').strip()
-        image_path = _normalize_admin_asset_path(request.POST.get('image'))
-        banner_image_path = _normalize_admin_asset_path(request.POST.get('banner_image'))
-        try:
-            uploaded_image_path = _save_uploaded_asset_image(request.FILES.get('image_upload'), name)
-            uploaded_banner_path = _save_uploaded_asset_image(request.FILES.get('banner_upload'), f'{name}-banner')
-        except ValueError as exc:
-            response = _json_admin_response(request, False, str(exc))
-            if response:
-                return response
-            messages.error(request, str(exc))
-            return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
-        is_under_maintenance = request.POST.get('is_under_maintenance') == 'on'
-        is_active = request.POST.get('is_active') == 'on'
-        root_category = Category.objects.filter(category_id=root_category_id).first()
-        parent = FashionCategory.objects.filter(fashion_category_id=parent_id).first()
-        if name and root_category:
-            category = FashionCategory.objects.filter(fashion_category_id=fashion_category_id).first()
-            if category is None:
-                category = FashionCategory()
-
-            final_image_path = uploaded_image_path or image_path or (category.image if category.fashion_category_id else '')
-            final_banner_path = uploaded_banner_path or banner_image_path or (category.banner_image if category.fashion_category_id else '')
-            category.name = name
-            category.slug = _unique_fashion_slug(name, parent, category.fashion_category_id)
-            category.root_category = root_category
-            category.parent = parent
-            category.level = (parent.level + 1) if parent else 0
-            category.sort_order = sort_order or FashionCategory.objects.count() + 1
-            previous_paths = [category.image, category.banner_image]
-            category.image = final_image_path or None
-            category.banner_image = final_banner_path or None
-            category.description = description or None
-            category.page_url = page_url or None
-            category.is_active = is_active
-            category.is_under_maintenance = is_under_maintenance
-            category.save()
-            _delete_replaced_uploaded_assets(previous_paths, [category.image, category.banner_image])
-
-            if parent:
-                SubCategory.objects.get_or_create(category=root_category, subcategory_name=name)
-            response = _json_admin_response(request, True, 'Fashion category card saved successfully.', {
-                'category': {
-                    'id': category.fashion_category_id,
-                    'name': category.name,
-                    'image': category.image or '',
-                    'image_url': _asset_public_url(category.image) if category.image else '',
-                    'banner_image': category.banner_image or '',
-                    'is_active': category.is_active,
-                    'is_under_maintenance': category.is_under_maintenance,
-                }
-            })
-            if response:
-                return response
-            messages.success(request, 'Fashion category card saved successfully.')
+        success, message, payload, status = _save_admin_category_from_request(request)
+        response = _json_admin_response(request, success, message, payload, status=status)
+        if response:
+            return response
+        if success:
+            messages.success(request, message)
         else:
-            response = _json_admin_response(request, False, 'Category name and root category are required.')
-            if response:
-                return response
-            messages.error(request, 'Category name and root category are required.')
+            messages.error(request, message)
         return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
-
     fashion_categories = FashionCategory.objects.select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
     root_nodes = FashionCategory.objects.filter(parent__isnull=True).select_related('root_category').order_by('sort_order', 'name')
     card_groups = []
@@ -3693,6 +3752,53 @@ def admin_categories(request):
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
     })
 
+
+def admin_category_api(request, fashion_category_id=None):
+    access_redirect = _require_shop_admin(request)
+    if access_redirect:
+        return access_redirect
+
+    if request.method == 'GET':
+        if fashion_category_id:
+            category = FashionCategory.objects.select_related('root_category', 'parent').filter(
+                fashion_category_id=fashion_category_id
+            ).first()
+            if category is None:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Category card was not found.',
+                }, status=404)
+            return JsonResponse({
+                'success': True,
+                'message': 'Operation completed successfully',
+                'category': _admin_category_payload(category),
+            })
+        return JsonResponse({
+            'success': True,
+            'message': 'Operation completed successfully',
+            'categories': _admin_category_list_payload(),
+        })
+
+    if request.method == 'DELETE':
+        success, message, payload, status = _delete_admin_category(fashion_category_id or request.GET.get('fashion_category_id'))
+        return JsonResponse({
+            'success': success,
+            'message': 'Operation completed successfully' if success else message,
+            **payload,
+        }, status=status)
+
+    if request.method == 'POST':
+        success, message, payload, status = _save_admin_category_from_request(request)
+        return JsonResponse({
+            'success': success,
+            'message': 'Operation completed successfully' if success else message,
+            **payload,
+        }, status=status)
+
+    return JsonResponse({
+        'success': False,
+        'message': 'Method not allowed.',
+    }, status=405)
 
 def admin_backgrounds(request):
     access_redirect = _require_shop_admin(request)

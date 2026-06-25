@@ -3,14 +3,16 @@ import hashlib
 import hmac
 import json
 from decimal import Decimal
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from shopease.settings import _build_host_security_settings
-from store.models import CartItem, Category, Order, OrderItem, Product, ProductVariant, SubCategory
+from store.models import CartItem, Category, FashionCategory, Order, OrderItem, Product, ProductVariant, SubCategory
 
 
 class PublicPolicyPagesTests(TestCase):
@@ -58,23 +60,190 @@ class PublicSecurityTests(TestCase):
             password='secret123',
         )
 
-        response = self.client.post(
-            reverse('login'),
-            {
-                'email': user.email,
-                'password': 'secret123',
-                'next': 'https://evil.example/phish',
-            },
-        )
+        with TemporaryDirectory(dir=r'C:\tmp') as media_root, override_settings(MEDIA_ROOT=media_root):
+            response = self.client.post(
+                reverse('login'),
+                {
+                    'email': user.email,
+                    'password': 'secret123',
+                    'next': 'https://evil.example/phish',
+                },
+            )
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('home'))
+            self.assertEqual(response.status_code, 302)
+            self.assertEqual(response.url, reverse('home'))
 
     def test_public_products_api_is_read_only(self):
         response = self.client.post(reverse('product-list'), {})
 
         self.assertEqual(response.status_code, 405)
 
+
+class AdminCategoryImageUploadTests(TestCase):
+    def setUp(self):
+        self.admin_user = User.objects.create_user(
+            username='category-manager',
+            email='category-manager@example.com',
+            password='secret123',
+            is_staff=True,
+        )
+        self.root_category, _ = Category.objects.get_or_create(category_name='mens')
+        self.root, _ = FashionCategory.objects.update_or_create(
+            parent=None,
+            root_category=self.root_category,
+            slug='men',
+            defaults={
+                'name': 'Men',
+                'level': 0,
+                'sort_order': 1,
+                'is_active': True,
+            },
+        )
+        self.casual, _ = FashionCategory.objects.update_or_create(
+            root_category=self.root_category,
+            parent=self.root,
+            slug='casual-wear',
+            defaults={
+                'name': 'Casual Wear',
+                'level': 1,
+                'sort_order': 1,
+                'image': 'images/old-casual.jpg',
+                'is_active': True,
+            },
+        )
+
+    def test_category_upload_is_saved_to_media_and_database_for_ajax(self):
+        self.client.force_login(self.admin_user)
+        upload = SimpleUploadedFile(
+            'casual-card.jpg',
+            b'fake image content',
+            content_type='image/jpeg',
+        )
+
+        with TemporaryDirectory(dir=r'C:\tmp') as media_root, override_settings(MEDIA_ROOT=media_root):
+            response = self.client.post(
+                reverse('admin_categories'),
+                {
+                    'action': 'save_fashion_category',
+                    'fashion_category_id': self.casual.fashion_category_id,
+                    'name': 'Casual Wear',
+                    'root_category_id': self.root_category.category_id,
+                    'parent_id': self.root.fashion_category_id,
+                    'sort_order': '1',
+                    'description': 'Permanent casual card image',
+                    'image': self.casual.image,
+                    'banner_image': '',
+                    'is_active': 'on',
+                    'image_upload': upload,
+                },
+                HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+                HTTP_ACCEPT='application/json',
+            )
+
+            self.assertEqual(response.status_code, 200)
+            payload = response.json()
+            self.assertTrue(payload['success'])
+            self.casual.refresh_from_db()
+            self.assertTrue(self.casual.image.startswith('uploads/assets/casual-wear'))
+            self.assertEqual(payload['category']['image'], self.casual.image)
+            self.assertIn(self.casual.image, payload['category']['image_url'])
+
+            response = self.client.get(reverse('men_root'))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, self.casual.image)
+
+    def test_category_upload_rejects_invalid_format_as_json(self):
+        self.client.force_login(self.admin_user)
+        upload = SimpleUploadedFile(
+            'not-an-image.gif',
+            b'gif data',
+            content_type='image/gif',
+        )
+
+        response = self.client.post(
+            reverse('admin_categories'),
+            {
+                'action': 'save_fashion_category',
+                'fashion_category_id': self.casual.fashion_category_id,
+                'name': 'Casual Wear',
+                'root_category_id': self.root_category.category_id,
+                'parent_id': self.root.fashion_category_id,
+                'sort_order': '1',
+                'is_active': 'on',
+                'image_upload': upload,
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            HTTP_ACCEPT='application/json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        payload = response.json()
+        self.assertFalse(payload['success'])
+        self.assertIn('Only JPG', payload['message'])
+
+    def test_category_api_create_update_get_and_delete_return_json(self):
+        self.client.force_login(self.admin_user)
+
+        create_response = self.client.post(
+            reverse('admin_category_api'),
+            {
+                'action': 'save_fashion_category',
+                'name': 'QA Casual Card',
+                'root_category_id': self.root_category.category_id,
+                'parent_id': self.root.fashion_category_id,
+                'sort_order': '3',
+                'description': 'Created through JSON API',
+                'is_active': 'on',
+            },
+            HTTP_ACCEPT='application/json',
+        )
+        self.assertEqual(create_response.status_code, 200)
+        create_payload = create_response.json()
+        self.assertTrue(create_payload['success'])
+        self.assertEqual(create_payload['message'], 'Operation completed successfully')
+        created_id = create_payload['category']['id']
+
+        list_response = self.client.get(reverse('admin_category_api'), HTTP_ACCEPT='application/json')
+        self.assertEqual(list_response.status_code, 200)
+        self.assertTrue(list_response.json()['success'])
+        self.assertIn(created_id, [category['id'] for category in list_response.json()['categories']])
+
+        update_response = self.client.post(
+            reverse('admin_category_api'),
+            {
+                'action': 'save_fashion_category',
+                'fashion_category_id': created_id,
+                'name': 'QA Casual Card Updated',
+                'root_category_id': self.root_category.category_id,
+                'parent_id': self.root.fashion_category_id,
+                'sort_order': '4',
+                'description': 'Updated through JSON API',
+                'is_active': 'on',
+            },
+            HTTP_ACCEPT='application/json',
+        )
+        self.assertEqual(update_response.status_code, 200)
+        self.assertEqual(update_response.json()['category']['name'], 'QA Casual Card Updated')
+
+        delete_response = self.client.delete(
+            reverse('admin_category_detail_api', kwargs={'fashion_category_id': created_id}),
+            HTTP_ACCEPT='application/json',
+        )
+        self.assertEqual(delete_response.status_code, 200)
+        self.assertTrue(delete_response.json()['success'])
+        self.assertFalse(FashionCategory.objects.filter(fashion_category_id=created_id).exists())
+
+    def test_ajax_auth_failure_returns_json_not_html(self):
+        response = self.client.post(
+            reverse('admin_categories'),
+            {'action': 'save_fashion_category'},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            HTTP_ACCEPT='application/json',
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response['Content-Type'], 'application/json')
+        self.assertFalse(response.json()['success'])
 
 class AdminProductUpdateTests(TestCase):
     def setUp(self):

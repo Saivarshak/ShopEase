@@ -23,11 +23,20 @@ from django.shortcuts import redirect
 REQUIRED_STORE_TABLES = {
     'categories',
     'subcategories',
+    'fashion_categories',
     'products',
     'product_variants',
     'cart_items',
     'orders',
     'order_items',
+    'wishlist_items',
+    'user_addresses',
+    'men_categories',
+    'women_categories',
+    'kids_categories',
+    'site_assets',
+    'page_assets',
+    'home_content',
 }
 
 

@@ -187,8 +187,16 @@
     document.querySelectorAll('.nav a[href^="#"]').forEach((link) => link.addEventListener('click', () => document.body.classList.remove('sidebar-open')));
     document.querySelectorAll('[data-open-modal]').forEach((button) => button.addEventListener('click', () => document.getElementById(button.dataset.openModal)?.showModal()));
     document.querySelectorAll('[data-close-modal]').forEach((button) => button.addEventListener('click', () => button.closest('dialog')?.close()));
-    document.querySelectorAll('[data-preview-input]').forEach((input) => input.addEventListener('change', () => {
-      const file = input.files && input.files[0], preview = input.closest('form')?.querySelector('[data-preview-image]');
+    const findNearestPreview = (input) => {
+      const field = input.closest('.field');
+      const form = input.closest('form');
+      if (field?.querySelector('[data-preview-image], .preview')) return field.querySelector('[data-preview-image], .preview');
+      if (field?.previousElementSibling?.matches?.('[data-preview-image], .preview')) return field.previousElementSibling;
+      return form?.querySelector('[data-preview-image], .preview');
+    };
+    document.querySelectorAll('input[type="file"]').forEach((input) => input.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      const preview = findNearestPreview(input);
       if (file && preview) preview.src = URL.createObjectURL(file);
     }));
     const ensureMessages = () => {
@@ -225,20 +233,30 @@
       row.querySelector('[data-product-stock]').textContent = product.stock;
       row.querySelector('[data-product-status]').innerHTML = product.active ? '<span class="badge ok">Active</span>' : '<span class="badge out">Hidden</span>';
     };
+    const cacheBustedUrl = (url) => {
+      if (!url) return '';
+      const separator = url.includes('?') ? '&' : '?';
+      return `${url}${separator}v=${Date.now()}`;
+    };
+    const setInputValue = (form, name, value) => {
+      const input = form.querySelector(`[name="${name}"]`);
+      if (input) input.value = value || '';
+    };
     const updateReturnedImages = (form, data) => {
-      const preview = form.querySelector('[data-preview-image]');
-      if (data.asset && preview) preview.src = data.asset.url;
-      if (data.asset) form.querySelector('[name="image_path"]')?.setAttribute('value', data.asset.path);
-      if (data.background && preview) preview.src = data.background.url;
+      const preview = form.querySelector('[data-preview-image], .preview');
+      if (data.asset && preview) preview.src = cacheBustedUrl(data.asset.url);
+      if (data.asset) setInputValue(form, 'image_path', data.asset.path);
+      if (data.background && preview) preview.src = cacheBustedUrl(data.background.url);
       if (data.background) {
-        form.querySelector('[name="image_path"]')?.setAttribute('value', data.background.path);
+        setInputValue(form, 'image_path', data.background.path);
         const label = form.querySelector('.muted[style*="word-break"]');
         if (label) label.textContent = data.background.path;
       }
-      if (data.category && data.category.image_url && preview) preview.src = data.category.image_url;
+      if (data.category?.image_url && preview) preview.src = cacheBustedUrl(data.category.image_url);
       if (data.category) {
-        form.querySelector('[name="image"]')?.setAttribute('value', data.category.image || '');
-        form.querySelector('[name="banner_image"]')?.setAttribute('value', data.category.banner_image || '');
+        setInputValue(form, 'image', data.category.image);
+        setInputValue(form, 'banner_image', data.category.banner_image);
+        setInputValue(form, 'name', data.category.name);
       }
     };
     document.querySelectorAll('[data-admin-ajax]').forEach((form) => {
@@ -246,22 +264,28 @@
         event.preventDefault();
         const submitter = event.submitter;
         const body = new FormData(form);
-        if (submitter?.name && !body.has(submitter.name)) body.append(submitter.name, submitter.value);
+        if (submitter?.name) body.set(submitter.name, submitter.value);
         setBusy(form, true);
         try {
-          const response = await fetch(form.action || window.location.href, {
+          const actionUrl = form.getAttribute('action') || window.location.href;
+          const response = await fetch(actionUrl, {
             method: 'POST',
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
             body,
           });
-          const data = await response.json();
-          if (!response.ok || !data.success) throw new Error(data.message || 'Save failed.');
+          const contentType = response.headers.get('content-type') || '';
+          const isJson = contentType.includes('application/json');
+          if (!response.ok && !isJson) throw new Error(`HTTP ${response.status}`);
+          const data = isJson ? await response.json() : null;
+          if (!data) throw new Error(`Server returned ${response.status} ${response.statusText || 'HTML'} instead of JSON.`);
+          if (!response.ok || !data.success) throw new Error(data.message || `HTTP ${response.status}`);
           if (data.product) updateProductRow(data.product);
           if (data.deleted_id) form.remove();
           updateReturnedImages(form, data);
           localStorage.setItem('shopease:catalog-updated', String(Date.now()));
           showAdminMessage(data.message || 'Saved successfully.', true);
           if (data.product) form.closest('dialog')?.close();
+          if (data.category && !form.querySelector('[name="fashion_category_id"]')) window.location.reload();
         } catch (error) {
           showAdminMessage(error.message || 'Something went wrong while saving.', false);
         } finally {

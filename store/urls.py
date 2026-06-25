@@ -13,6 +13,8 @@ urlpatterns = [
 
     # DRF API
     path('api/', include(router.urls)),     
+    path('api/categories/', views.admin_category_api, name='admin_category_api'),
+    path('api/categories/<int:fashion_category_id>/', views.admin_category_api, name='admin_category_detail_api'),
 
     # Home page
     path('', views.home, name='home'),

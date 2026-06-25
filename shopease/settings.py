@@ -250,6 +250,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = Path(os.getenv('MEDIA_ROOT', BASE_DIR / 'media'))
+
 USE_X_FORWARDED_HOST = _get_env_bool('USE_X_FORWARDED_HOST', IS_PRODUCTION)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if IS_PRODUCTION else None
 SECURE_SSL_REDIRECT = _get_env_bool('SECURE_SSL_REDIRECT', IS_PRODUCTION)
