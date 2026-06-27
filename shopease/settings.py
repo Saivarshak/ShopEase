@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,8 +25,6 @@ SECRET_KEY = 'django-insecure-^twboy#75qvp%bv5#aht+2=vllt4w!!il_h6)h*ksu$kz0!6a8
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-
-import os
 
 ALLOWED_HOSTS = [
     'shopease-jui9.onrender.com',
