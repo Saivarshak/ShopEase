@@ -1218,30 +1218,23 @@ def _build_cart_summary(cart_data):
 # Home page
 
 def home(request):
-    products = []
+    products = (
+        Product.objects.filter(is_active=True)
+        .select_related('category', 'subcategory').prefetch_related('productvariant_set')
+        .prefetch_related('productvariant_set')
+        .order_by('-product_id')[:12]
+    )
+    categories = Category.objects.order_by('category_id')
     featured_products = []
     categories_context = []
     home_content = None
 
-    # Fetch products with error handling
-    try:
-        products = (
-            Product.objects.filter(is_active=True)
-            .select_related('category', 'subcategory').prefetch_related('productvariant_set')
-            .prefetch_related('productvariant_set')
-            .order_by('-product_id')[:12]
-        )
-        
-        for product in products:
-            variant = _get_first_variant(product)
-            featured_products.append({
-                'product': product,
-                'image_path': _get_product_image_path(product, variant),
-            })
-    except (ProgrammingError, OperationalError) as e:
-        # Database error - return empty products list with fallback
-        products = []
-        featured_products = []
+    for product in products:
+        variant = _get_first_variant(product)
+        featured_products.append({
+            'product': product,
+            'image_path': _get_product_image_path(product, variant),
+        })
 
     try:
         home_content = HomeContent.objects.filter(is_active=True).first()
