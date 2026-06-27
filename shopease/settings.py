@@ -10,97 +10,22 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-import os
-import sys
 from pathlib import Path
-from urllib.parse import urlparse
-import dj_database_url
-from django.core.exceptions import ImproperlyConfigured
-from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-^twboy#75qvp%bv5#aht+2=vllt4w!!il_h6)h*ksu$kz0!6a8')
+SECRET_KEY = 'django-insecure-^twboy#75qvp%bv5#aht+2=vllt4w!!il_h6)h*ksu$kz0!6a8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-TRUE_VALUES = {'1', 'true', 'yes', 'on'}
+DEBUG = True
 
-
-def _get_env_bool(name, default=False):
-    default_value = 'true' if default else 'false'
-    return os.getenv(name, default_value).strip().lower() in TRUE_VALUES
-
-
-DEBUG = _get_env_bool('DEBUG', False)
-IS_PRODUCTION = (
-    _get_env_bool('IS_PRODUCTION', False)
-    or (os.getenv('DJANGO_ENV', '') or '').strip().lower() == 'production'
-    or _get_env_bool('RENDER', False)
-)
-
-
-def _split_csv_env(value):
-    return [item.strip() for item in (value or '').split(',') if item.strip()]
-
-
-def _append_unique(items, value):
-    if value and value not in items:
-        items.append(value)
-
-
-def _normalize_base_url(value):
-    value = (value or '').strip().rstrip('/')
-    if not value:
-        return ''
-
-    parsed_url = urlparse(value)
-    if not parsed_url.scheme or not parsed_url.netloc:
-        return ''
-
-    return f'{parsed_url.scheme}://{parsed_url.netloc}'
-
-
-def _build_public_base_urls():
-    public_base_urls = []
-
-    for env_name in ('APP_BASE_URL', 'PAYMENT_CALLBACK_BASE_URL', 'RENDER_EXTERNAL_URL'):
-        normalized_url = _normalize_base_url(os.getenv(env_name, ''))
-        _append_unique(public_base_urls, normalized_url)
-
-    render_external_hostname = (os.getenv('RENDER_EXTERNAL_HOSTNAME') or '').strip()
-    if render_external_hostname:
-        _append_unique(public_base_urls, f'https://{render_external_hostname}')
-
-    return public_base_urls
-
-
-def _build_host_security_settings():
-    allowed_hosts = _split_csv_env(os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost'))
-    trusted_origins = _split_csv_env(os.getenv('CSRF_TRUSTED_ORIGINS', ''))
-
-    if DEBUG:
-        for debug_host in ('.lhr.life', '.localhost.run', '.loca.lt'):
-            _append_unique(allowed_hosts, debug_host)
-
-    render_external_hostname = (os.getenv('RENDER_EXTERNAL_HOSTNAME') or '').strip()
-    _append_unique(allowed_hosts, render_external_hostname)
-
-    for base_url in _build_public_base_urls():
-        parsed_url = urlparse(base_url)
-        _append_unique(allowed_hosts, parsed_url.hostname)
-        _append_unique(trusted_origins, f'{parsed_url.scheme}://{parsed_url.netloc}')
-
-    return allowed_hosts, trusted_origins
-
-
-ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS = _build_host_security_settings()
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -112,20 +37,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
     'store'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'store.middleware.StorefrontSyncMiddleware',
 ]
 
 ROOT_URLCONF = 'shopease.urls'
@@ -141,7 +63,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'store.context_processors.user_profile',
             ],
         },
     },
@@ -153,57 +74,13 @@ WSGI_APPLICATION = 'shopease.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-def _build_database_config():
-    if 'test' in sys.argv or _get_env_bool('USE_SQLITE_FOR_TESTS', False):
-        return {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'test.sqlite3',
-        }
-
-    database_url = (os.getenv('DATABASE_URL') or '').strip()
-    if database_url:
-        return dj_database_url.parse(
-            database_url,
-            conn_max_age=int(os.getenv('DB_CONN_MAX_AGE', '600')),
-            conn_health_checks=True,
-            ssl_require=_get_env_bool('DATABASE_SSL_REQUIRE', False),
-        )
-
-    database_config = {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME', 'EcommerceDb'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
-    }
-
-    if IS_PRODUCTION:
-        engine = (database_config.get('ENGINE') or '').strip()
-        if engine == 'django.db.backends.sqlite3':
-            raise ImproperlyConfigured(
-                'Production deployment is still configured to use SQLite. '
-                'Set DATABASE_URL or PostgreSQL DB_* environment variables in Render.'
-            )
-
-        using_default_local_postgres = all([
-            (database_config.get('NAME') or '').strip() == 'EcommerceDb',
-            (database_config.get('USER') or '').strip() == 'postgres',
-            (database_config.get('HOST') or '').strip() in {'', 'localhost', '127.0.0.1'},
-            (database_config.get('PORT') or '').strip() == '5432',
-        ])
-        if using_default_local_postgres:
-            raise ImproperlyConfigured(
-                'Production deployment is missing DATABASE_URL or explicit PostgreSQL DB_* settings. '
-                'Attach a Render PostgreSQL database or configure the hosted PostgreSQL connection first.'
-            )
-
-    return database_config
-
-
 DATABASES = {
-    'default': _build_database_config()
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -239,7 +116,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
@@ -248,58 +125,7 @@ STATICFILES_DIRS = [
 # For production (when using collectstatic)
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = Path(os.getenv('MEDIA_ROOT', BASE_DIR / 'media'))
-
-USE_X_FORWARDED_HOST = _get_env_bool('USE_X_FORWARDED_HOST', IS_PRODUCTION)
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if IS_PRODUCTION else None
-SECURE_SSL_REDIRECT = _get_env_bool('SECURE_SSL_REDIRECT', IS_PRODUCTION)
-SESSION_COOKIE_SECURE = _get_env_bool('SESSION_COOKIE_SECURE', IS_PRODUCTION)
-CSRF_COOKIE_SECURE = _get_env_bool('CSRF_COOKIE_SECURE', IS_PRODUCTION)
-SECURE_CONTENT_TYPE_NOSNIFF = _get_env_bool('SECURE_CONTENT_TYPE_NOSNIFF', IS_PRODUCTION)
-SECURE_REFERRER_POLICY = os.getenv('SECURE_REFERRER_POLICY', 'same-origin').strip()
-SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000' if IS_PRODUCTION else '0'))
-SECURE_HSTS_INCLUDE_SUBDOMAINS = _get_env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', IS_PRODUCTION)
-SECURE_HSTS_PRELOAD = _get_env_bool('SECURE_HSTS_PRELOAD', IS_PRODUCTION)
-
-# End sessions when the browser closes.
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-RAZORPAY_MODE = (os.getenv('RAZORPAY_MODE', 'test') or 'test').strip().lower()
-RAZORPAY_KEY_ID = (os.getenv('RAZORPAY_KEY_ID') or '').strip()
-RAZORPAY_KEY_SECRET = (os.getenv('RAZORPAY_KEY_SECRET') or '').strip()
-RAZORPAY_WEBHOOK_SECRET = (os.getenv('RAZORPAY_WEBHOOK_SECRET') or '').strip()
-RAZORPAY_PAYMENT_LINK_OVERRIDE_URL = os.getenv(
-    'RAZORPAY_PAYMENT_LINK_OVERRIDE_URL',
-    '',
-).strip()
-RAZORPAY_PAYMENT_HANDLE_URL = os.getenv(
-    'RAZORPAY_PAYMENT_HANDLE_URL',
-    'https://razorpay.me/@varshakshopeasy',
-).strip()
-PAYMENT_CALLBACK_BASE_URL = os.getenv('PAYMENT_CALLBACK_BASE_URL', '').strip()
-APP_BASE_URL = _normalize_base_url(os.getenv('APP_BASE_URL', '').strip())
-PAYMENT_CALLBACK_BASE_URL = (
-    _normalize_base_url(PAYMENT_CALLBACK_BASE_URL)
-    or APP_BASE_URL
-    or _normalize_base_url(os.getenv('RENDER_EXTERNAL_URL', '').strip())
-)
-
-EMAIL_BACKEND = os.getenv(
-    'EMAIL_BACKEND',
-    'django.core.mail.backends.console.EmailBackend',
-).strip()
-EMAIL_HOST = os.getenv('EMAIL_HOST', '').strip()
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '').strip()
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '').strip()
-EMAIL_USE_TLS = (os.getenv('EMAIL_USE_TLS', 'true').strip().lower() == 'true')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@shopease.local').strip()
-

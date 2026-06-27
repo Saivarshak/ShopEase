@@ -1241,30 +1241,26 @@ def home(request):
     except (ProgrammingError, OperationalError):
         home_content = None
 
-    category_routes = {
-        'mens': 'category_men',
-        'men': 'category_men',
-        'womens': 'category_women',
-        'women': 'category_women',
-        'kids': 'category_kids',
-    }
-
-    category_descriptions = {
-        'mens': getattr(home_content, 'men_description', None) or 'Casual wear, formals, accessories and more.',
-        'men': getattr(home_content, 'men_description', None) or 'Casual wear, formals, accessories and more.',
-        'womens': getattr(home_content, 'women_description', None) or 'Ethnic, western, and everything chic!',
-        'women': getattr(home_content, 'women_description', None) or 'Ethnic, western, and everything chic!',
-        'kids': getattr(home_content, 'kids_description', None) or 'Trendy and comfy styles for kids of all ages.',
-    }
-
-    for category in categories:
-        key = category.category_name.lower()
-        categories_context.append({
-            'name': category.category_name.title().replace('Womens', 'Women').replace('Mens', 'Men'),
-            'image_path': _get_category_image_path(category),
-            'route_name': category_routes.get(key, 'home'),
-            'description': category_descriptions.get(key, 'Explore products in this category.'),
-        })
+    categories_context = [
+        {
+            'name': 'Men → Accessories',
+            'image_path': 'images/mens_accessories.png',
+            'route_name': 'under_maintenance_view',
+            'description': 'Trendy and stylish accessories for men.',
+        },
+        {
+            'name': 'Women → Accessories',
+            'image_path': 'images/womens_accessories.png',
+            'route_name': 'under_maintenance_view',
+            'description': 'Elegant and chic accessories for women.',
+        },
+        {
+            'name': 'Kids → Accessories',
+            'image_path': 'images/kids_accessories.png',
+            'route_name': 'under_maintenance_view',
+            'description': 'Fun and colorful accessories for kids.',
+        },
+    ]
 
     logo_image = _get_site_asset('logo', 'images/logo1.png')
     background_image = _get_site_asset('home_background', 'images/homebg.jpg')
@@ -4021,3 +4017,11 @@ from .serializers import ProductSerializer  # you need this serializer
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.filter(is_active=True).select_related('category', 'subcategory', 'fashion_category')
     serializer_class = ProductSerializer 
+
+
+def under_maintenance_view(request):
+    return render(request, 'store/under-maintenance.html', {
+        'page_title': 'Under Maintenance',
+        'status_message': 'This section is currently under maintenance. Please check back later.',
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+    })

@@ -1,1 +1,0 @@
-"""ShopEase Django project package."""
