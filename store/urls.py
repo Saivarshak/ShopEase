@@ -108,6 +108,10 @@ urlpatterns = [
 ]
 
 
+def health_check(request):
+    return HttpResponse("OK")
+
 urlpatterns += [
+    path('health/', health_check, name='health_check'),
     path('under-maintenance/', views.under_maintenance_view, name='under_maintenance_view'),
 ]
