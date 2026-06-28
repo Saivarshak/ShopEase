@@ -26,6 +26,8 @@ SECRET_KEY = 'django-insecure-^twboy#75qvp%bv5#aht+2=vllt4w!!il_h6)h*ksu$kz0!6a8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
+import dj_database_url
+
 ALLOWED_HOSTS = [
     'shopease-jui9.onrender.com',
     'localhost',
@@ -87,10 +89,10 @@ WSGI_APPLICATION = 'shopease.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=int(os.environ.get('DB_CONN_MAX_AGE', 600))
+    )
 }
 
 
