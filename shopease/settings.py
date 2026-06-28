@@ -30,6 +30,7 @@ import dj_database_url
 
 ALLOWED_HOSTS = [
     'shopease-jui9.onrender.com',
+    '.onrender.com',
     'localhost',
     '127.0.0.1',
 ]
