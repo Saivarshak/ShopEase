@@ -1642,13 +1642,7 @@ def fashion_category_slug_listing(request, gender_slug, category_path):
     if request.path != canonical_url:
         return redirect(canonical_url, permanent=True)
 
-    if fashion_category.is_under_maintenance:
-        return render(request, 'store/under-maintenance.html', {
-            'page_title': fashion_category.name,
-            'status_message': 'This category is currently under maintenance.',
-            'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-            'category_tree': _build_category_tree(),
-        })
+    
 
     child_cards = _build_fashion_child_cards(fashion_category)
     if child_cards:
@@ -1698,14 +1692,7 @@ def fashion_product_slug_detail(request, gender_slug, category_path, product_slu
 
 
 def shared_accessories(request):
-    common = _resolve_fashion_category_by_path('accessories', 'common-for-all-genders')
-    if common.is_under_maintenance:
-        return render(request, 'store/under-maintenance.html', {
-            'page_title': 'Accessories',
-            'status_message': 'The shared accessories category is currently under maintenance.',
-            'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-            'category_tree': _build_category_tree(),
-        })
+    return fashion_category_slug_listing(request, 'accessories', 'common-for-all-genders')
     return fashion_category_slug_listing(request, 'accessories', 'common-for-all-genders')
 
 
