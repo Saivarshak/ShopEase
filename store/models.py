@@ -253,6 +253,8 @@ class Product(models.Model):
     )  # will compute in save()
     description = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
+    rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.5)
 
     class Meta:
         db_table = "products"

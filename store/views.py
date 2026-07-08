@@ -1218,22 +1218,24 @@ def _build_cart_summary(cart_data):
 # Home page
 
 def home(request):
-    products = (
-        Product.objects.filter(is_active=True)
+    featured_products_queryset = (
+        Product.objects.filter(is_active=True, is_featured=True)
         .select_related('category', 'subcategory').prefetch_related('productvariant_set')
-        .prefetch_related('productvariant_set')
-        .order_by('-product_id')[:12]
+        .order_by('-product_id')[:8]
     )
     categories = Category.objects.order_by('category_id')
     featured_products = []
     categories_context = []
     home_content = None
 
-    for product in products:
+    for product in featured_products_queryset:
         variant = _get_first_variant(product)
         featured_products.append({
             'product': product,
             'image_path': _get_product_image_path(product, variant),
+            'rating_stars': range(int(product.rating)),
+            'has_half_star': (product.rating % 1) >= 0.5,
+            'empty_stars': range(5 - int(product.rating) - (1 if (product.rating % 1) >= 0.5 else 0)),
         })
 
     try:

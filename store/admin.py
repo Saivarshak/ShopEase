@@ -15,8 +15,8 @@ class SubCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('product_id', 'product_name', 'slug', 'brand', 'category', 'subcategory', 'fashion_category', 'price', 'discount_percent', 'offer_price', 'is_active')
-    list_filter = ('category', 'subcategory', 'fashion_category', 'is_active')
+    list_display = ('product_id', 'product_name', 'slug', 'brand', 'category', 'subcategory', 'fashion_category', 'price', 'discount_percent', 'offer_price', 'is_active', 'is_featured')
+    list_filter = ('category', 'subcategory', 'fashion_category', 'is_active', 'is_featured')
     search_fields = ('product_name', 'brand', 'sku')
 
 @admin.register(ProductVariant)
