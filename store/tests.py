@@ -37,6 +37,12 @@ class PublicPolicyPagesTests(TestCase):
         self.assertContains(response, reverse('refund_policy'))
         self.assertContains(response, reverse('terms_and_conditions'))
 
+    def test_home_page_renders_without_product_context_errors(self):
+        response = self.client.get(reverse('home'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'ShopEase')
+
 
 class HostSecuritySettingsTests(TestCase):
     def test_payment_callback_domain_is_added_to_allowed_hosts_and_csrf_origins(self):

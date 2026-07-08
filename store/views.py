@@ -1227,6 +1227,7 @@ def home(request):
     featured_products = []
     categories_context = []
     home_content = None
+    products = Product.objects.none()
 
     for product in featured_products_queryset:
         variant = _get_first_variant(product)
