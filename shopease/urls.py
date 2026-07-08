@@ -1,23 +1,12 @@
-"""
-URL configuration for shopease project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
 from django.urls import path, include
+from store import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # Custom Admin Dashboard
+    path('admin/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin_panel/', views.admin_control_center, name='admin_control_center'),
+    path('admin-access/', views.admin_access, name='admin_access'),
+    
+    # Store URLs
     path('', include('store.urls')),
 ]

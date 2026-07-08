@@ -1243,18 +1243,22 @@ def home(request):
 
     categories_context = [
         {
-            'name': 'Men → Accessories',
-            'image_path': 'images/mens_accessories.png',
-            'route_name': 'accessories_men',
-            'description': 'Trendy and stylish accessories for men.',
+            'name': 'Men',
+            'image_path': 'images/men.png',
+            'route_name': 'men_root',
+            'description': 'Casual wear, formals, accessories and more.',
         },
         {
-            'name': 'Women → Accessories', 'image_path': 'images/womens_accessories.png', 'route_name': 'accessories_women',
-            'description': 'Elegant and chic accessories for women.',
+            'name': 'Women',
+            'image_path': 'images/women.png',
+            'route_name': 'women_root',
+            'description': 'Ethnic, western, and everything chic!',
         },
         {
-            'name': 'Kids → Accessories', 'image_path': 'images/kids_accessories.png', 'route_name': 'shared_accessories',
-            'description': 'Fun and colorful accessories for kids.',
+            'name': 'Kids',
+            'image_path': 'images/kids.png',
+            'route_name': 'kids_root',
+            'description': 'Trendy and comfy styles for kids of all ages.',
         },
     ]
 
