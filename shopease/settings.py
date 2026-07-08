@@ -29,6 +29,7 @@ DEBUG = True # os.environ.get('DEBUG', 'False').lower() == 'true'
 import dj_database_url
 
 ALLOWED_HOSTS = [
+    '8000-id6l3eczswqx9keb5drcz-85a1c045.sg1.manus.computer',
     'shopease-jui9.onrender.com',
     '.onrender.com',
     'localhost',

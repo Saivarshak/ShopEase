@@ -1245,19 +1245,15 @@ def home(request):
         {
             'name': 'Men → Accessories',
             'image_path': 'images/mens_accessories.png',
-            'route_name': 'under_maintenance_view',
+            'route_name': 'accessories_men',
             'description': 'Trendy and stylish accessories for men.',
         },
         {
-            'name': 'Women → Accessories',
-            'image_path': 'images/womens_accessories.png',
-            'route_name': 'under_maintenance_view',
+            'name': 'Women → Accessories', 'image_path': 'images/womens_accessories.png', 'route_name': 'accessories_women',
             'description': 'Elegant and chic accessories for women.',
         },
         {
-            'name': 'Kids → Accessories',
-            'image_path': 'images/kids_accessories.png',
-            'route_name': 'under_maintenance_view',
+            'name': 'Kids → Accessories', 'image_path': 'images/kids_accessories.png', 'route_name': 'shared_accessories',
             'description': 'Fun and colorful accessories for kids.',
         },
     ]
