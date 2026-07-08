@@ -1,0 +1,262 @@
+{% load static store_assets %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ShopEase - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandDark: '#111827',
+            brandMuted: '#6B7280',
+            brandAccent: '#10B981',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; }
+    .mega-menu { display: none; }
+    .nav-item:hover .mega-menu { display: block; }
+  </style>
+</head>
+<body class="bg-gray-50 text-brandDark overflow-x-hidden">
+
+  <!-- Header & Navigation -->
+  <header class="bg-white border-b sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex flex-wrap items-center justify-between">
+      <!-- Logo -->
+      <a href="/" class="flex items-center space-x-2">
+        <img src="{% static logo_image %}" alt="ShopEase" class="h-12 w-auto" />
+        <span class="text-2xl font-bold tracking-tight">ShopEase</span>
+      </a>
+
+      <!-- Search Bar -->
+      <form action="{% url 'search_results' %}" method="get" class="hidden md:flex flex-1 max-w-md mx-8">
+        <div class="relative w-full">
+          <input type="text" name="q" placeholder="Search for products..." class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brandAccent focus:outline-none" />
+          <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+      </form>
+
+      <!-- Icons & User -->
+      <div class="flex items-center space-x-6">
+        <a href="{% url 'wishlist' %}" class="text-gray-600 hover:text-brandAccent relative">
+          <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+        </a>
+        <a href="{% url 'cart' %}" class="text-gray-600 hover:text-brandAccent relative">
+          <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 100 4 2 2 0 000-4z"></path></svg>
+        </a>
+        {% if request.user.is_authenticated %}
+          {% include 'store/partials/profile_badge.html' %}
+        {% else %}
+          <a href="{% url 'login' %}" class="font-semibold hover:text-brandAccent">Login</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Main Nav Hierarchy -->
+    <nav class="bg-gray-900 text-white hidden md:block">
+      <div class="container mx-auto px-4">
+        <ul class="flex space-x-8 py-3">
+          <li class="nav-item relative">
+            <a href="/" class="hover:text-brandAccent font-medium">Home</a>
+          </li>
+          <!-- Men -->
+          <li class="nav-item relative group">
+            <a href="{% url 'category_men' %}" class="hover:text-brandAccent font-medium flex items-center">
+              Men <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"></path></svg>
+            </a>
+            <div class="mega-menu absolute left-0 mt-0 w-64 bg-white text-gray-800 shadow-xl rounded-b-lg p-6 border-t-2 border-brandAccent">
+              <h3 class="font-bold text-lg mb-4 border-b pb-2">Casual Wear</h3>
+              <ul class="space-y-2">
+                <li><a href="/men/casual-wear/t-shirts/" class="hover:text-brandAccent">T-Shirts</a></li>
+                <li><a href="/men/casual-wear/shirts/" class="hover:text-brandAccent">Shirts</a></li>
+                <li><a href="/men/casual-wear/jeans/" class="hover:text-brandAccent">Jeans</a></li>
+                <li><a href="/men/casual-wear/hoodies/" class="hover:text-brandAccent">Hoodies</a></li>
+                <li><a href="/men/casual-wear/jackets/" class="hover:text-brandAccent">Jackets</a></li>
+              </ul>
+            </div>
+          </li>
+          <!-- Women -->
+          <li class="nav-item relative group">
+            <a href="{% url 'category_women' %}" class="hover:text-brandAccent font-medium flex items-center">
+              Women <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"></path></svg>
+            </a>
+            <div class="mega-menu absolute left-0 mt-0 w-64 bg-white text-gray-800 shadow-xl rounded-b-lg p-6 border-t-2 border-brandAccent">
+              <h3 class="font-bold text-lg mb-4 border-b pb-2">Casual Wear</h3>
+              <ul class="space-y-2">
+                <li><a href="/women/casual-wear/tops/" class="hover:text-brandAccent">Tops</a></li>
+                <li><a href="/women/casual-wear/dresses/" class="hover:text-brandAccent">Dresses</a></li>
+                <li><a href="/women/casual-wear/jeans/" class="hover:text-brandAccent">Jeans</a></li>
+                <li><a href="/women/casual-wear/kurtis/" class="hover:text-brandAccent">Kurtis</a></li>
+                <li><a href="/women/casual-wear/ethnic-wear/" class="hover:text-brandAccent">Ethnic Wear</a></li>
+              </ul>
+            </div>
+          </li>
+          <!-- Kids -->
+          <li class="nav-item relative group">
+            <a href="{% url 'category_kids' %}" class="hover:text-brandAccent font-medium flex items-center">
+              Kids <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"></path></svg>
+            </a>
+            <div class="mega-menu absolute left-0 mt-0 w-64 bg-white text-gray-800 shadow-xl rounded-b-lg p-6 border-t-2 border-brandAccent">
+              <h3 class="font-bold text-lg mb-4 border-b pb-2">Casual Wear</h3>
+              <ul class="space-y-2">
+                <li><a href="/kids/casual-wear/polo-shirts/" class="hover:text-brandAccent">Polo Shirts</a></li>
+                <li><a href="/kids/casual-wear/t-shirts/" class="hover:text-brandAccent">T-Shirts</a></li>
+                <li><a href="/kids/casual-wear/shorts/" class="hover:text-brandAccent">Shorts</a></li>
+                <li><a href="/kids/casual-wear/dresses/" class="hover:text-brandAccent">Dresses</a></li>
+                <li><a href="/kids/casual-wear/school-wear/" class="hover:text-brandAccent">School Wear</a></li>
+              </ul>
+            </div>
+          </li>
+          <li><a href="{% url 'contact_us' %}" class="hover:text-brandAccent font-medium">Contact Us</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="relative bg-gray-100 h-[500px] overflow-hidden">
+    <div class="absolute inset-0">
+      <img src="{{ background_url }}" alt="Hero" class="w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+    </div>
+    <div class="container mx-auto px-4 relative h-full flex flex-col justify-center items-start text-white">
+      <h2 class="text-xl uppercase tracking-widest mb-2">{{ hero_subtitle }}</h2>
+      <h1 class="text-5xl md:text-7xl font-bold mb-6">{{ hero_title }} <span class="text-brandAccent">{{ hero_highlight }}</span></h1>
+      <p class="text-xl mb-8 max-w-lg">{{ hero_tagline }}</p>
+      <a href="{{ hero_button_url }}" class="bg-brandAccent hover:bg-emerald-600 text-white px-10 py-4 rounded-full text-lg font-bold transition transform hover:scale-105">
+        {{ hero_button_text }}
+      </a>
+    </div>
+  </section>
+
+  <!-- Featured Categories -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-12">{{ category_section_title }}</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {% for cat in categories_context %}
+        <a href="{% url cat.route_name %}" class="group relative overflow-hidden rounded-2xl shadow-lg h-80">
+          <img src="{% asset_src cat.image_path %}" alt="{{ cat.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70"></div>
+          <div class="absolute bottom-0 left-0 p-8">
+            <h3 class="text-2xl font-bold text-white mb-2">{{ cat.name }}</h3>
+            <p class="text-gray-200">{{ cat.description }}</p>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Promotional Banner -->
+  <section class="py-12 bg-brandAccent text-white">
+    <div class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
+      <div class="mb-6 md:mb-0">
+        <h2 class="text-3xl font-bold mb-2">Summer Sale - Up to 50% Off!</h2>
+        <p class="text-lg">Don't miss out on our biggest deals of the season.</p>
+      </div>
+      <a href="/catalog/" class="bg-white text-brandAccent px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition">Shop Sale Now</a>
+    </div>
+  </section>
+
+  <!-- Featured Products / New Arrivals -->
+  <section id="featured-products" class="py-16">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between items-end mb-12">
+        <div>
+          <h2 class="text-3xl font-bold mb-2">{{ featured_section_title }}</h2>
+          <p class="text-brandMuted">Our latest picks just for you.</p>
+        </div>
+        <a href="/catalog/" class="text-brandAccent font-bold hover:underline">View All Products &rarr;</a>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {% for product in featured_products %}
+        <div class="bg-white rounded-xl shadow-sm border overflow-hidden group hover:shadow-md transition">
+          <div class="relative h-64 overflow-hidden">
+            <img src="{% asset_src product.image_path %}" alt="{{ product.product.product_name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+            <div class="absolute top-4 right-4 space-y-2 opacity-0 group-hover:opacity-100 transition">
+              <button class="p-2 bg-white rounded-full shadow hover:text-brandAccent"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg></button>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-xs text-brandMuted uppercase mb-1">{{ product.product.brand }}</p>
+            <h3 class="font-semibold mb-2 truncate"><a href="{% url 'product_detail' product.product.product_id %}">{{ product.product.product_name }}</a></h3>
+            <div class="flex items-center justify-between">
+              <span class="text-lg font-bold text-brandAccent">₹{{ product.product.offer_price }}</span>
+              <a href="{% url 'add_to_cart' product.product.product_id %}" class="p-2 bg-gray-100 rounded-lg hover:bg-brandAccent hover:text-white transition">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 100 4 2 2 0 000-4z"></path></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="py-16 bg-gray-900 text-white">
+    <div class="container mx-auto px-4 text-center max-w-2xl">
+      <h2 class="text-3xl font-bold mb-4">Join Our Newsletter</h2>
+      <p class="text-gray-400 mb-8">Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>
+      <form class="flex flex-col md:flex-row gap-4">
+        <input type="email" placeholder="Enter your email" class="flex-1 px-6 py-4 rounded-full bg-gray-800 border-gray-700 focus:ring-2 focus:ring-brandAccent outline-none" />
+        <button type="button" class="bg-brandAccent hover:bg-emerald-600 px-10 py-4 rounded-full font-bold transition">Subscribe</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-white pt-16 pb-8 border-t">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div>
+          <h3 class="text-xl font-bold mb-6">ShopEase</h3>
+          <p class="text-brandMuted leading-relaxed">Your one-stop destination for modern fashion. We deliver quality and style right to your doorstep.</p>
+        </div>
+        <div>
+          <h4 class="font-bold mb-6 uppercase tracking-wider">Quick Links</h4>
+          <ul class="space-y-4 text-brandMuted">
+            <li><a href="/" class="hover:text-brandAccent">Home</a></li>
+            <li><a href="/catalog/" class="hover:text-brandAccent">Shop All</a></li>
+            <li><a href="{% url 'contact_us' %}" class="hover:text-brandAccent">Contact Us</a></li>
+            <li><a href="{% url 'user_dashboard' %}" class="hover:text-brandAccent">My Account</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold mb-6 uppercase tracking-wider">Categories</h4>
+          <ul class="space-y-4 text-brandMuted">
+            <li><a href="{% url 'category_men' %}" class="hover:text-brandAccent">Men's Fashion</a></li>
+            <li><a href="{% url 'category_women' %}" class="hover:text-brandAccent">Women's Fashion</a></li>
+            <li><a href="{% url 'category_kids' %}" class="hover:text-brandAccent">Kids' Fashion</a></li>
+            <li><a href="{% url 'shared_accessories' %}" class="hover:text-brandAccent">Accessories</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold mb-6 uppercase tracking-wider">Policies</h4>
+          <ul class="space-y-4 text-brandMuted">
+            <li><a href="{% url 'privacy_policy' %}" class="hover:text-brandAccent">Privacy Policy</a></li>
+            <li><a href="{% url 'refund_policy' %}" class="hover:text-brandAccent">Refund Policy</a></li>
+            <li><a href="{% url 'terms_and_conditions' %}" class="hover:text-brandAccent">Terms & Conditions</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t pt-8 flex flex-col md:flex-row justify-between items-center text-brandMuted text-sm">
+        <p>&copy; 2026 <strong>ShopEase</strong>. {{ footer_text }}</p>
+        <p>Built by <span class="text-brandDark font-semibold">{{ footer_builder_text }}</span></p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
