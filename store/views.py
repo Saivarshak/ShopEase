@@ -21,6 +21,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.text import slugify
 from django.views.decorators.csrf import csrf_exempt
 import requests
+import urllib.parse
 from .models import (
     Product,
     Category,
@@ -40,6 +41,26 @@ from .models import (
     HomeContent,
     UploadedImage,
 )
+
+
+def _set_session_profile_photo(request, user):
+    """Fetch and store the user's profile photo URL in session.
+    Priority: Google social auth picture > UI Avatars fallback."""
+    photo_url = ''
+    try:
+        from social_django.models import UserSocialAuth
+        social = UserSocialAuth.objects.filter(user=user, provider='google-oauth2').first()
+        if social and social.extra_data:
+            picture = social.extra_data.get('picture') or social.extra_data.get('image')
+            if picture:
+                photo_url = picture
+    except Exception:
+        pass
+    if not photo_url:
+        display_name = user.get_full_name() or (user.email or user.username or '')
+        photo_url = f"https://ui-avatars.com/api/?name={urllib.parse.quote(display_name)}&background=000000&color=ffffff&size=128&font-size=0.45&rounded=true&bold=true"
+    request.session['profile_photo_url'] = photo_url
+    request.session.modified = True
 
 
 def _asset_exists(normalized_path):
@@ -1296,7 +1317,6 @@ def home(request):
         'footer_brand_text': getattr(home_content, 'footer_brand_text', None) or 'ShopEase',
         'footer_builder_text': getattr(home_content, 'footer_builder_text', None) or 'Varshak Shopeasy',
         'search_query': '',
-        'profile_photo_url': request.session.get('profile_photo_url', ''),
     })
 
 
@@ -2059,6 +2079,7 @@ def login_view(request):
                 login(request, authenticated_user)
                 _merge_session_cart_into_db(request, authenticated_user)
                 _set_session_cart(request, {})
+                _set_session_profile_photo(request, authenticated_user)
                 messages.success(request, 'Login Successful')
                 return redirect(next_url)
 
@@ -2093,6 +2114,7 @@ def register_view(request):
             login(request, user)
             _merge_session_cart_into_db(request, user)
             _set_session_cart(request, {})
+            _set_session_profile_photo(request, user)
             return redirect(next_url)
 
     return render(request, 'store/register.html', {'next_url': next_url})
