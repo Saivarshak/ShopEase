@@ -13,12 +13,10 @@ DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = os.environ.get(
     "ALLOWED_HOSTS",
-    "localhost,127.0.0.1,shopeasy-e-commers.up.railway.app"
+    "localhost,127.0.0.1"
 ).split(",")
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://shopeasy-e-commers.up.railway.app",
-]
+CSRF_TRUSTED_ORIGINS = []
 
 INSTALLED_APPS = [
     "django.contrib.admin",
