@@ -66,11 +66,6 @@
       overflow-y: auto;
       padding-right: 8px;
 
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-
-      border-radius: 20px;
       padding: 20px;
     }
 
@@ -80,6 +75,14 @@
 
     .scroll-area {
       scrollbar-width: none;
+    }
+
+    .cards-container {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 20px;
     }
 
     /* ⭐ SAME GLASS CARD STYLE AS MEN PAGE */
@@ -127,7 +130,7 @@
       Women's Gallery
     </h2>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+    <div class="cards-container"><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
 
       {% for item in women_categories %}
       <a href="{{ item.page_url }}"
@@ -170,7 +173,7 @@
 
       {% endfor %}
 
-    </div>
+    </div></div>
 
   </section>
 

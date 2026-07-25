@@ -161,11 +161,11 @@
             <!-- ONLY THIS SECTION SCROLLS -->
             <div class="scroll-container">
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 justify-items-center lg:justify-items-start">
 
                     {% for item in men_categories %}
                     <a href="{{ item.page_url }}"
-                       class="rounded-xl overflow-hidden shadow-lg card">
+                       class="rounded-xl overflow-hidden shadow-lg card w-full max-w-sm">
 
                         <img src="{% asset_src item.image_path %}"
                              alt="{{ item.name }}"

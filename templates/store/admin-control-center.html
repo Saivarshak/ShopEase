@@ -59,6 +59,9 @@
     .badge { display: inline-flex; min-height: 24px; align-items: center; border-radius: 999px; padding: 0 9px; font-size: 12px; font-weight: 800; }
     .ok { background: #ecfdf3; color: var(--success); } .low { background: #fff7ed; color: var(--warning); } .out { background: #fef3f2; color: var(--danger); } .info { background: #e6f1fb; color: var(--info); }
     .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .filter-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .filter-btn { min-height: 36px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--text); padding: 0 13px; font-weight: 800; cursor: pointer; }
+    .filter-btn.active, .filter-btn:hover { background: #000; color: #fff; border-color: #000; }
     form .field { display: grid; gap: 6px; margin-bottom: 12px; }
     label { color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
     input, select, textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: var(--radius); padding: 10px 11px; background: #fff; color: #000; }
@@ -145,6 +148,7 @@
               <div class="field"><label>Name</label><input name="name" required></div>
               <div class="field"><label>Gender</label><select name="root_category_id" required><option value="">Select gender</option>{% for category in categories %}<option value="{{ category.category_id }}">{{ category.category_name }}</option>{% endfor %}</select></div>
               <div class="field"><label>Parent Main Category</label><select name="parent_id"><option value="">Create gender root/main category</option>{% for category in all_fashion_categories %}<option value="{{ category.fashion_category_id }}">{{ category.full_path }}</option>{% endfor %}</select></div>
+              <div class="field"><label>Sort Order</label><input name="sort_order" type="number" min="0" step="1" inputmode="numeric" value="0"></div>
               <div class="field"><label>Description</label><textarea name="description"></textarea></div>
               <div class="field"><label>Image Upload</label><input type="file" name="image_upload" accept="image/jpeg,image/png,image/webp"></div>
               <div class="field"><label>Banner Upload</label><input type="file" name="banner_upload" accept="image/jpeg,image/png,image/webp"></div>
@@ -152,7 +156,7 @@
               <label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_under_maintenance"> Under Maintenance</label>
               <button class="btn" type="submit">Save Category</button>
             </form>
-            <div class="cards-grid">{% for group in card_groups %}{% for category in group.cards %}<form class="mini-card" method="post" action="{% url 'admin_categories' %}" enctype="multipart/form-data" data-admin-ajax="category">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><input type="hidden" name="action" value="save_fashion_category"><input type="hidden" name="fashion_category_id" value="{{ category.fashion_category_id }}">{% if category.image %}<img class="preview" src="{% asset_src category.image %}" alt="{{ category.name }}">{% endif %}<div class="field"><label>Name</label><input name="name" value="{{ category.name }}" required></div><input type="hidden" name="root_category_id" value="{{ category.root_category_id }}"><div class="field"><label>Parent</label><select name="parent_id"><option value="">Top level</option>{% for parent in all_fashion_categories %}{% if parent.fashion_category_id != category.fashion_category_id %}<option value="{{ parent.fashion_category_id }}" {% if category.parent_id == parent.fashion_category_id %}selected{% endif %}>{{ parent.full_path }}</option>{% endif %}{% endfor %}</select></div><div class="field"><label>Sort Order</label><input name="sort_order" type="number" min="0" value="{{ category.sort_order }}"></div><div class="field"><label>Image Path</label><input name="image" value="{{ category.image|default:'' }}"></div><div class="field"><label>Banner Path</label><input name="banner_image" value="{{ category.banner_image|default:'' }}"></div><div class="field"><label>Upload Image</label><input type="file" name="image_upload" accept="image/jpeg,image/png,image/webp"></div><div class="field"><label>Upload Banner</label><input type="file" name="banner_upload" accept="image/jpeg,image/png,image/webp"></div><label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_active" {% if category.is_active %}checked{% endif %}> Active</label><label style="display:flex;gap:8px;align-items:center;margin-top:8px;"><input style="width:auto;" type="checkbox" name="is_under_maintenance" {% if category.is_under_maintenance %}checked{% endif %}> Under Maintenance</label><div class="actions"><button class="btn" type="submit">Update</button><button class="btn btn-danger" type="submit" name="action" value="delete_fashion_category" onclick="return confirm('Delete this category card?')">Delete</button></div></form>{% endfor %}{% empty %}<div class="module-note">No category cards configured.</div>{% endfor %}</div>
+            <div><div class="filter-bar" data-category-filters><button class="filter-btn active" type="button" data-filter="all">All</button><button class="filter-btn" type="button" data-filter="mens">Men</button><button class="filter-btn" type="button" data-filter="womens">Women</button><button class="filter-btn" type="button" data-filter="kids">Kids</button></div><div class="cards-grid">{% for group in card_groups %}{% for category in group.cards %}<form class="mini-card" method="post" action="{% url 'admin_categories' %}" enctype="multipart/form-data" data-admin-ajax="category" data-category-section="{{ category.root_category.category_name|lower }}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><input type="hidden" name="action" value="save_fashion_category"><input type="hidden" name="fashion_category_id" value="{{ category.fashion_category_id }}">{% if category.image %}<img class="preview" src="{% asset_src category.image %}" alt="{{ category.name }}">{% endif %}<div class="field"><label>Name</label><input name="name" value="{{ category.name }}" required></div><input type="hidden" name="root_category_id" value="{{ category.root_category_id }}"><div class="field"><label>Parent</label><select name="parent_id"><option value="">Top level</option>{% for parent in all_fashion_categories %}{% if parent.fashion_category_id != category.fashion_category_id %}<option value="{{ parent.fashion_category_id }}" {% if category.parent_id == parent.fashion_category_id %}selected{% endif %}>{{ parent.full_path }}</option>{% endif %}{% endfor %}</select></div><div class="field"><label>Sort Order</label><input name="sort_order" type="number" min="0" value="{{ category.sort_order }}"></div><div class="field"><label>Image Path</label><input name="image" value="{{ category.image|default:'' }}"></div><div class="field"><label>Banner Path</label><input name="banner_image" value="{{ category.banner_image|default:'' }}"></div><div class="field"><label>Upload Image</label><input type="file" name="image_upload" accept="image/jpeg,image/png,image/webp"></div><div class="field"><label>Upload Banner</label><input type="file" name="banner_upload" accept="image/jpeg,image/png,image/webp"></div><label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_active" {% if category.is_active %}checked{% endif %}> Active</label><label style="display:flex;gap:8px;align-items:center;margin-top:8px;"><input style="width:auto;" type="checkbox" name="is_under_maintenance" {% if category.is_under_maintenance %}checked{% endif %}> Under Maintenance</label><div class="actions"><button class="btn" type="submit">Update</button><button class="btn btn-danger" type="submit" name="action" value="delete_fashion_category" onclick="return confirm('Delete this category card?')">Delete</button></div></form>{% endfor %}{% empty %}<div class="module-note">No category cards configured.</div>{% endfor %}</div></div>
           </div>
         </section>
 
@@ -184,7 +188,38 @@
       const open = document.body.classList.toggle('sidebar-open');
       sidebarToggle.setAttribute('aria-expanded', String(open));
     });
-    document.querySelectorAll('.nav a[href^="#"]').forEach((link) => link.addEventListener('click', () => document.body.classList.remove('sidebar-open')));
+    const navLinks = [...document.querySelectorAll('.nav a')];
+    const sectionLinks = navLinks.filter((link) => link.getAttribute('href')?.startsWith('#'));
+    const setActiveNav = (hash) => {
+      const activeHash = hash || '#overview';
+      navLinks.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === activeHash));
+    };
+    sectionLinks.forEach((link) => link.addEventListener('click', () => {
+      document.body.classList.remove('sidebar-open');
+      setActiveNav(link.getAttribute('href'));
+    }));
+    window.addEventListener('hashchange', () => setActiveNav(window.location.hash));
+    const observedSections = sectionLinks.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+    if ('IntersectionObserver' in window && observedSections.length) {
+      const observer = new IntersectionObserver((entries) => {
+        const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActiveNav(`#${visible.target.id}`);
+      }, { rootMargin: '-20% 0px -65% 0px', threshold: [0.1, 0.25, 0.5] });
+      observedSections.forEach((section) => observer.observe(section));
+    }
+    setActiveNav(window.location.hash);
+    document.querySelectorAll('[data-category-filters]').forEach((bar) => {
+      const targets = [...document.querySelectorAll('[data-category-section]')];
+      bar.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-filter]');
+        if (!button) return;
+        const filter = button.dataset.filter;
+        bar.querySelectorAll('[data-filter]').forEach((item) => item.classList.toggle('active', item === button));
+        targets.forEach((target) => {
+          target.hidden = filter !== 'all' && target.dataset.categorySection !== filter;
+        });
+      });
+    });
     document.querySelectorAll('[data-open-modal]').forEach((button) => button.addEventListener('click', () => document.getElementById(button.dataset.openModal)?.showModal()));
     document.querySelectorAll('[data-close-modal]').forEach((button) => button.addEventListener('click', () => button.closest('dialog')?.close()));
     const findNearestPreview = (input) => {

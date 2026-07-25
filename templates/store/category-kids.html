@@ -78,16 +78,20 @@ body{
     overflow-x:hidden;
     padding:20px;
 
-    background:rgba(255,255,255,0.08);
-    backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);
-
     scrollbar-width:none;
     -ms-overflow-style:none;
 }
 
 .scroll-container::-webkit-scrollbar{
     display:none;
+}
+
+.cards-container{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border-radius:20px;
+    padding:20px;
 }
 
 /* ⭐ UNIFIED GLASS CARD (same as Men/Women) */
@@ -151,7 +155,7 @@ body{
             Kids Gallery
         </h2>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div class="cards-container"><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
 
             {% for item in kids_categories %}
 
@@ -195,7 +199,7 @@ body{
 
             {% endfor %}
 
-        </div>
+        </div></div>
 
     </section>
 

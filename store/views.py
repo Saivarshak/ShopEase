@@ -816,12 +816,12 @@ def _build_fashion_category_cards(root_category):
             root_category=root_category,
             parent__isnull=True,
             is_active=True,
-        ).order_by('sort_order', 'name').first()
+        ).order_by('sort_order', 'fashion_category_id').first()
         if not root_node:
             return []
 
         cards = []
-        for item in root_node.children.filter(is_active=True).order_by('sort_order', 'name'):
+        for item in root_node.children.filter(is_active=True).order_by('sort_order', 'fashion_category_id'):
             cards.append({
                 'id': item.fashion_category_id,
                 'name': item.name,
@@ -837,7 +837,7 @@ def _build_fashion_category_cards(root_category):
 
 def _build_fashion_child_cards(parent_category):
     cards = []
-    for item in parent_category.children.filter(is_active=True).order_by('sort_order', 'name'):
+    for item in parent_category.children.filter(is_active=True).order_by('sort_order', 'fashion_category_id'):
         cards.append({
             'id': item.fashion_category_id,
             'name': item.name,
@@ -921,7 +921,7 @@ def _build_category_tree():
         categories = list(
             FashionCategory.objects.filter(is_active=True)
             .select_related('parent', 'root_category')
-            .order_by('level', 'sort_order', 'name')
+            .order_by('level', 'sort_order', 'fashion_category_id')
         )
     except (ProgrammingError, OperationalError):
         return []
@@ -1653,7 +1653,7 @@ def _resolve_fashion_category_by_path(gender_slug, category_path):
 
     path_parts = [part for part in (category_path or '').strip('/').split('/') if part]
     for slug in path_parts:
-        current = current.children.filter(slug=slug, is_active=True).first()
+        current = current.children.filter(slug=slug, is_active=True).order_by('sort_order', 'fashion_category_id').first()
         if not current:
             raise Http404('Category not found.')
     return current
@@ -3150,12 +3150,12 @@ def admin_control_center(request):
     variants = ProductVariant.objects.select_related('product', 'product__category', 'product__subcategory').order_by('quantity', 'product__product_name')
     categories = Category.objects.order_by('category_name')
     subcategories = SubCategory.objects.select_related('category').order_by('subcategory_name')
-    fashion_categories = FashionCategory.objects.filter(is_active=True, level__gte=2).select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
-    all_fashion_categories = FashionCategory.objects.select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
-    root_nodes = FashionCategory.objects.filter(parent__isnull=True).select_related('root_category').order_by('sort_order', 'name')
+    fashion_categories = FashionCategory.objects.filter(is_active=True, level__gte=2).select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'fashion_category_id')
+    all_fashion_categories = FashionCategory.objects.select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'fashion_category_id')
+    root_nodes = FashionCategory.objects.filter(parent__isnull=True).select_related('root_category').order_by('sort_order', 'fashion_category_id')
     card_groups = [{
         'root': root_node,
-        'cards': FashionCategory.objects.filter(root_category=root_node.root_category).exclude(fashion_category_id=root_node.fashion_category_id).select_related('root_category', 'parent').order_by('level', 'sort_order', 'name'),
+        'cards': FashionCategory.objects.filter(root_category=root_node.root_category).exclude(fashion_category_id=root_node.fashion_category_id).select_related('root_category', 'parent').order_by('level', 'sort_order', 'fashion_category_id'),
     } for root_node in root_nodes]
     home_content = HomeContent.objects.filter(is_active=True).first()
 
@@ -3425,7 +3425,7 @@ def admin_product_form(request, product_id=None):
     existing_variants = list(ProductVariant.objects.filter(product=product).order_by('variant_id')) if product else []
     categories = Category.objects.order_by('category_name')
     subcategories = SubCategory.objects.select_related('category').order_by('subcategory_name')
-    fashion_categories = FashionCategory.objects.filter(is_active=True, level__gte=2).select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
+    fashion_categories = FashionCategory.objects.filter(is_active=True, level__gte=2).select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'fashion_category_id')
 
     if request.method == 'POST':
         product_name = (request.POST.get('product_name') or '').strip()
@@ -3683,7 +3683,7 @@ def _admin_category_payload(category):
 
 def _admin_category_list_payload():
     categories = FashionCategory.objects.select_related('root_category', 'parent').order_by(
-        'root_category__category_name', 'level', 'sort_order', 'name'
+        'root_category__category_name', 'level', 'sort_order', 'fashion_category_id'
     )
     return [_admin_category_payload(category) for category in categories]
 
@@ -3723,7 +3723,8 @@ def _save_admin_category_from_request(request):
     name = (request.POST.get('name') or '').strip()
     root_category_id = request.POST.get('root_category_id')
     parent_id = request.POST.get('parent_id')
-    sort_order = max(0, _parse_int(request.POST.get('sort_order'), 0))
+    raw_sort_order = request.POST.get('sort_order')
+    sort_order = None if raw_sort_order in (None, '') else max(0, _parse_int(raw_sort_order, 0))
     description = (request.POST.get('description') or '').strip()
     page_url = (request.POST.get('page_url') or '').strip()
     raw_image_input = request.POST.get('image')
@@ -3772,7 +3773,7 @@ def _save_admin_category_from_request(request):
     category.root_category = root_category
     category.parent = parent
     category.level = (parent.level + 1) if parent else 0
-    category.sort_order = sort_order or FashionCategory.objects.count() + 1
+    category.sort_order = sort_order if sort_order is not None else FashionCategory.objects.count() + 1
     category.image = final_image_path or None
     category.banner_image = final_banner_path or None
     category.description = description or None
@@ -3802,11 +3803,11 @@ def admin_categories(request):
         else:
             messages.error(request, message)
         return redirect(_safe_redirect_target(request, request.POST.get('next'), 'admin_control_center'))
-    fashion_categories = FashionCategory.objects.select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'name')
-    root_nodes = FashionCategory.objects.filter(parent__isnull=True).select_related('root_category').order_by('sort_order', 'name')
+    fashion_categories = FashionCategory.objects.select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'fashion_category_id')
+    root_nodes = FashionCategory.objects.filter(parent__isnull=True).select_related('root_category').order_by('sort_order', 'fashion_category_id')
     card_groups = []
     for root_node in root_nodes:
-        cards = FashionCategory.objects.filter(root_category=root_node.root_category).exclude(fashion_category_id=root_node.fashion_category_id).select_related('root_category', 'parent').order_by('level', 'sort_order', 'name')
+        cards = FashionCategory.objects.filter(root_category=root_node.root_category).exclude(fashion_category_id=root_node.fashion_category_id).select_related('root_category', 'parent').order_by('level', 'sort_order', 'fashion_category_id')
         card_groups.append({
             'root': root_node,
             'cards': cards,
