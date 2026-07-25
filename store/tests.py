@@ -84,6 +84,91 @@ class PublicSecurityTests(TestCase):
 
         self.assertEqual(response.status_code, 405)
 
+class PublicFashionMaintenanceTests(TestCase):
+    def setUp(self):
+        self.category = Category.objects.create(category_name='mens')
+        self.root = FashionCategory.objects.create(
+            name='Mens Root',
+            slug='mens-root',
+            root_category=self.category,
+            level=0,
+            sort_order=0,
+            is_active=True,
+        )
+        self.maintenance_category = FashionCategory.objects.create(
+            name='Casual Wear',
+            slug='casual-wear',
+            parent=self.root,
+            root_category=self.category,
+            level=1,
+            sort_order=1,
+            is_active=False,
+            is_under_maintenance=True,
+        )
+        self.normal_category = FashionCategory.objects.create(
+            name='Formal Wear',
+            slug='formal-wear',
+            parent=self.root,
+            root_category=self.category,
+            level=1,
+            sort_order=2,
+            is_active=True,
+            is_under_maintenance=False,
+        )
+        self.maintenance_subcategory = SubCategory.objects.create(
+            category=self.category,
+            subcategory_name='Casual Wear',
+        )
+        self.normal_subcategory = SubCategory.objects.create(
+            category=self.category,
+            subcategory_name='Formal Wear',
+        )
+        Product.objects.create(
+            product_name='Hidden Maintenance Shirt',
+            brand='ShopEase',
+            category=self.category,
+            subcategory=self.maintenance_subcategory,
+            fashion_category=self.maintenance_category,
+            sku='MAINT-SHIRT-1',
+            price=Decimal('999.00'),
+            discount_percent=Decimal('0.00'),
+            is_active=True,
+        )
+        Product.objects.create(
+            product_name='Visible Formal Shirt',
+            brand='ShopEase',
+            category=self.category,
+            subcategory=self.normal_subcategory,
+            fashion_category=self.normal_category,
+            sku='FORMAL-SHIRT-1',
+            price=Decimal('1299.00'),
+            discount_percent=Decimal('0.00'),
+            is_active=True,
+        )
+
+    def test_maintenance_category_card_stays_visible_and_clickable(self):
+        response = self.client.get('/men/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Casual Wear')
+        self.assertContains(response, 'href="/men/casual-wear/"')
+        self.assertContains(response, 'Maintenance')
+
+    def test_maintenance_category_click_shows_message_not_products(self):
+        response = self.client.get('/men/casual-wear/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'store/under-maintenance.html')
+        self.assertContains(response, 'Casual Wear is currently under maintenance')
+        self.assertNotContains(response, 'Hidden Maintenance Shirt')
+
+    def test_normal_category_click_still_shows_product_listing(self):
+        response = self.client.get('/men/formal-wear/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'store/product-listing-generic.html')
+        self.assertContains(response, 'Visible Formal Shirt')
+
 
 class AdminCategoryImageUploadTests(TestCase):
     def setUp(self):

@@ -768,6 +768,10 @@ def _get_fashion_card_fallback(category):
     return fallback_map.get(name, root_fallbacks.get(root_name, 'images/homebg.jpg'))
 
 
+def _public_fashion_category_filter():
+    return Q(is_active=True) | Q(is_under_maintenance=True)
+
+
 def _is_maintenance_category(category):
     current = category
     while current:
@@ -775,6 +779,27 @@ def _is_maintenance_category(category):
             return True
         current = current.parent
     return False
+
+
+def _get_maintenance_return_url(fashion_category):
+    root_slug = _fashion_root_slug(fashion_category)
+    if fashion_category.parent_id and fashion_category.parent.parent_id:
+        return _get_fashion_category_url(fashion_category.parent)
+    if root_slug in {'men', 'women', 'kids'}:
+        return f'/{root_slug}/'
+    return '/'
+
+
+def _render_fashion_maintenance(request, fashion_category):
+    category_return_url = _get_maintenance_return_url(fashion_category)
+    return render(request, 'store/under-maintenance.html', {
+        'page_title': fashion_category.name,
+        'status_message': f'{fashion_category.name} is currently under maintenance. Please check back later.',
+        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'category_tree': _build_category_tree(),
+        'active_fashion_category': fashion_category,
+        'category_return_url': category_return_url,
+    })
 
 
 def _fashion_category_path(category):
@@ -819,15 +844,15 @@ def _get_product_url(product):
 def _build_fashion_category_cards(root_category):
     try:
         root_node = FashionCategory.objects.filter(
+            _public_fashion_category_filter(),
             root_category=root_category,
             parent__isnull=True,
-            is_active=True,
         ).order_by('sort_order', 'fashion_category_id').first()
         if not root_node:
             return []
 
         cards = []
-        for item in root_node.children.filter(is_active=True).order_by('sort_order', 'fashion_category_id'):
+        for item in root_node.children.filter(_public_fashion_category_filter()).order_by('sort_order', 'fashion_category_id'):
             cards.append({
                 'id': item.fashion_category_id,
                 'name': item.name,
@@ -843,7 +868,7 @@ def _build_fashion_category_cards(root_category):
 
 def _build_fashion_child_cards(parent_category):
     cards = []
-    for item in parent_category.children.filter(is_active=True).order_by('sort_order', 'fashion_category_id'):
+    for item in parent_category.children.filter(_public_fashion_category_filter()).order_by('sort_order', 'fashion_category_id'):
         cards.append({
             'id': item.fashion_category_id,
             'name': item.name,
@@ -1651,16 +1676,16 @@ def _resolve_fashion_category_by_path(gender_slug, category_path):
 
     root_category = get_object_or_404(Category, category_name__iexact=root_category_name)
     current = FashionCategory.objects.filter(
+        _public_fashion_category_filter(),
         root_category=root_category,
         parent__isnull=True,
-        is_active=True,
     ).order_by('sort_order', 'fashion_category_id').first()
     if not current:
         raise Http404('Category not found.')
 
     path_parts = [part for part in (category_path or '').strip('/').split('/') if part]
     for slug in path_parts:
-        current = current.children.filter(slug=slug, is_active=True).order_by('sort_order', 'fashion_category_id').first()
+        current = current.children.filter(_public_fashion_category_filter(), slug=slug).order_by('sort_order', 'fashion_category_id').first()
         if not current:
             raise Http404('Category not found.')
     return current
@@ -1673,11 +1698,7 @@ def fashion_category_slug_listing(request, gender_slug, category_path):
         return redirect(canonical_url, permanent=True)
 
     if _is_maintenance_category(fashion_category):
-        return render(request, 'store/under-maintenance.html', {
-            'page_title': fashion_category.name,
-            'status_message': f'{fashion_category.name} is currently under maintenance. Please check back later.',
-            'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        })
+        return _render_fashion_maintenance(request, fashion_category)
 
     child_cards = _build_fashion_child_cards(fashion_category)
     if child_cards:
@@ -1714,11 +1735,7 @@ def fashion_product_slug_detail(request, gender_slug, category_path, product_slu
 
     fashion_category = _resolve_fashion_category_by_path(gender_slug, category_path)
     if _is_maintenance_category(fashion_category):
-        return render(request, 'store/under-maintenance.html', {
-            'page_title': fashion_category.name,
-            'status_message': f'{fashion_category.name} is currently under maintenance. Please check back later.',
-            'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        })
+        return _render_fashion_maintenance(request, fashion_category)
     descendant_ids = _get_descendant_category_ids(fashion_category)
     product = get_object_or_404(
         Product.objects.select_related('category', 'subcategory', 'fashion_category', 'fashion_category__parent', 'fashion_category__root_category').prefetch_related('productvariant_set'),
@@ -1739,11 +1756,7 @@ def shared_accessories(request):
 
 def _render_product_detail(request, product):
     if product.fashion_category_id and _is_maintenance_category(product.fashion_category):
-        return render(request, 'store/under-maintenance.html', {
-            'page_title': product.fashion_category.name,
-            'status_message': f'{product.fashion_category.name} is currently under maintenance. Please check back later.',
-            'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        })
+        return _render_fashion_maintenance(request, product.fashion_category)
     variant = _get_first_variant(product)
     fallback_image = _get_product_image_path(product, variant)
     size_variants = list(ProductVariant.objects.filter(product=product).exclude(size__isnull=True).exclude(size__exact='').order_by('variant_id'))
@@ -4105,4 +4118,5 @@ def under_maintenance_view(request):
         'page_title': 'Under Maintenance',
         'status_message': 'This section is currently under maintenance. Please check back later.',
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'category_return_url': '/',
     })
