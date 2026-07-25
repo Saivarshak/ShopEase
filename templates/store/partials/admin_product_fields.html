@@ -96,10 +96,16 @@
       <input type="text" name="image4" value="{{ variant.image4|default:'' }}" placeholder="example.jpg">
       <input type="file" name="image4_upload" accept="image/jpeg,image/png,image/webp" data-preview-input>
     </div>
-    <div class="field full">
+    <div class="field">
       <label style="display:flex;gap:8px;align-items:center;">
         <input style="width:auto;" type="checkbox" name="is_active" {% if product.is_active or not product %}checked{% endif %}>
         Active Product
+      </label>
+    </div>
+    <div class="field">
+      <label style="display:flex;gap:8px;align-items:center;">
+        <input style="width:auto;" type="checkbox" name="is_featured" {% if product.is_featured %}checked{% endif %}>
+        Featured Product
       </label>
     </div>
   </div>

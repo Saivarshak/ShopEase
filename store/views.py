@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 from django.db import connection, transaction
 from django.db.utils import OperationalError, ProgrammingError
-from django.db.models import Q, Sum
+from django.db.models import Max, Q, Sum
 from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -769,7 +769,12 @@ def _get_fashion_card_fallback(category):
 
 
 def _is_maintenance_category(category):
-    return bool(category.is_under_maintenance)
+    current = category
+    while current:
+        if current.is_under_maintenance:
+            return True
+        current = current.parent
+    return False
 
 
 def _fashion_category_path(category):
@@ -808,6 +813,7 @@ def _get_product_url(product):
         if root_slug in {'men', 'women', 'kids'} and category_path and product.slug:
             return f'/{root_slug}/{category_path}/{product.slug}/'
     return reverse('catalog_product_detail', kwargs={'product_id': product.product_id})
+
 
 
 def _build_fashion_category_cards(root_category):
@@ -937,6 +943,7 @@ def _build_category_tree():
         }
 
     return [serialize(category) for category in children_by_parent.get(None, [])]
+
 
 
 def _catalog_context(request, products, page_title, search_placeholder_text='Search fashion...'):
@@ -1665,7 +1672,12 @@ def fashion_category_slug_listing(request, gender_slug, category_path):
     if request.path != canonical_url:
         return redirect(canonical_url, permanent=True)
 
-    
+    if _is_maintenance_category(fashion_category):
+        return render(request, 'store/under-maintenance.html', {
+            'page_title': fashion_category.name,
+            'status_message': f'{fashion_category.name} is currently under maintenance. Please check back later.',
+            'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        })
 
     child_cards = _build_fashion_child_cards(fashion_category)
     if child_cards:
@@ -1701,6 +1713,12 @@ def fashion_product_slug_detail(request, gender_slug, category_path, product_slu
         return fashion_category_slug_listing(request, gender_slug, nested_category_path)
 
     fashion_category = _resolve_fashion_category_by_path(gender_slug, category_path)
+    if _is_maintenance_category(fashion_category):
+        return render(request, 'store/under-maintenance.html', {
+            'page_title': fashion_category.name,
+            'status_message': f'{fashion_category.name} is currently under maintenance. Please check back later.',
+            'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        })
     descendant_ids = _get_descendant_category_ids(fashion_category)
     product = get_object_or_404(
         Product.objects.select_related('category', 'subcategory', 'fashion_category', 'fashion_category__parent', 'fashion_category__root_category').prefetch_related('productvariant_set'),
@@ -1720,6 +1738,12 @@ def shared_accessories(request):
 
 
 def _render_product_detail(request, product):
+    if product.fashion_category_id and _is_maintenance_category(product.fashion_category):
+        return render(request, 'store/under-maintenance.html', {
+            'page_title': product.fashion_category.name,
+            'status_message': f'{product.fashion_category.name} is currently under maintenance. Please check back later.',
+            'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        })
     variant = _get_first_variant(product)
     fallback_image = _get_product_image_path(product, variant)
     size_variants = list(ProductVariant.objects.filter(product=product).exclude(size__isnull=True).exclude(size__exact='').order_by('variant_id'))
@@ -3053,10 +3077,31 @@ def _admin_product_payload(product):
         'price': str(product.offer_price),
         'stock': _get_total_stock(product),
         'active': product.is_active,
+        'featured': product.is_featured,
         'image_path': image_path,
         'image_url': _asset_public_url(image_path),
         'hierarchy_label': hierarchy_label,
     }
+
+
+
+def _category_filter_group_id(category):
+    if not category.parent_id:
+        return ''
+    if category.parent and category.parent.parent_id:
+        return str(category.parent_id)
+    return str(category.fashion_category_id)
+
+
+def _build_admin_category_filter_options(root_nodes):
+    root_ids = [root.fashion_category_id for root in root_nodes]
+    if not root_ids:
+        return []
+    return list(
+        FashionCategory.objects.filter(parent_id__in=root_ids)
+        .select_related('root_category', 'parent')
+        .order_by('root_category__category_name', 'sort_order', 'fashion_category_id')
+    )
 
 
 def _build_admin_customer_rows(customers):
@@ -3152,11 +3197,22 @@ def admin_control_center(request):
     subcategories = SubCategory.objects.select_related('category').order_by('subcategory_name')
     fashion_categories = FashionCategory.objects.filter(is_active=True, level__gte=2).select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'fashion_category_id')
     all_fashion_categories = FashionCategory.objects.select_related('root_category', 'parent').order_by('root_category__category_name', 'level', 'sort_order', 'fashion_category_id')
-    root_nodes = FashionCategory.objects.filter(parent__isnull=True).select_related('root_category').order_by('sort_order', 'fashion_category_id')
-    card_groups = [{
-        'root': root_node,
-        'cards': FashionCategory.objects.filter(root_category=root_node.root_category).exclude(fashion_category_id=root_node.fashion_category_id).select_related('root_category', 'parent').order_by('level', 'sort_order', 'fashion_category_id'),
-    } for root_node in root_nodes]
+    root_nodes = list(FashionCategory.objects.filter(parent__isnull=True).select_related('root_category').order_by('sort_order', 'fashion_category_id'))
+    card_groups = []
+    for root_node in root_nodes:
+        cards = list(
+            FashionCategory.objects.filter(root_category=root_node.root_category)
+            .exclude(fashion_category_id=root_node.fashion_category_id)
+            .select_related('root_category', 'parent', 'parent__parent')
+            .order_by('level', 'sort_order', 'fashion_category_id')
+        )
+        for category in cards:
+            category.filter_group_id = _category_filter_group_id(category)
+        card_groups.append({
+            'root': root_node,
+            'cards': cards,
+        })
+    category_filter_options = _build_admin_category_filter_options(root_nodes)
     home_content = HomeContent.objects.filter(is_active=True).first()
 
     return render(request, 'store/admin-control-center.html', {
@@ -3169,6 +3225,7 @@ def admin_control_center(request):
         'fashion_categories': fashion_categories,
         'all_fashion_categories': all_fashion_categories,
         'card_groups': card_groups,
+        'category_filter_options': category_filter_options,
         'backgrounds': _build_admin_background_rows(),
         'home_content': home_content,
         'site_assets': SiteAsset.objects.order_by('asset_key'),
@@ -3404,6 +3461,15 @@ def _delete_background_file_if_unused(image_path, fallback_path):
         return False
     return _delete_uploaded_asset_if_unused(normalized)
 
+
+def _next_fashion_sort_order(root_category, parent, exclude_category_id=None):
+    siblings = FashionCategory.objects.filter(root_category=root_category, parent=parent)
+    if exclude_category_id:
+        siblings = siblings.exclude(fashion_category_id=exclude_category_id)
+    max_order = siblings.aggregate(max_order=Max('sort_order'))['max_order']
+    return (max_order or 0) + 1
+
+
 def _unique_fashion_slug(name, parent, category_id=None):
     base_slug = slugify(name)[:150] or 'fashion-category'
     slug = base_slug
@@ -3450,6 +3516,7 @@ def admin_product_form(request, product_id=None):
         image3_upload = request.FILES.get('image3_upload')
         image4_upload = request.FILES.get('image4_upload')
         is_active = request.POST.get('is_active') == 'on'
+        is_featured = request.POST.get('is_featured') == 'on'
 
         category = Category.objects.filter(category_id=category_id).first()
         subcategory = SubCategory.objects.filter(subcategory_id=subcategory_id).first()
@@ -3485,6 +3552,7 @@ def admin_product_form(request, product_id=None):
             product.discount_percent = discount_percent
             product.description = description or None
             product.is_active = is_active
+            product.is_featured = is_featured
             product.save()
 
             old_image_paths = []
@@ -3773,7 +3841,7 @@ def _save_admin_category_from_request(request):
     category.root_category = root_category
     category.parent = parent
     category.level = (parent.level + 1) if parent else 0
-    category.sort_order = sort_order if sort_order is not None else FashionCategory.objects.count() + 1
+    category.sort_order = sort_order if sort_order is not None else _next_fashion_sort_order(root_category, parent, category.fashion_category_id)
     category.image = final_image_path or None
     category.banner_image = final_banner_path or None
     category.description = description or None
