@@ -1271,26 +1271,10 @@ def _build_cart_summary(cart_data):
 # Home page
 
 def home(request):
-    featured_products_queryset = (
-        Product.objects.filter(is_active=True, is_featured=True)
-        .select_related('category', 'subcategory').prefetch_related('productvariant_set')
-        .order_by('-product_id')[:8]
-    )
     categories = Category.objects.order_by('category_id')
-    featured_products = []
     categories_context = []
     home_content = None
     products = Product.objects.none()
-
-    for product in featured_products_queryset:
-        variant = _get_first_variant(product)
-        featured_products.append({
-            'product': product,
-            'image_path': _get_product_image_path(product, variant),
-            'rating_stars': range(int(product.rating)),
-            'has_half_star': (product.rating % 1) >= 0.5,
-            'empty_stars': range(5 - int(product.rating) - (1 if (product.rating % 1) >= 0.5 else 0)),
-        })
 
     try:
         home_content = HomeContent.objects.filter(is_active=True).first()
@@ -1322,7 +1306,6 @@ def home(request):
     background_image = _get_site_asset('home_background', 'images/homebg.jpg')
     return render(request, 'store/home.html', {
         'products': products,
-        'featured_products': featured_products,
         'categories_context': categories_context,
         'logo_image': logo_image,
         'background_image': background_image,
@@ -1338,13 +1321,12 @@ def home(request):
         'nav_home_text': getattr(home_content, 'nav_home_text', None) or 'Home',
         'nav_home_url': getattr(home_content, 'nav_home_url', None) or '/',
         'nav_products_text': getattr(home_content, 'nav_products_text', None) or 'Products',
-        'nav_products_url': getattr(home_content, 'nav_products_url', None) or '#featured-products',
+        'nav_products_url': getattr(home_content, 'nav_products_url', None) or '#categories-section',
         'nav_contact_text': getattr(home_content, 'nav_contact_text', None) or 'Contact Us',
         'nav_contact_url': reverse('contact_html'),
         'nav_login_text': getattr(home_content, 'nav_login_text', None) or 'Login',
         'nav_login_url': getattr(home_content, 'nav_login_url', None) or '/login/',
         'category_section_title': getattr(home_content, 'category_section_title', None) or 'Shop by Category',
-        'featured_section_title': getattr(home_content, 'featured_section_title', None) or 'Featured Products',
         'footer_text': getattr(home_content, 'footer_text', None) or 'All rights reserved.',
         'footer_brand_text': getattr(home_content, 'footer_brand_text', None) or 'ShopEase',
         'footer_builder_text': getattr(home_content, 'footer_builder_text', None) or 'Varshak Shopeasy',
@@ -1412,7 +1394,7 @@ def search_results(request):
         'nav_home_text': getattr(home_content, 'nav_home_text', None) or 'Home',
         'nav_home_url': getattr(home_content, 'nav_home_url', None) or '/',
         'nav_products_text': getattr(home_content, 'nav_products_text', None) or 'Products',
-        'nav_products_url': getattr(home_content, 'nav_products_url', None) or '#featured-products',
+        'nav_products_url': getattr(home_content, 'nav_products_url', None) or '#categories-section',
         'nav_contact_text': getattr(home_content, 'nav_contact_text', None) or 'Contact Us',
         'nav_contact_url': reverse('contact_html'),
         'nav_login_text': getattr(home_content, 'nav_login_text', None) or 'Login',
@@ -3142,7 +3124,7 @@ def admin_control_center(request):
             content_fields = [
                 'hero_subtitle', 'hero_title', 'hero_highlight', 'hero_tagline',
                 'hero_button_text', 'hero_button_url', 'search_placeholder',
-                'search_button_text', 'category_section_title', 'featured_section_title',
+                'search_button_text', 'category_section_title',
                 'footer_text', 'footer_brand_text', 'footer_builder_text',
             ]
             for field in content_fields:
