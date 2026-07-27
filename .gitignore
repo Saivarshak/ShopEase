@@ -7,3 +7,4 @@ staticfiles/
 *.log
 *.sqlite3
 media/uploads/
+data/production-export.json
