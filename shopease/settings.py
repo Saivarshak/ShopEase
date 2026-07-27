@@ -50,9 +50,12 @@ if not SECRET_KEY:
 
 APP_BASE_URL = os.environ.get("APP_BASE_URL", "").strip().rstrip("/")
 ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS = _build_host_security_settings()
-render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
-if render_host and render_host not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append(render_host)
+for platform_host in (
+    os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip(),
+    os.environ.get("KOYEB_PUBLIC_DOMAIN", "").strip(),
+):
+    if platform_host and platform_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(platform_host)
 _default_trusted_origins = APP_BASE_URL if APP_BASE_URL.startswith("https://") else ""
 if _default_trusted_origins and _default_trusted_origins not in CSRF_TRUSTED_ORIGINS:
     CSRF_TRUSTED_ORIGINS.append(_default_trusted_origins)

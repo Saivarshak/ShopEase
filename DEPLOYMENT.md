@@ -2,49 +2,54 @@
 
 ShopEase is a single Django application: it serves the responsive storefront (frontend), backend, API, admin interfaces, static assets, and the payment endpoints from one web service. Product and administrative uploads already use the `UploadedImage` PostgreSQL table, so image uploads persist even though a free web-service filesystem is ephemeral.
 
-## Recommended no-cost starting architecture
+## Recommended no-cost starting architecture (Koyeb)
 
-- Web application: Render free web service, created from `render.yaml`.
-- Database: Neon PostgreSQL free plan (`DATABASE_URL` with `sslmode=require`). This avoids Render's free PostgreSQL database, which expires after 30 days.
-- Domain DNS and edge protections: Cloudflare free DNS (optional but recommended), with Render-managed TLS.
+- Web application: Koyeb free Web Service, deployed from GitHub.
+- Database: Neon PostgreSQL free plan (`DATABASE_URL` with `sslmode=require`).
+- Domain DNS and edge protections: Cloudflare free DNS (optional but recommended), with Koyeb-managed TLS.
 
-Free plans have limits and providers can change them; they are suitable for a low-traffic launch, not a guaranteed production SLA. Monitor the Render and Neon dashboards and upgrade before traffic or storage exceeds the included quotas.
+Free plans have limits and providers can change them; they are suitable for a low-traffic launch, not a guaranteed production SLA. Monitor the Koyeb and Neon dashboards and upgrade before traffic or storage exceeds the included quotas.
 
 ## First deployment
 
-1. In Neon, create a PostgreSQL project and copy its pooled connection string. Keep `sslmode=require` in the URL.
-2. In Render, choose **New > Blueprint**, select this GitHub repository and the `blackboxai/remove-deployment-files` branch, then create the `shopease` service from `render.yaml`.
-3. Enter every Render environment variable marked `sync: false` below. Set `APP_BASE_URL`, `PAYMENT_CALLBACK_BASE_URL`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, and `CORS_ALLOWED_ORIGINS` to the exact public URL before enabling live payments.
-4. Deploy. Render runs migrations and `collectstatic`, then checks `/health/`.
+1. Create a Koyeb account and connect its GitHub integration to this repository. Select the `blackboxai/remove-deployment-files` branch.
+2. Create a **Web Service** in the Frankfurt or Washington, D.C. free region. Use the Buildpack builder and set:
+
+   ```text
+   Build command: pip install -r requirements.production.txt && python manage.py collectstatic --noinput && python manage.py migrate --noinput
+   Run command: gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 --access-logfile - --error-logfile - shopease.wsgi:application
+   Port: 8000, HTTP, route /
+   Health check: /health/
+   ```
+
+3. In Neon, create a PostgreSQL project and copy its pooled connection string. Keep `sslmode=require` in the URL.
+4. In Koyeb, add every environment variable listed below. Initially set `APP_BASE_URL`, `PAYMENT_CALLBACK_BASE_URL`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, and `CORS_ALLOWED_ORIGINS` to the generated `https://<app>.koyeb.app` address; add the permanent domain values after TLS is active.
 5. Import the current local data only over a trusted connection; do not commit a production fixture:
 
    ```powershell
-   # Run locally, outside source control. It includes existing DB-backed uploaded images.
+   # Export current local SQLite data, including DB-backed uploaded images.
    $env:DEBUG='true'; $env:IS_PRODUCTION='false'; $env:DATABASE_URL='sqlite:///C:/Users/saiva/OneDrive/Desktop/Live project Online shoping/db.sqlite3'
    python manage.py dumpdata --natural-foreign --exclude contenttypes --exclude auth.permission --output data/production-export.json
 
-   # In a Render Shell after DATABASE_URL points at Neon:
+   # Point a local Django command at Neon, then initialize and import it.
+   $env:DEBUG='false'; $env:IS_PRODUCTION='true'; $env:DATABASE_URL='<NEON_CONNECTION_STRING>'
+   python manage.py migrate --noinput
    python manage.py loaddata data/production-export.json
    ```
 
-   Upload the fixture through Render Shell/secure file transfer, run `loaddata`, confirm counts, then delete the fixture. The ignored `data/production-export.json` must never be pushed to GitHub.
-6. Create or promote a superuser in Render Shell if the existing admin account was not imported:
-
-   ```powershell
-   python manage.py createsuperuser
-   ```
-
+   Confirm records/images in Neon, then delete the ignored fixture. It must never be pushed to GitHub.
+6. Koyeb will build and deploy from every push to the selected branch. Use its generated `.koyeb.app` URL for the first health check, then attach the custom domain.
 ## Required environment variables
 
 | Variable | Production value |
 | --- | --- |
 | `DEBUG` | `false` |
 | `IS_PRODUCTION` | `true` |
-| `SECRET_KEY` | Render-generated secret; never commit it |
+| `SECRET_KEY` | A Koyeb secret value; never commit it |
 | `DATABASE_URL` | Neon PostgreSQL URL ending in `sslmode=require` |
 | `APP_BASE_URL` | `https://your-domain.example` |
 | `PAYMENT_CALLBACK_BASE_URL` | `https://your-domain.example` |
-| `ALLOWED_HOSTS` | `your-domain.example,www.your-domain.example,shopease.onrender.com` |
+| `ALLOWED_HOSTS` | `your-domain.example,www.your-domain.example,<app>.koyeb.app` |
 | `CSRF_TRUSTED_ORIGINS` | `https://your-domain.example,https://www.your-domain.example` |
 | `CORS_ALLOWED_ORIGINS` | Same as CSRF origins; leave no extra domains |
 | `RAZORPAY_MODE` | `live` only after the live setup below |
@@ -58,22 +63,21 @@ Useful optional variables are `LOG_LEVEL=INFO`, `MAX_UPLOAD_IMAGE_BYTES=10485760
 
 ## Custom domain and DNS
 
-1. In Render's service settings, add the root domain or `www` domain under **Custom Domains**.
-2. For Namecheap/most DNS providers, remove conflicting `AAAA` records and add:
+1. In Koyeb's **Domains** page, add `www.your-domain.example` and attach it to the Koyeb app.
+2. For the Koyeb-supported subdomain, add the exact CNAME Koyeb displays:
 
    | Type | Name | Target |
    | --- | --- | --- |
-   | A | `@` | `216.24.57.1` |
-   | CNAME | `www` | the exact Render service hostname, such as `shopease.onrender.com` |
+   | CNAME | `www` | the exact Koyeb target, such as `your-org-uuid.cname.koyeb.app` |
 
-   For Cloudflare DNS, create CNAME records for `@` and `www` to the exact Render hostname and keep them **DNS only** until Render verifies the certificate. Use Cloudflare SSL mode **Full**.
-3. Click **Verify** in Render. Render automatically issues and renews HTTPS certificates and redirects HTTP to HTTPS.
-4. Update the five URL/host variables above, Razorpay callback/webhook URLs, and Google OAuth redirect URI. Re-deploy and test both apex and `www`; Render redirects one to the canonical domain.
+   For the apex domain, redirect `your-domain.example` to `www.your-domain.example` at your DNS/domain provider; Koyeb custom-domain setup uses a CNAME for the subdomain. Keep Cloudflare records **DNS only** until validation completes.
+3. Click **Refresh** in Koyeb. Koyeb automatically provisions TLS for the configured domain.
+4. Update the five URL/host variables above, Razorpay callback/webhook URLs, and Google OAuth redirect URI. Re-deploy and test both apex and `www`; keep the apex-to-`www` redirect at the DNS/domain provider.
 
 ## Razorpay go-live
 
 1. Complete Razorpay account activation/KYC and switch the dashboard to **Live** mode.
-2. Add `rzp_live_...` credentials and set `RAZORPAY_MODE=live` in Render. Never expose the key secret in frontend code.
+2. Add `rzp_live_...` credentials and set `RAZORPAY_MODE=live` in Koyeb. Never expose the key secret in frontend code.
 3. Add webhook URL `https://your-domain.example/payment/webhook/`, set a strong webhook secret, and subscribe to `payment.captured`, `payment.failed`, `order.paid`, and `payment_link.paid`.
 4. In Razorpay Dashboard, set the website/callback URLs to the custom HTTPS domain. If Google sign-in is enabled, add `https://your-domain.example/auth/complete/google-oauth2/` to Google Cloud OAuth redirect URIs.
 5. Make one small live payment, confirm it is verified, the `Order` record stores Razorpay IDs/status, stock/cart state changes, and the Razorpay webhook is delivered. Refund the test payment where appropriate.
@@ -87,7 +91,7 @@ Useful optional variables are `LOG_LEVEL=INFO`, `MAX_UPLOAD_IMAGE_BYTES=10485760
 - [ ] Static assets return compressed/cacheable responses; uploaded database assets are accessible.
 - [ ] Razorpay successful, failed, cancelled/closed, and webhook flows set the expected order status.
 - [ ] Chrome, Firefox, Edge, Safari, Android, iPhone, and tablet smoke tests pass at the custom domain.
-- [ ] Render/Neon logs show no application errors and backup/export procedure is documented.
+- [ ] Koyeb/Neon logs show no application errors and backup/export procedure is documented.
 
 ## URLs after completion
 
