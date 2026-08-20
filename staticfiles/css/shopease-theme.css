@@ -1,0 +1,242 @@
+/* ShopEase global pink + blue glassmorphism theme */
+:root {
+  --se-ink: #24315c;
+  --se-navy: #172554;
+  --se-blue: #2563eb;
+  --se-sky: #38bdf8;
+  --se-pink: #ec4899;
+  --se-pink-dark: #be185d;
+  --se-lavender: #818cf8;
+  --se-surface: rgba(255, 255, 255, 0.64);
+  --se-surface-strong: rgba(255, 255, 255, 0.82);
+  --se-border: rgba(255, 255, 255, 0.72);
+  --se-shadow: 0 20px 55px rgba(37, 99, 235, 0.13);
+}
+
+html { min-height: 100%; }
+
+body:not(.contact-page) {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: var(--se-ink);
+  background:
+    radial-gradient(circle at 8% 10%, rgba(56, 189, 248, 0.26), transparent 27%),
+    radial-gradient(circle at 93% 13%, rgba(236, 72, 153, 0.22), transparent 25%),
+    radial-gradient(circle at 48% 100%, rgba(129, 140, 248, 0.20), transparent 34%),
+    linear-gradient(135deg, #eff6ff 0%, #fdf2f8 48%, #eef2ff 100%) !important;
+}
+
+body:not(.contact-page)::before,
+body:not(.contact-page)::after {
+  position: fixed;
+  z-index: -1;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  content: "";
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+body:not(.contact-page)::before {
+  top: 22%;
+  left: -135px;
+  background: rgba(37, 99, 235, 0.16);
+}
+
+body:not(.contact-page)::after {
+  right: -125px;
+  bottom: 9%;
+  background: rgba(236, 72, 153, 0.15);
+}
+
+/* Shared headers and navigation surfaces */
+body:not(.contact-page) header,
+body:not(.contact-page) .header,
+body:not(.contact-page) .topbar,
+body:not(.contact-page) .top-header {
+  border-color: rgba(255, 255, 255, 0.72) !important;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.64), rgba(219, 234, 254, 0.48), rgba(252, 231, 243, 0.54)) !important;
+  box-shadow: 0 12px 34px rgba(37, 99, 235, 0.10) !important;
+  backdrop-filter: blur(20px) saturate(135%);
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+}
+
+body:not(.contact-page) header a,
+body:not(.contact-page) .header a,
+body:not(.contact-page) .topbar a,
+body:not(.contact-page) .top-header a {
+  transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+body:not(.contact-page) header a:hover,
+body:not(.contact-page) .header a:hover,
+body:not(.contact-page) .topbar a:hover,
+body:not(.contact-page) .top-header a:hover {
+  color: var(--se-pink-dark) !important;
+}
+
+/* Glass surfaces: keep product images and important content separated */
+body:not(.contact-page) .card,
+body:not(.contact-page) .panel,
+body:not(.contact-page) .product-card,
+body:not(.contact-page) .product,
+body:not(.contact-page) .form-card,
+body:not(.contact-page) .summary-card,
+body:not(.contact-page) .order-card,
+body:not(.contact-page) .content-card,
+body:not(.contact-page) .glass {
+  border-color: var(--se-border) !important;
+  background: var(--se-surface) !important;
+  box-shadow: var(--se-shadow) !important;
+  backdrop-filter: blur(18px) saturate(125%);
+  -webkit-backdrop-filter: blur(18px) saturate(125%);
+}
+
+body:not(.contact-page) .card:hover,
+body:not(.contact-page) .product-card:hover,
+body:not(.contact-page) .product:hover {
+  border-color: rgba(236, 72, 153, 0.34) !important;
+  box-shadow: 0 24px 60px rgba(236, 72, 153, 0.15) !important;
+  transform: translateY(-3px);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+/* Forms and inputs */
+body:not(.contact-page) input,
+body:not(.contact-page) select,
+body:not(.contact-page) textarea {
+  border-color: rgba(37, 99, 235, 0.24) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  color: var(--se-ink) !important;
+  border-radius: 12px;
+}
+
+body:not(.contact-page) input:focus,
+body:not(.contact-page) select:focus,
+body:not(.contact-page) textarea:focus {
+  border-color: var(--se-pink) !important;
+  box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.14), 0 0 22px rgba(56, 189, 248, 0.14) !important;
+  outline: none;
+}
+
+/* Buttons: black-and-white defaults with soft, readable hover states */
+body:not(.contact-page) button:not(.danger):not(.btn-danger),
+body:not(.contact-page) input[type="submit"],
+body:not(.contact-page) input[type="button"],
+body:not(.contact-page) .btn:not(.danger):not(.btn-danger),
+body:not(.contact-page) .button:not(.danger):not(.btn-danger),
+body:not(.contact-page) a.bg-black,
+body:not(.contact-page) button.bg-black,
+body:not(.contact-page) input.bg-black {
+  border-color: #000 !important;
+  background: #000 !important;
+  color: #fff !important;
+  box-shadow: 0 7px 18px rgba(15, 23, 42, 0.16) !important;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+body:not(.contact-page) button:not(.danger):not(.btn-danger):hover,
+body:not(.contact-page) input[type="submit"]:hover,
+body:not(.contact-page) input[type="button"]:hover,
+body:not(.contact-page) .btn:not(.danger):not(.btn-danger):hover,
+body:not(.contact-page) .button:not(.danger):not(.btn-danger):hover,
+body:not(.contact-page) a.bg-black:hover,
+body:not(.contact-page) button.bg-black:hover,
+body:not(.contact-page) input.bg-black:hover {
+  border-color: rgba(147, 197, 253, 0.9) !important;
+  background: linear-gradient(135deg, #fce7f3 0%, #dbeafe 100%) !important;
+  color: #1f2937 !important;
+  box-shadow: 0 12px 24px rgba(147, 197, 253, 0.24), 0 8px 18px rgba(244, 114, 182, 0.16) !important;
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* Add Wishlist is the one non-standard action; Remove Wishlist remains black. */
+body:not(.contact-page) .wishlist-btn:not(.active) {
+  border-color: #eab308 !important;
+  background: #facc15 !important;
+  color: #000 !important;
+}
+
+body:not(.contact-page) .wishlist-btn:not(.active):hover {
+  border-color: rgba(147, 197, 253, 0.9) !important;
+  background: linear-gradient(135deg, #fef9c3 0%, #dbeafe 100%) !important;
+  color: #1f2937 !important;
+}
+
+/* Common text and utility overrides that remove harsh black styling */
+body:not(.contact-page) .text-black,
+body:not(.contact-page) [class*="text-gray-900"],
+body:not(.contact-page) [class*="text-slate-900"] {
+  color: var(--se-navy) !important;
+}
+
+body:not(.contact-page) .bg-black {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+body:not(.contact-page) .border-black {
+  border-color: rgba(37, 99, 235, 0.24) !important;
+}
+
+body:not(.contact-page) a:focus-visible,
+body:not(.contact-page) button:focus-visible,
+body:not(.contact-page) input:focus-visible,
+body:not(.contact-page) select:focus-visible,
+body:not(.contact-page) textarea:focus-visible {
+  outline: 3px solid rgba(236, 72, 153, 0.45);
+  outline-offset: 3px;
+}
+
+/* Keep the subcategory title surface tight to the title text, not the full header. */
+body:not(.contact-page).subcategory-listing-page header,
+body:not(.contact-page).root-category-page header {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body:not(.contact-page).subcategory-listing-page header h1,
+body:not(.contact-page).root-category-page header h1 {
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  background: #fff !important;
+  color: #000 !important;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08) !important;
+}
+
+@media (max-width: 760px) {
+  body:not(.contact-page) header,
+  body:not(.contact-page) .header,
+  body:not(.contact-page) .topbar,
+  body:not(.contact-page) .top-header {
+    backdrop-filter: blur(16px) saturate(125%);
+    -webkit-backdrop-filter: blur(16px) saturate(125%);
+  }
+}
+
+@media (max-width: 760px) {
+  body:not(.contact-page).subcategory-listing-page header,
+  body:not(.contact-page).root-category-page header {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:not(.contact-page) .card:hover,
+  body:not(.contact-page) .product-card:hover,
+  body:not(.contact-page) .product:hover,
+  body:not(.contact-page) button,
+  body:not(.contact-page) a {
+    transition: none !important;
+    transform: none !important;
+  }
+}

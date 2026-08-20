@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory Management</title>
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#f3f6fb; color:#111827; }
+    .header { background:#000; color:#fff; padding:16px 28px; display:flex; justify-content:space-between; }
+    .header a { color:#fff; text-decoration:none; }
+    .wrap { max-width:1180px; margin:32px auto; padding:0 20px; }
+    .table-card { background:#fff; border-radius:12px; padding:18px; box-shadow:0 14px 40px rgba(0,0,0,.08); overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:14px 12px; border-bottom:1px solid #e5e7eb; text-align:left; }
+    th { font-size:12px; color:#475467; text-transform:uppercase; }
+    .badge { display:inline-block; border-radius:999px; padding:4px 9px; font-size:12px; font-weight:700; }
+    .ok { background:#ecfdf3; color:#027a48; }
+    .low { background:#fff7ed; color:#b54708; }
+    .out { background:#fef3f2; color:#b42318; }
+    .btn { display:inline-block; border-radius:999px; background:#000; color:#fff; padding:9px 13px; text-decoration:none; font-weight:700; }
+  </style>
+</head>
+<body>
+  <div class="header"><div>Inventory Management</div><a href="{% url 'admin_control_center' %}">Dashboard</a></div>
+  <main class="wrap">
+    <h1>Inventory</h1>
+    <p>Low stock alerts are shown for variants with {{ low_stock_threshold }} or fewer units.</p>
+    <div class="table-card">
+      <table>
+        <thead><tr><th>Product</th><th>Category</th><th>Size</th><th>Color</th><th>Stock</th><th>Availability</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for variant in variants %}
+            <tr>
+              <td>{{ variant.product.product_name }}</td>
+              <td>{{ variant.product.category.category_name }} / {{ variant.product.subcategory.subcategory_name }}</td>
+              <td>{{ variant.size|default:"Free Size" }}</td>
+              <td>{{ variant.color|default:"-" }}</td>
+              <td>{{ variant.quantity }}</td>
+              <td>
+                {% if variant.quantity <= 0 %}
+                  <span class="badge out">Out of Stock</span>
+                {% elif variant.quantity <= low_stock_threshold %}
+                  <span class="badge low">Low Stock</span>
+                {% else %}
+                  <span class="badge ok">Available</span>
+                {% endif %}
+              </td>
+              <td><a class="btn" href="{% url 'admin_product_edit' variant.product.product_id %}">Edit Stock</a></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="7" style="text-align:center;padding:32px;">No inventory records available.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

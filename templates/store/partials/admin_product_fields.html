@@ -1,0 +1,114 @@
+{% load store_assets %}
+<form method="post" action="{% if product_id %}{% url action_url product_id %}{% else %}{% url action_url %}{% endif %}" enctype="multipart/form-data" data-admin-ajax="product">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{% url 'admin_control_center' %}">
+
+  <div class="form-grid">
+    <div class="field">
+      <label>Product Name</label>
+      <input type="text" name="product_name" value="{{ product.product_name|default:'' }}" required>
+    </div>
+    <div class="field">
+      <label>Brand</label>
+      <input type="text" name="brand" value="{{ product.brand|default:'' }}">
+    </div>
+    <div class="field">
+      <label>Gender</label>
+      <select name="category_id" required>
+        <option value="">Select category</option>
+        {% for category in categories %}
+          <option value="{{ category.category_id }}" {% if product and product.category_id == category.category_id %}selected{% endif %}>{{ category.category_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label>Legacy Subcategory</label>
+      <select name="subcategory_id" required>
+        <option value="">Select subcategory</option>
+        {% for subcategory in subcategories %}
+          <option value="{{ subcategory.subcategory_id }}" {% if product and product.subcategory_id == subcategory.subcategory_id %}selected{% endif %}>{{ subcategory.category.category_name }} - {{ subcategory.subcategory_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field full">
+      <label>Storefront Sub Category</label>
+      <select name="fashion_category_id">
+        <option value="">Use legacy category only</option>
+        {% for fashion_category in fashion_categories %}
+          <option value="{{ fashion_category.fashion_category_id }}" {% if product and product.fashion_category_id == fashion_category.fashion_category_id %}selected{% endif %}>{{ fashion_category.full_path }}</option>
+        {% endfor %}
+      </select>
+      <small>Choose a leaf path like Men > Casual Wear > T-Shirts. This controls the customer listing and product detail route.</small>
+    </div>
+    <div class="field">
+      <label>SKU</label>
+      <input type="text" name="sku" value="{{ product.sku|default:'' }}" required>
+    </div>
+    <div class="field">
+      <label>Price</label>
+      <input type="number" step="0.01" name="price" value="{{ product.price|default:'' }}" required>
+    </div>
+    <div class="field">
+      <label>Discount Percent</label>
+      <input type="number" step="0.01" name="discount_percent" value="{{ product.discount_percent|default:'0' }}">
+    </div>
+    <div class="field">
+      <label>Stock Quantity</label>
+      <input type="number" name="quantity" min="0" value="{{ variant.quantity|default:'0' }}">
+    </div>
+    <div class="field">
+      <label>Size</label>
+      <input type="text" name="size" value="{{ variant.size|default:'' }}">
+    </div>
+    <div class="field">
+      <label>Color</label>
+      <input type="text" name="color" value="{{ variant.color|default:'' }}">
+    </div>
+    <div class="field full">
+      <label>Multiple Sizes and Quantities</label>
+      <textarea name="size_quantities" placeholder="S: 5&#10;M: 8&#10;L: 2"></textarea>
+    </div>
+    <div class="field full">
+      <label>Description</label>
+      <textarea name="description">{{ product.description|default:'' }}</textarea>
+    </div>
+    <div class="field">
+      <label>Image 1 Filename</label>
+      {% if variant.image1 %}<img class="preview" data-preview-image src="{% asset_src variant.image1 %}" alt="Image 1 preview">{% else %}<img class="preview" data-preview-image src="{% asset_src 'images/placeholder.svg' %}" alt="Image 1 preview">{% endif %}
+      <input type="text" name="image1" value="{{ variant.image1|default:'' }}" placeholder="example.jpg">
+      <input type="file" name="image1_upload" accept="image/jpeg,image/png,image/webp" data-preview-input>
+    </div>
+    <div class="field">
+      <label>Image 2 Filename</label>
+      {% if variant.image2 %}<img class="preview" data-preview-image src="{% asset_src variant.image2 %}" alt="Image 2 preview">{% else %}<img class="preview" data-preview-image src="{% asset_src 'images/placeholder.svg' %}" alt="Image 2 preview">{% endif %}
+      <input type="text" name="image2" value="{{ variant.image2|default:'' }}" placeholder="example.jpg">
+      <input type="file" name="image2_upload" accept="image/jpeg,image/png,image/webp" data-preview-input>
+    </div>
+    <div class="field">
+      <label>Image 3 Filename</label>
+      {% if variant.image3 %}<img class="preview" data-preview-image src="{% asset_src variant.image3 %}" alt="Image 3 preview">{% else %}<img class="preview" data-preview-image src="{% asset_src 'images/placeholder.svg' %}" alt="Image 3 preview">{% endif %}
+      <input type="text" name="image3" value="{{ variant.image3|default:'' }}" placeholder="example.jpg">
+      <input type="file" name="image3_upload" accept="image/jpeg,image/png,image/webp" data-preview-input>
+    </div>
+    <div class="field">
+      <label>Image 4 Filename</label>
+      {% if variant.image4 %}<img class="preview" data-preview-image src="{% asset_src variant.image4 %}" alt="Image 4 preview">{% else %}<img class="preview" data-preview-image src="{% asset_src 'images/placeholder.svg' %}" alt="Image 4 preview">{% endif %}
+      <input type="text" name="image4" value="{{ variant.image4|default:'' }}" placeholder="example.jpg">
+      <input type="file" name="image4_upload" accept="image/jpeg,image/png,image/webp" data-preview-input>
+    </div>
+    <div class="field">
+      <label style="display:flex;gap:8px;align-items:center;">
+        <input style="width:auto;" type="checkbox" name="is_active" {% if product.is_active or not product %}checked{% endif %}>
+        Active Product
+      </label>
+    </div>
+    <div class="field">
+      <label style="display:flex;gap:8px;align-items:center;">
+        <input style="width:auto;" type="checkbox" name="is_featured" {% if product.is_featured %}checked{% endif %}>
+        Featured Product
+      </label>
+    </div>
+  </div>
+
+  <button class="btn" type="submit">{{ submit_label }}</button>
+</form>

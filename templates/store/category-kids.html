@@ -1,0 +1,267 @@
+{% load static store_assets %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>ShopEase - Kids</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barriecito&display=swap" rel="stylesheet">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                brandPink: '#000000',
+                brandCoral: '#000000',
+                brandDark: '#000000',
+                brandMuted: '#333333',
+                brandLight: '#ffffff',
+                beige: '#eaba83ff'
+            }
+        }
+    }
+}
+</script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,
+body{
+    height:100%;
+    overflow:hidden;
+    font-family:'Inter',sans-serif;
+}
+
+body{
+    background-image:url('{{ page_background_url }}');
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+    display:flex;
+    flex-direction:column;
+}
+
+/* HEADER */
+.topbanner{
+    background:rgba(255,255,255,0.28);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+    border-bottom:1px solid rgba(255,255,255,0.2);
+    flex-shrink:0;
+}
+
+/* FOOTER */
+.footersection{
+    background:rgba(255,255,255,0.28);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+    border-top:1px solid rgba(255,255,255,0.2);
+    flex-shrink:0;
+}
+
+/* SCROLL AREA */
+.scroll-container{
+    flex:1;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:20px;
+
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+.scroll-container::-webkit-scrollbar{
+    display:none;
+}
+
+.cards-container{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border-radius:20px;
+    padding:20px;
+    width:fit-content;
+    max-width:100%;
+}
+
+/* ⭐ UNIFIED GLASS CARD (same as Men/Women) */
+.card{
+    background:rgba(255,255,255,0.22);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.15);
+    transition:all 0.3s ease;
+}
+
+.card:hover{
+    transform:translateY(-5px) scale(1.03);
+}
+
+/* Keep the card group compact so the page background remains visible. */
+.gallery-side{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:100%;
+}
+
+.gallery-grid{
+    display:grid;
+    grid-template-columns:repeat(1,minmax(0,1fr));
+    gap:clamp(1rem,2vw,2rem);
+    width:fit-content;
+    max-width:100%;
+    margin-inline:auto;
+}
+
+.gallery-card{
+    width:clamp(200px,18vw,280px);
+    max-width:100%;
+    min-width:0;
+}
+
+@media (min-width:640px){
+    .gallery-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+}
+
+@media (min-width:768px){
+    .gallery-grid{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+}
+
+@media (min-width:1024px){
+    .gallery-side-right{
+        align-items:flex-end;
+    }
+
+    .gallery-grid{
+        grid-template-columns:repeat(4,minmax(0,1fr));
+        margin-inline:0;
+    }
+}
+
+/* TEXT */
+.mainheading{
+    font-family:"Barriecito",system-ui;
+}
+
+.maintenance-badge{
+    background:rgba(255,193,7,0.25);
+    color:#7a5600;
+    backdrop-filter:blur(10px);
+}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="root-category-page text-brandDark">
+
+<!-- HEADER -->
+<header class="topbanner shadow-md py-4">
+    <div class="max-w-7xl mx-auto px-4 flex flex-wrap sm:flex-nowrap justify-between items-center gap-3">
+
+        <a href="/" class="flex-shrink-0">
+            <img src="{% static logo_image %}"
+                 alt="ShopEase Logo"
+                 class="h-10 sm:h-14 md:h-16 w-auto">
+        </a>
+
+        <h1 class="text-lg sm:text-2xl font-bold mainheading text-center w-full sm:w-auto">
+            Kids Collection
+        </h1>
+
+        <a href="/"
+           class="bg-black hover:bg-emerald-600 text-white px-3 py-2 rounded-full text-xs sm:text-sm md:text-base transition">
+            ← Back to Home
+        </a>
+
+    </div>
+</header>
+
+<!-- SCROLL AREA -->
+<div class="scroll-container">
+
+    <section class="gallery-page-shell px-4 sm:px-6 py-10">
+
+        <h2 class="text-2xl sm:text-3xl font-semibold text-center mb-10">
+            Kids Gallery
+        </h2>
+
+        <div class="gallery-side gallery-side-right">
+            <div class="cards-container">
+                <div class="gallery-grid">
+
+            {% for item in kids_categories %}
+
+            <a href="{{ item.page_url }}"
+               class="gallery-card card rounded-xl overflow-hidden shadow-lg">
+
+                <img src="{% asset_src item.image_path %}"
+                     alt="{{ item.name }}"
+                     class="w-full h-56 object-cover"
+                     loading="lazy">
+
+                <div class="p-5">
+
+                    <div class="flex items-center justify-between gap-2">
+
+                        <h3 class="text-lg font-semibold">
+                            {{ item.name }}
+                        </h3>
+
+                        {% if item.is_under_maintenance %}
+                        <span class="maintenance-badge text-xs font-bold px-2 py-1 rounded-full">
+                            Maintenance
+                        </span>
+                        {% endif %}
+
+                    </div>
+
+                    <p class="text-sm mt-3 text-gray-700">
+                        {{ item.description }}
+                    </p>
+
+                </div>
+
+            </a>
+
+            {% empty %}
+
+            <div class="col-span-full bg-white/30 backdrop-blur-xl rounded-xl p-8 text-center">
+                <p>No kids categories found in the database.</p>
+            </div>
+
+            {% endfor %}
+
+        </div></div></div>
+
+    </section>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footersection py-6 text-center text-sm sm:text-base">
+    <div class="w-full px-4 sm:px-10">
+        &copy; 2026 <strong>ShopEase</strong>. All rights reserved. |
+        Built by <span class="font-semibold text-black">Varshak Shopeasy</span>
+    </div>
+</footer>
+  {% include 'store/partials/instagram_corner.html' %}
+</body>
+</html>

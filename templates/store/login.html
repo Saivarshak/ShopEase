@@ -1,0 +1,591 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>ShopEase Login</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      font-family:'Poppins',sans-serif;
+
+      min-height:100vh;
+      min-height:100svh;
+      width:100%;
+
+      display:flex;
+      justify-content:center;
+      align-items:center;
+
+      padding:clamp(16px,4vw,32px);
+
+      background-image:url("{% static 'images/loginbg.jpg' %}");
+      background-size:cover;
+      background-position:center;
+      background-repeat:no-repeat;
+      background-attachment:fixed;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:linear-gradient(135deg,rgba(0,0,0,0.35),rgba(0,0,0,0.08));
+      pointer-events:none;
+    }
+
+    /* =========================
+       MAIN CONTAINER
+    ========================== */
+    .main-container{
+      width:100%;
+      max-width:min(450px,100%);
+
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+
+      position:relative;
+      z-index:1;
+    }
+
+    /* =========================
+       LOGO
+    ========================== */
+    .logo-container{
+      width:100%;
+
+      display:flex;
+      justify-content:center;
+
+      margin-bottom:clamp(14px,3vw,20px);
+    }
+
+    .logo{
+      width:90px;
+      height:90px;
+      object-fit:contain;
+    }
+
+    /* =========================
+       GLASS CARD
+    ========================== */
+    .container{
+      width:100%;
+
+      border-radius:24px;
+
+      overflow:hidden;
+
+      background:rgba(255,255,255,0.10);
+
+      border:1px solid rgba(255,255,255,0.18);
+
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+
+      box-shadow:0 8px 32px rgba(0,0,0,0.25);
+    }
+
+    /* =========================
+       FORM SECTION
+    ========================== */
+    .form-section{
+      width:100%;
+
+      padding:clamp(30px,7vw,50px) clamp(22px,6vw,40px);
+
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+
+    /* =========================
+       HEADING
+    ========================== */
+    .form-section h2{
+      font-size:clamp(30px,8vw,42px);
+      font-weight:700;
+
+      color:#ffffff;
+
+      text-align:center;
+
+      margin-bottom:35px;
+
+      line-height:1.2;
+    }
+
+    /* =========================
+       MESSAGE
+    ========================== */
+    .message{
+      margin-bottom:18px;
+
+      padding:12px 14px;
+
+      border-radius:12px;
+
+      background:rgba(255,255,255,0.12);
+
+      color:#ffffff;
+
+      font-size:14px;
+
+      border:1px solid rgba(255,255,255,0.15);
+    }
+
+    .message.success{
+      background:rgba(22,163,74,0.9);
+      border-color:rgba(187,247,208,0.55);
+      box-shadow:0 14px 35px rgba(22,163,74,0.2);
+    }
+
+    .toast-stack{
+      position:fixed;
+      top:16px;
+      right:16px;
+      z-index:5;
+      width:min(340px,calc(100vw - 32px));
+    }
+
+    .toast-message{
+      padding:14px 16px;
+      border-radius:12px;
+      background:#16a34a;
+      border:1px solid rgba(187,247,208,0.6);
+      color:#ffffff;
+      font-weight:700;
+      box-shadow:0 18px 45px rgba(0,0,0,0.22);
+      opacity:1;
+      transform:translateY(0);
+      transition:opacity 0.35s ease,transform 0.35s ease;
+    }
+
+    .toast-message.is-hiding{
+      opacity:0;
+      transform:translateY(-8px);
+    }
+
+    /* =========================
+       FORM GROUP
+    ========================== */
+    .form-group{
+      margin-bottom:22px;
+    }
+
+    .form-group label{
+      display:block;
+
+      margin-bottom:8px;
+
+      color:#ffffff;
+
+      font-size:14px;
+      font-weight:500;
+    }
+
+    /* =========================
+       INPUT
+    ========================== */
+    .form-group input{
+      width:100%;
+
+      padding:15px 18px;
+
+      border:none;
+
+      border-radius:14px;
+
+      background:rgba(255,255,255,0.12);
+
+      border:1px solid rgba(255,255,255,0.15);
+
+      color:#ffffff;
+
+      font-size:15px;
+
+      outline:none;
+
+      transition:0.3s ease;
+    }
+
+    .form-group input::placeholder{
+      color:rgba(255,255,255,0.75);
+    }
+
+    .form-group input:focus{
+      border-color:rgba(255,255,255,0.4);
+
+      box-shadow:0 0 0 4px rgba(255,255,255,0.10);
+    }
+
+    /* =========================
+       BUTTON
+    ========================== */
+    .btn-login{
+      width:100%;
+
+      padding:15px;
+
+      border:none;
+      border-radius:14px;
+
+      background:rgba(255,255,255,0.18);
+
+      color:#ffffff;
+
+      font-size:16px;
+      font-weight:600;
+
+      cursor:pointer;
+
+      margin-top:10px;
+
+      transition:0.3s ease;
+    }
+
+    .btn-login:hover{
+      background:rgba(255,255,255,0.28);
+
+      transform:translateY(-2px);
+    }
+
+    /* =========================
+       REGISTER TEXT
+    ========================== */
+    .register-text{
+      margin-top:22px;
+
+      text-align:center;
+
+      color:#ffffff;
+
+      font-size:14px;
+    }
+
+    .register-text a{
+      color:#ffffff;
+
+      font-weight:600;
+
+      text-decoration:none;
+    }
+
+    .register-text a:hover{
+      text-decoration:underline;
+    }
+
+    /* =========================
+       DIVIDER
+    ========================== */
+    .divider{
+      display:flex;
+      align-items:center;
+      margin:18px 0;
+    }
+    .divider::before,
+    .divider::after{
+      content:"";
+      flex:1;
+      height:1px;
+      background:rgba(255,255,255,0.20);
+    }
+    .divider span{
+      padding:0 12px;
+      color:rgba(255,255,255,0.70);
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    /* =========================
+       GOOGLE BUTTON
+    ========================== */
+    .btn-google{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:14px;
+      border:1px solid rgba(255,255,255,0.20);
+      border-radius:14px;
+      background:#ffffff;
+      color:#444444;
+      font-size:15px;
+      font-weight:600;
+      cursor:pointer;
+      transition:0.3s ease;
+      text-decoration:none;
+    }
+    .btn-google:hover{
+      background:#f8f8f8;
+      transform:translateY(-2px);
+      box-shadow:0 6px 20px rgba(0,0,0,0.15);
+    }
+    .btn-google svg{
+      width:22px;
+      height:22px;
+      flex-shrink:0;
+    }
+
+    /* =========================
+       TABLET
+    ========================== */
+    @media (max-width:768px){
+
+      body{
+        padding:24px 18px;
+
+        justify-content:center;
+        align-items:center;
+        background-attachment:scroll;
+      }
+
+      .main-container{
+        max-width:420px;
+      }
+
+      .form-section{
+        padding:38px 28px;
+      }
+
+      .form-section h2{
+        margin-bottom:30px;
+      }
+    }
+
+    /* =========================
+       MOBILE
+    ========================== */
+    @media (max-width:576px){
+
+      body{
+        padding:18px 14px;
+
+        display:flex;
+        justify-content:center;
+        align-items:center;
+      }
+
+      .main-container{
+        width:100%;
+        max-width:360px;
+
+        margin:auto;
+
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+      }
+
+      .logo-container{
+        justify-content:center;
+      }
+
+      .logo{
+        width:75px;
+        height:75px;
+      }
+
+      .container{
+        width:100%;
+        border-radius:20px;
+      }
+
+      .form-section{
+        padding:30px 20px;
+      }
+
+      .form-section h2{
+        font-size:30px;
+
+        text-align:center;
+
+        margin-bottom:28px;
+      }
+
+      .form-group label{
+        font-size:13px;
+      }
+
+      .form-group input{
+        padding:14px;
+        font-size:14px;
+      }
+
+      .btn-login{
+        padding:14px;
+        font-size:15px;
+      }
+
+      .register-text{
+        font-size:13px;
+      }
+
+      .toast-stack{
+        left:14px;
+        right:14px;
+        width:auto;
+      }
+    }
+
+    @media (max-width:380px){
+      .form-section{
+        padding:26px 16px;
+      }
+
+      .logo{
+        width:68px;
+        height:68px;
+      }
+    }
+
+  </style>
+  <link rel="stylesheet" href="{% static 'css/shopease-theme.css' %}">
+</head>
+
+<body>
+
+  <div class="main-container">
+
+    <!-- Logo -->
+    <div class="logo-container">
+      <img
+        src="{% static 'images/logo1.png' %}"
+        alt="Logo"
+        class="logo"
+      />
+    </div>
+
+    <!-- Login Card -->
+    <div class="container">
+
+      <form
+        class="form-section"
+        method="post"
+        action="{% url 'login' %}"
+      >
+
+        {% csrf_token %}
+
+        <input type="hidden" name="next" value="{{ next_url }}">
+
+        <h2>Welcome Back!</h2>
+
+        <!-- Messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="message {{ message.tags }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Email -->
+        <div class="form-group">
+
+          <label for="email">
+            Email Address
+          </label>
+
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+          />
+
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+
+          <label for="password">
+            Password
+          </label>
+
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+          />
+
+        </div>
+
+        <!-- Login Button -->
+        <button type="submit" class="btn-login">
+          Login
+        </button>
+
+        <!-- Divider -->
+        <div class="divider">
+          <span>or continue with</span>
+        </div>
+
+        <!-- Google Sign-In Button -->
+        <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ next_url }}" class="btn-google">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#EA4335" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          Sign in with Google
+        </a>
+
+        <!-- Register -->
+        <p class="register-text">
+          New user?
+          <a href="{% url 'register' %}?next={{ next_url }}">
+            Create account
+          </a>
+        </p>
+
+      </form>
+
+    </div>
+
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      {% if message.tags == 'success' %}
+      <div class="toast-stack" aria-live="polite" aria-atomic="true">
+        <div class="toast-message" role="status">{{ message }}</div>
+      </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  <script>
+    document.querySelectorAll(".toast-message").forEach((toast) => {
+      setTimeout(() => {
+        toast.classList.add("is-hiding");
+        setTimeout(() => toast.remove(), 350);
+      }, 3500);
+    });
+  </script>
+  {% include 'store/partials/instagram_corner.html' %}
+</body>
+</html>

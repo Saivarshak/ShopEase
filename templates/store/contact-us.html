@@ -1,0 +1,466 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - ShopEase</title>
+  <style>
+    :root {
+      --navy: #172554;
+      --blue: #2563eb;
+      --blue-bright: #38bdf8;
+      --pink: #ec4899;
+      --pink-soft: #f9a8d4;
+      --ink: #24315c;
+      --muted: #5d6b93;
+      --white-glass: rgba(255, 255, 255, 0.64);
+      --white-soft: rgba(255, 255, 255, 0.42);
+      --white-border: rgba(255, 255, 255, 0.72);
+      --shadow: 0 24px 70px rgba(37, 99, 235, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background:
+        radial-gradient(circle at 8% 12%, rgba(56, 189, 248, 0.28), transparent 28%),
+        radial-gradient(circle at 92% 14%, rgba(236, 72, 153, 0.24), transparent 26%),
+        radial-gradient(circle at 52% 100%, rgba(129, 140, 248, 0.22), transparent 32%),
+        linear-gradient(135deg, #eff6ff 0%, #fdf2f8 48%, #eef2ff 100%);
+    }
+
+    body::before,
+    body::after {
+      position: fixed;
+      z-index: -1;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      content: "";
+      filter: blur(42px);
+      pointer-events: none;
+    }
+
+    body::before {
+      top: 18%;
+      left: -100px;
+      background: rgba(37, 99, 235, 0.22);
+    }
+
+    body::after {
+      right: -90px;
+      bottom: 8%;
+      background: rgba(236, 72, 153, 0.2);
+    }
+
+    a { color: inherit; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 14px 22px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.64);
+      background: rgba(255, 255, 255, 0.48);
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.08);
+      backdrop-filter: blur(20px) saturate(135%);
+      -webkit-backdrop-filter: blur(20px) saturate(135%);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+      text-decoration: none;
+    }
+
+    .brand img {
+      width: 78px;
+      height: 52px;
+      object-fit: contain;
+    }
+
+    .nav-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .nav-link,
+    .action-link,
+    .policy-link,
+    .contact-card {
+      text-decoration: none;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+    }
+
+    .nav-link {
+      padding: 10px 18px;
+      border: 1px solid rgba(37, 99, 235, 0.18);
+      border-radius: 999px;
+      color: var(--navy);
+      background: rgba(255, 255, 255, 0.54);
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+    }
+
+    .nav-link:hover,
+    .nav-link:focus-visible {
+      color: #fff;
+      background: linear-gradient(135deg, var(--blue), var(--pink));
+      transform: translateY(-2px);
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 58px 0 76px;
+    }
+
+    .hero {
+      max-width: 760px;
+      margin-bottom: 30px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 28px;
+      height: 3px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, var(--blue), var(--pink));
+      content: "";
+    }
+
+    h1,
+    h2,
+    h3,
+    p { margin-top: 0; }
+
+    h1 {
+      margin-bottom: 18px;
+      color: var(--navy);
+      font-size: clamp(2.4rem, 6vw, 4.8rem);
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+    }
+
+    .hero-copy {
+      max-width: 650px;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.75;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.06fr) minmax(320px, 0.94fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .glass-card {
+      border: 1px solid var(--white-border);
+      border-radius: 30px;
+      background: var(--white-glass);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(24px) saturate(135%);
+      -webkit-backdrop-filter: blur(24px) saturate(135%);
+    }
+
+    .contact-panel {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(28px, 5vw, 52px);
+      background:
+        linear-gradient(145deg, rgba(37, 99, 235, 0.78), rgba(99, 102, 241, 0.6) 52%, rgba(236, 72, 153, 0.68)),
+        rgba(255, 255, 255, 0.3);
+      color: #fff;
+    }
+
+    .contact-panel::before {
+      position: absolute;
+      top: -100px;
+      right: -80px;
+      width: 280px;
+      height: 280px;
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      border-radius: 50%;
+      box-shadow: 0 0 0 28px rgba(255, 255, 255, 0.07), 0 0 0 56px rgba(255, 255, 255, 0.05);
+      content: "";
+    }
+
+    .contact-panel > * { position: relative; z-index: 1; }
+
+    .contact-panel .eyebrow { color: #fff; }
+    .contact-panel h2 {
+      max-width: 650px;
+      margin: 18px 0 16px;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+    }
+
+    .contact-panel .intro {
+      max-width: 640px;
+      margin-bottom: 0;
+      color: rgba(255, 255, 255, 0.88);
+      line-height: 1.75;
+    }
+
+    .contact-cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 34px;
+    }
+
+    .contact-card {
+      display: block;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 22px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.16);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .contact-card:hover,
+    .contact-card:focus-visible {
+      border-color: rgba(255, 255, 255, 0.72);
+      background: rgba(255, 255, 255, 0.26);
+      transform: translateY(-4px);
+    }
+
+    .contact-label {
+      margin-bottom: 10px;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .contact-value {
+      margin-bottom: 8px;
+      font-size: clamp(1.1rem, 2.2vw, 1.55rem);
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .contact-hint {
+      margin-bottom: 0;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .access-panel {
+      padding: clamp(26px, 4vw, 42px);
+    }
+
+    .access-panel h2 {
+      margin-bottom: 10px;
+      color: var(--navy);
+      font-size: 2rem;
+      letter-spacing: -0.03em;
+    }
+
+    .access-panel > p {
+      margin-bottom: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .action-list,
+    .policy-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .action-link,
+    .policy-link {
+      display: block;
+      border: 1px solid rgba(37, 99, 235, 0.16);
+      border-radius: 17px;
+      color: var(--navy);
+      background: rgba(255, 255, 255, 0.5);
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .action-link {
+      padding: 15px 18px;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.94), rgba(99, 102, 241, 0.9));
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
+    }
+
+    .action-link:nth-child(even) {
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.94), rgba(219, 39, 119, 0.88));
+      box-shadow: 0 10px 22px rgba(236, 72, 153, 0.18);
+    }
+
+    .action-link:hover,
+    .action-link:focus-visible,
+    .policy-link:hover,
+    .policy-link:focus-visible {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 28px rgba(37, 99, 235, 0.2);
+    }
+
+    .policy-heading {
+      margin: 34px 0 0;
+      color: var(--navy);
+      font-size: 1.05rem;
+    }
+
+    .policy-link {
+      padding: 13px 16px;
+      color: var(--blue);
+      font-size: 14px;
+    }
+
+    .policy-link:hover,
+    .policy-link:focus-visible {
+      border-color: rgba(236, 72, 153, 0.35);
+      color: #be185d;
+      background: rgba(255, 255, 255, 0.78);
+    }
+
+    :focus-visible {
+      outline: 3px solid rgba(236, 72, 153, 0.52);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 800px) {
+      .content-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .site-header { padding: 12px 16px; }
+      .header-inner { align-items: flex-start; }
+      .brand img { width: 68px; height: 46px; }
+      .nav-actions { gap: 7px; }
+      .nav-link { padding: 8px 12px; font-size: 12px; }
+      .page-shell { width: min(100% - 22px, 1180px); padding: 38px 0 52px; }
+      h1 { font-size: clamp(2.35rem, 14vw, 3.3rem); }
+      .hero-copy { font-size: 15px; }
+      .contact-cards { grid-template-columns: 1fr; }
+      .contact-panel,
+      .access-panel { border-radius: 24px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="{% url 'home' %}" class="brand" aria-label="ShopEase home">
+        <img src="{% static logo_image %}" alt="ShopEase Logo">
+      </a>
+      <nav class="nav-actions" aria-label="Contact page navigation">
+        <a href="{% url 'home' %}" class="nav-link">Home</a>
+        {% if request.user.is_authenticated %}
+          <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="nav-link">Login</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero" aria-labelledby="contact-page-title">
+      <p class="eyebrow">ShopEase Support</p>
+      <h1 id="contact-page-title">Let’s make your shopping experience better.</h1>
+      <p class="hero-copy">
+        Reach out for product support, order help, payment guidance, or general questions about ShopEase. Our support options are just a tap away.
+      </p>
+    </section>
+
+    <div class="content-grid">
+      <section class="glass-card contact-panel" aria-labelledby="contact-details-title">
+        <p class="eyebrow">Contact Us</p>
+        <h2 id="contact-details-title">We are here to help you shop with confidence.</h2>
+        <p class="intro">Connect with our team directly and we’ll help you find the right next step for your order or account.</p>
+
+        <div class="contact-cards">
+          <a href="tel:{{ phone_number }}" class="contact-card">
+            <p class="contact-label">Phone</p>
+            <p class="contact-value">{{ phone_number }}</p>
+            <p class="contact-hint">Tap to call us directly.</p>
+          </a>
+          <a href="mailto:{{ email_address }}" class="contact-card">
+            <p class="contact-label">Email</p>
+            <p class="contact-value">{{ email_address }}</p>
+            <p class="contact-hint">Send us your questions anytime.</p>
+          </a>
+        </div>
+      </section>
+
+      <section class="glass-card access-panel" aria-labelledby="quick-access-title">
+        <h2 id="quick-access-title">Quick Access</h2>
+        <p>Sign in to manage your account, view your cart, and continue shopping from the main site.</p>
+
+        <div class="action-list">
+          {% if request.user.is_authenticated %}
+            <a href="{% url 'orders' %}" class="action-link">View Your Orders</a>
+            <a href="{% url 'cart' %}" class="action-link">Open Cart</a>
+          {% else %}
+            <a href="{% url 'login' %}" class="action-link">Go to Login Page</a>
+            <a href="{% url 'register' %}" class="action-link">Create Account</a>
+          {% endif %}
+          <a href="{% url 'home' %}" class="action-link">Back to Home</a>
+        </div>
+
+        <h3 class="policy-heading">Customer Policies</h3>
+        <div class="policy-list">
+          <a href="{% url 'privacy_policy' %}" class="policy-link">Privacy Policy</a>
+          <a href="{% url 'refund_policy' %}" class="policy-link">Refund and Cancellation Policy</a>
+          <a href="{% url 'terms_and_conditions' %}" class="policy-link">Terms and Conditions</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  {% include 'store/partials/instagram_corner.html' %}
+</body>
+</html>

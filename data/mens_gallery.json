@@ -1,0 +1,362 @@
+[
+  {
+    "model": "store.fashioncategory",
+    "pk": 200,
+    "fields": {
+      "name": "Casual Wear",
+      "slug": "casual-wear",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 1,
+      "image": "images/menstshirts.jpg",
+      "banner_image": null,
+      "description": "Explore comfortable and stylish casual wear for everyday looks.",
+      "page_url": "/mens/casual-wear/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 201,
+    "fields": {
+      "name": "Formal Wear",
+      "slug": "formal-wear",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 2,
+      "image": "images/shirt.jpg",
+      "banner_image": null,
+      "description": "Explore sophisticated outfits for office and formal occasions.",
+      "page_url": "/mens/formal-wear/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 202,
+    "fields": {
+      "name": "Ethnic Wear",
+      "slug": "ethnic-wear",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 3,
+      "image": "images/ethicwearebg.jpeg",
+      "banner_image": null,
+      "description": "Explore traditional and contemporary ethnic styles for men.",
+      "page_url": "/mens/ethnic-wear/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 203,
+    "fields": {
+      "name": "Footwear",
+      "slug": "footwear",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 4,
+      "image": "images/mens_shoes.png",
+      "banner_image": null,
+      "description": "Explore sneakers, formal shoes, sandals and everyday footwear.",
+      "page_url": "/mens/footwear/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 204,
+    "fields": {
+      "name": "Accessories",
+      "slug": "accessories",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 5,
+      "image": "images/mens_accessories.png",
+      "banner_image": null,
+      "description": "Explore watches, belts, wallets, bags and other men's accessories.",
+      "page_url": "/mens/accessories/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 205,
+    "fields": {
+      "name": "T-Shirts",
+      "slug": "t-shirts",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 6,
+      "image": "images/menstshirts.jpg",
+      "banner_image": null,
+      "description": "Explore classic, printed, oversized and everyday T-shirts.",
+      "page_url": "/mens/t-shirts/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 206,
+    "fields": {
+      "name": "Polo Shirts",
+      "slug": "polo-shirts",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 7,
+      "image": "images/men-blue-t-shirt_image1.jpg",
+      "banner_image": null,
+      "description": "Explore timeless polo shirts for smart-casual looks.",
+      "page_url": "/mens/polo-shirts/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 207,
+    "fields": {
+      "name": "Jeans",
+      "slug": "jeans",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 8,
+      "image": "images/mens_jeans.png",
+      "banner_image": null,
+      "description": "Explore modern denim styles, fits and washes for men.",
+      "page_url": "/mens/jeans/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 208,
+    "fields": {
+      "name": "Shorts",
+      "slug": "shorts",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 9,
+      "image": null,
+      "banner_image": null,
+      "description": "Explore comfortable shorts for casual and summer styles.",
+      "page_url": "/mens/shorts/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 209,
+    "fields": {
+      "name": "Hoodies & Sweatshirts",
+      "slug": "hoodies-sweatshirts",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 10,
+      "image": null,
+      "banner_image": null,
+      "description": "Explore comfortable hoodies and sweatshirts for relaxed looks.",
+      "page_url": "/mens/hoodies-sweatshirts/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 210,
+    "fields": {
+      "name": "Formal Shirts",
+      "slug": "formal-shirts",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 11,
+      "image": "images/men_shirt_black_front.jpg",
+      "banner_image": null,
+      "description": "Explore smart and sophisticated shirts for formal occasions.",
+      "page_url": "/mens/formal-shirts/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 211,
+    "fields": {
+      "name": "Blazers",
+      "slug": "blazers",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 12,
+      "image": null,
+      "banner_image": null,
+      "description": "Explore stylish blazers for smart and sophisticated outfits.",
+      "page_url": "/mens/blazers/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 212,
+    "fields": {
+      "name": "Suits",
+      "slug": "suits",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 13,
+      "image": null,
+      "banner_image": null,
+      "description": "Explore complete suit styles for business and special occasions.",
+      "page_url": "/mens/suits/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 213,
+    "fields": {
+      "name": "Dress Trousers",
+      "slug": "dress-trousers",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 14,
+      "image": null,
+      "banner_image": null,
+      "description": "Explore tailored trousers for polished formal and professional looks.",
+      "page_url": "/mens/dress-trousers/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 214,
+    "fields": {
+      "name": "Kurtas",
+      "slug": "kurtas",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 15,
+      "image": null,
+      "banner_image": null,
+      "description": "Explore modern and traditional kurtas for festive occasions.",
+      "page_url": "/mens/kurtas/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 215,
+    "fields": {
+      "name": "Sherwanis",
+      "slug": "sherwanis",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 16,
+      "image": null,
+      "banner_image": null,
+      "description": "Explore elegant sherwanis for weddings and celebrations.",
+      "page_url": "/mens/sherwanis/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 216,
+    "fields": {
+      "name": "Sneakers",
+      "slug": "sneakers",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 17,
+      "image": null,
+      "banner_image": null,
+      "description": "Explore stylish sneakers for everyday and casual outfits.",
+      "page_url": "/mens/sneakers/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 217,
+    "fields": {
+      "name": "Dress Shoes",
+      "slug": "dress-shoes",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 18,
+      "image": null,
+      "banner_image": null,
+      "description": "Explore elegant formal shoes for professional and special occasions.",
+      "page_url": "/mens/dress-shoes/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 218,
+    "fields": {
+      "name": "Loafers",
+      "slug": "loafers",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 19,
+      "image": null,
+      "banner_image": null,
+      "description": "Explore versatile loafers for smart-casual and formal looks.",
+      "page_url": "/mens/loafers/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  },
+  {
+    "model": "store.fashioncategory",
+    "pk": 281,
+    "fields": {
+      "name": "Jackets & Coats",
+      "slug": "jackets-coats",
+      "parent": 197,
+      "root_category": 5,
+      "level": 1,
+      "sort_order": 20,
+      "image": null,
+      "banner_image": null,
+      "description": "Explore stylish jackets and coats for different seasons and occasions.",
+      "page_url": "/mens/jackets-coats/",
+      "is_active": true,
+      "is_under_maintenance": false
+    }
+  }
+]

@@ -1,0 +1,268 @@
+{% load static %}
+{% load static store_assets %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Order #{{ order.order_id }}</title>
+  <style>
+    :root {
+      --bg: #f4f7f2;
+      --surface: #ffffff;
+      --text: #14261c;
+      --muted: #5b6f63;
+      --line: #dbe7de;
+      --success: #16a34a;
+      --accent: #2563eb;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f8fafc;
+      color: var(--text);
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      padding: 16px 28px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .wrap {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .title { margin: 0 0 8px; font-size: 28px; }
+    .muted { color: var(--muted); margin-bottom: 24px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .metric {
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    .metric-label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .metric strong { font-size: 16px; color: var(--text); }
+
+    .timeline {
+      margin-top: 32px;
+      padding: 24px;
+      background: #f8fafc;
+      border-radius: 16px;
+    }
+
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 0;
+      position: relative;
+    }
+
+    .timeline-bullet {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: white;
+      z-index: 2;
+    }
+
+    .timeline-content { flex: 1; }
+    .current-badge {
+      font-size: 11px;
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 8px;
+    }
+
+    .product-summary {
+      margin-top: 32px;
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
+    }
+
+    .product-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      color: var(--muted);
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 12px 24px;
+      background: #000;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="{% static 'css/shopease-theme.css' %}">
+</head>
+<body>
+  <header class="header">
+    <a href="{% url 'home' %}">ShopEase</a>
+    <a href="{% url 'orders' %}">My Orders</a>
+  </header>
+
+  <main class="wrap">
+    <div class="panel">
+      <h1 class="title">Track Order #{{ order.order_id }}</h1>
+      <p class="muted">Real-time delivery progress and status updates.</p>
+
+      <div class="grid">
+        <div class="metric">
+          <span class="metric-label">Current Status</span>
+          <strong id="tracking-status" style="color: var(--accent);">{{ order.status }}</strong>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Payment</span>
+          <strong id="tracking-payment">{{ order.payment_status }}</strong>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Expected Delivery</span>
+          <strong id="tracking-delivery">{{ order.estimated_delivery|date:"F j, Y"|default:"TBD" }}</strong>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <h3 style="margin-top: 0; margin-bottom: 20px;">Tracking Timeline</h3>
+        <div id="tracking-timeline">
+          <!-- JS dynamic render -->
+        </div>
+      </div>
+
+      <div class="product-summary">
+        <h3>Order Items</h3>
+        {% for item in order.items.all %}
+          <div class="product-row">
+            <span>{{ item.product.product_name }} x {{ item.quantity }}</span>
+            <strong>Rs. {{ item.line_total }}</strong>
+          </div>
+        {% endfor %}
+        <div class="product-row" style="margin-top: 12px; color: var(--text); font-weight: 800; font-size: 1.1em; border-top: 1px solid var(--line); padding-top: 12px;">
+          <span>Total Amount</span>
+          <span>Rs. {{ order.subtotal }}</span>
+        </div>
+      </div>
+
+      <a href="{% url 'orders' %}" class="btn">Back to My Orders</a>
+    </div>
+  </main>
+
+  <script>
+    const stages = [
+      'Placed',
+      'Payment Confirmed',
+      'Processing',
+      'Packed',
+      'Shipped',
+      'Out for Delivery',
+      'Delivered'
+    ];
+
+    function renderTimeline(currentStatus) {
+      const container = document.getElementById('tracking-timeline');
+      const normalized = (currentStatus || '').trim().toLowerCase();
+      let currentIndex = stages.findIndex(s => s.toLowerCase() === normalized);
+
+      if (currentIndex === -1) {
+        if (normalized === 'cancelled') {
+          container.innerHTML = '<div style="color: #dc2626; font-weight: 600;">Order has been Cancelled.</div>';
+          return;
+        }
+        currentIndex = 0;
+      }
+
+      let html = '';
+      stages.forEach((stage, idx) => {
+        const isDone = idx <= currentIndex;
+        const isCurrent = idx === currentIndex;
+        const bulletColor = isDone ? '#16a34a' : '#cbd5e1';
+        const textColor = isCurrent ? '#2563eb' : (isDone ? '#1e293b' : '#94a3b8');
+
+        html += `
+          <div class="timeline-item">
+            <div class="timeline-bullet" style="background: ${bulletColor};">
+              ${isDone ? 'âœ“' : (idx + 1)}
+            </div>
+            <div class="timeline-content" style="color: ${textColor}; font-weight: ${isCurrent ? 'bold' : 'normal'};">
+              ${stage}
+              ${isCurrent ? '<span class="current-badge">Current</span>' : ''}
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    renderTimeline("{{ order.status }}");
+
+    setInterval(async () => {
+      try {
+        const res = await fetch("{% url 'order_tracking_api' order.order_id %}");
+        const data = await res.json();
+        if (data && data.ok) {
+          document.getElementById('tracking-status').innerText = data.status;
+          document.getElementById('tracking-payment').innerText = data.payment_status;
+          document.getElementById('tracking-delivery').innerText = data.estimated_delivery || 'TBD';
+          renderTimeline(data.status);
+        }
+      } catch (err) { console.error(err); }
+    }, 10000);
+  </script>
+</body>
+</html>

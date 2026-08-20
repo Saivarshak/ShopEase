@@ -1,0 +1,244 @@
+{% load static %}
+{% load static store_assets %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ product.product_name }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background-color: #f3f4f6; color: #000000; }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo img { height: 45px; width: auto; display: block; }
+    main { display: flex; flex-direction: column; padding: 20px; gap: 20px; }
+    .product-images { flex: 1 1 100%; display: grid; grid-template-columns: 1fr; gap: 10px; order: 1; }
+    .product-images img { width: 100%; height: auto; max-width: 300px; border-radius: 8px; border: 1px solid #d1d5db; background-color: white; cursor: pointer; object-fit: cover; }
+    .product-details { flex: 1 1 100%; padding: 20px; order: 2; background: #fff; border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); border: 1px solid #d1d5db; }
+    .buy-section { margin-top: 22px; padding-top: 18px; border-top: 1px solid #d1d5db; }
+    .product-details h1 { font-size: 22px; margin-bottom: 10px; }
+    .price { color: #000000; font-size: 26px; font-weight: bold; }
+    .old-price { text-decoration: line-through; color: #000000; margin-left: 10px; }
+    .discount { color: #000000; font-weight: bold; margin-left: 10px; }
+    .sizes { margin-top: 15px; }
+    .sizes label { display: block; font-weight: bold; margin-bottom: 5px; }
+    .size-options { display: flex; gap: 10px; }
+.size-btn { padding: 8px 14px; border: 1px solid #c4c4c4; border-radius: 5px; background: #fff; cursor: pointer; font-size: 14px; transition: all 0.3s ease; color: #000000; }
+.size-btn:hover { background: #f5f5f5; border-color: #000000; }
+.size-btn.selected {
+  background: #000000;
+  color: #fff;
+  border-color: #000000;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+}
+    .action-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
+    .buy-btn, .cart-btn, .wishlist-btn { background: #000000; border: 1px solid #000000; padding: 10px 14px; width: 100%; margin: 0; cursor: pointer; font-size: 16px; border-radius: 5px; color: #fff; transition: all 0.3s ease; }
+    .buy-btn:hover, .cart-btn:hover, .wishlist-btn:hover { background: #f97316; color: #fff; }
+    .wishlist-btn.active { background: #ec4899; border-color: #ec4899; }
+    .quantity-selector { display: flex; align-items: center; gap: 10px; }
+    .quantity-selector button { padding: 5px 12px; font-size: 18px; border: 1px solid #000000; background: #000000; color: white; cursor: pointer; border-radius: 4px; }
+    .quantity-selector button:hover { background: #14b8a6; }
+    .quantity-selector span { font-size: 18px; min-width: 20px; text-align: center; display: inline-block; }
+    .related { padding: 0 20px 28px; }
+    .related h2 { margin: 0 0 14px; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+    .related-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; text-decoration: none; color: #111; }
+    .related-card img { width: 100%; height: 190px; object-fit: cover; background: #f3f4f6; }
+    .related-card div { padding: 12px; }
+    .messages { margin: 14px 20px 0; padding: 12px; background: #fff7ed; border-radius: 8px; }
+    @media (min-width: 768px) {
+      main { flex-direction: row; align-items: stretch; }
+      .product-images { flex: 1 1 50%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+      .product-details { flex: 1 1 50%; }
+    }
+  </style>
+  <link rel="stylesheet" href="{% static 'css/shopease-theme.css' %}">
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <a href="/"><img src="{% static logo_image %}" alt="ShopEase Logo"></a>
+    </div>
+  </header>
+  {% if messages %}
+    {% for message in messages %}
+      <div class="messages">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <main>
+    <div class="product-images">
+      {% if variant and variant.image1 %}<img src="{% asset_src variant.image1 %}" alt="{{ product.product_name }} Front">{% endif %}
+      {% if variant and variant.image2 %}<img src="{% asset_src variant.image2 %}" alt="{{ product.product_name }} Back">{% endif %}
+      {% if variant and variant.image3 %}<img src="{% asset_src variant.image3 %}" alt="{{ product.product_name }} Side">{% endif %}
+      {% if variant and variant.image4 %}<img src="{% asset_src variant.image4 %}" alt="{{ product.product_name }} Closeup">{% endif %}
+      {% if not variant or not variant.image1 and not variant.image2 and not variant.image3 and not variant.image4 %}
+        <img src="{% static detail_fallback_front %}" alt="{{ product.product_name }}">
+      {% endif %}
+    </div>
+
+    <div class="product-details">
+      <h1>{{ product.product_name }}</h1>
+      <div>
+        <span class="price">Rs. {{ product.offer_price }}</span>
+        <span class="old-price">Rs. {{ product.price }}</span>
+        <span class="discount">-{{ product.discount_percent }}%</span>
+      </div>
+      <p>Inclusive of all taxes</p>
+      <div class="sizes">
+        <label>Available Size:</label>
+        <div class="size-options">
+          {% if size_variants %}
+            {% for size_variant in size_variants %}
+              <button class="size-btn" type="button" data-size="{{ size_variant.size }}" data-stock="{{ size_variant.quantity }}">{{ size_variant.size }}</button>
+            {% endfor %}
+          {% elif variant and variant.size %}
+            <button class="size-btn" type="button" data-size="{{ variant.size }}" data-stock="{{ variant.quantity }}">{{ variant.size }}</button>
+          {% else %}
+            <button class="size-btn" type="button" data-size="Free Size" data-stock="{{ total_stock|default:'0' }}">Free Size</button>
+          {% endif %}
+        </div>
+      </div>
+      <div class="product-quantity">
+        <h3>Quantity:</h3>
+        <div class="quantity-selector">
+          <button id="decrease">-</button>
+          <span id="quantity">1</span>
+          <button id="increase">+</button>
+        </div>
+        <p>Available stock: <span id="availableStock">{{ total_stock|default:"0" }}</span></p>
+      </div>
+      <p>{{ product.description }}</p>
+      <p>
+        Color: {% if variant and variant.color %}{{ variant.color }}{% else %}Standard{% endif %} |
+        Size: <span id="selectedSizeLabel">{% if size_variants %}{{ size_variants.0.size }}{% elif variant and variant.size %}{{ variant.size }}{% else %}Free Size{% endif %}</span> |
+        Stock: <span id="selectedStockLabel">{{ total_stock|default:"0" }}</span>
+      </p>
+      <div class="buy-section">
+        <div class="action-buttons">
+          <form method="post" action="{% url 'toggle_wishlist' product.product_id %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button class="wishlist-btn {% if is_wishlisted %}active{% endif %}" type="submit">{% if is_wishlisted %}Remove Wishlist{% else %}Add Wishlist{% endif %}</button>
+          </form>
+          <form method="post" action="{% url 'add_to_cart' product.product_id %}">
+            {% csrf_token %}
+            <input type="hidden" name="quantity" id="cartQuantityInput" value="1">
+            <input type="hidden" name="selected_size" id="cartSelectedSizeInput" value="{% if size_variants %}{{ size_variants.0.size }}{% elif variant and variant.size %}{{ variant.size }}{% else %}Free Size{% endif %}">
+            <button class="cart-btn" type="submit">Add to Cart</button>
+          </form>
+          <form method="post" action="{% url 'buy_now' product.product_id %}">
+            {% csrf_token %}
+            <input type="hidden" name="quantity" id="buyNowQuantityInput" value="1">
+            <input type="hidden" name="selected_size" id="buyNowSelectedSizeInput" value="{% if size_variants %}{{ size_variants.0.size }}{% elif variant and variant.size %}{{ variant.size }}{% else %}Free Size{% endif %}">
+            <button class="buy-btn" type="submit">Buy Now</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+  {% if related_products %}
+  <section class="related">
+    <h2>Related Products</h2>
+    <div class="related-grid">
+      {% for card in related_products %}
+        <a class="related-card" href="{{ card.product_url|default:'' }}{% if not card.product_url %}{% url 'catalog_product_detail' card.product_id %}{% endif %}">
+          <img src="{% asset_src card.image_path %}" alt="{{ card.product_name }}">
+          <div>
+            <strong>{{ card.product_name }}</strong><br>
+            Rs. {{ card.offer_price }}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <script>
+    let quantity = 1;
+    let maxStock = parseInt("{% if size_variants %}{{ size_variants.0.quantity }}{% else %}{{ total_stock|default:'0' }}{% endif %}", 10) || 0;
+    let selectedSize = "{% if size_variants %}{{ size_variants.0.size }}{% elif variant and variant.size %}{{ variant.size }}{% else %}Free Size{% endif %}";
+    const increaseBtn = document.getElementById("increase");
+    const decreaseBtn = document.getElementById("decrease");
+    const quantityDisplay = document.getElementById("quantity");
+    const availableStockDisplay = document.getElementById("availableStock");
+    const selectedSizeLabel = document.getElementById("selectedSizeLabel");
+    const selectedStockLabel = document.getElementById("selectedStockLabel");
+    const sizeButtons = document.querySelectorAll(".size-btn");
+
+    function syncHiddenInputs() {
+      document.getElementById("cartQuantityInput").value = quantity;
+      document.getElementById("buyNowQuantityInput").value = quantity;
+      document.getElementById("cartSelectedSizeInput").value = selectedSize;
+      document.getElementById("buyNowSelectedSizeInput").value = selectedSize;
+    }
+
+    function updateStockUI() {
+      availableStockDisplay.innerText = maxStock;
+      if (selectedSizeLabel) selectedSizeLabel.innerText = selectedSize;
+      if (selectedStockLabel) selectedStockLabel.innerText = maxStock;
+
+      if (maxStock < 1) {
+        quantity = 0;
+        increaseBtn.disabled = true;
+        decreaseBtn.disabled = true;
+        document.querySelector(".cart-btn").disabled = true;
+        document.querySelector(".buy-btn").disabled = true;
+      } else {
+        if (quantity < 1) quantity = 1;
+        if (quantity > maxStock) quantity = maxStock;
+        increaseBtn.disabled = false;
+        decreaseBtn.disabled = false;
+        document.querySelector(".cart-btn").disabled = false;
+        document.querySelector(".buy-btn").disabled = false;
+      }
+
+      quantityDisplay.innerText = quantity;
+      syncHiddenInputs();
+    }
+
+    sizeButtons.forEach((button, index) => {
+      if (index === 0) {
+        button.classList.add("selected");
+      }
+      button.addEventListener("click", () => {
+        sizeButtons.forEach(btn => btn.classList.remove("selected"));
+        button.classList.add("selected");
+        selectedSize = button.dataset.size || "Free Size";
+        maxStock = parseInt(button.dataset.stock || "0", 10) || 0;
+        quantity = maxStock > 0 ? 1 : 0;
+        updateStockUI();
+      });
+    });
+
+    increaseBtn.addEventListener("click", () => {
+      if (quantity < maxStock) {
+        quantity++;
+        quantityDisplay.innerText = quantity;
+        syncHiddenInputs();
+      }
+    });
+    decreaseBtn.addEventListener("click", () => {
+      if (quantity > 1) {
+        quantity--;
+        quantityDisplay.innerText = quantity;
+        syncHiddenInputs();
+      }
+    });
+    updateStockUI();
+  </script>
+  {% include 'store/partials/instagram_corner.html' %}
+</body>
+</html>

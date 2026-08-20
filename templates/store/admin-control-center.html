@@ -1,0 +1,425 @@
+{% load store_assets %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopEase Admin Control Center</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <style>
+        :root {
+      --bg: #eef3f8; --surface: #ffffff; --surface-soft: #f6f9fc; --text: #152033; --muted: #68758a;
+      --line: #dce5ef; --shadow: 0 18px 45px rgba(21,32,51,.08); --radius: 16px; --brand: #0a1220;
+      --hover: #5b32e8; --success: #0f9f6e; --warning: #be8210; --danger: #c43d55; --info: #1d8fc5;
+      --yellow: #f4c430; --cyan: #26b6d4; --purple: #7652ed; --blue: #3587e8;
+    }
+    [data-theme="dark"] {
+      --bg: #080e18; --surface: #111c2b; --surface-soft: #0d1623; --text: #f5f8fc; --muted: #91a0b5;
+      --line: #25364b; --shadow: 0 22px 52px rgba(0,0,0,.30); --brand: #070d17;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { min-height: 100vh; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: radial-gradient(circle at 85% 0%, rgba(53,135,232,.08), transparent 32rem), var(--bg); color: var(--text); transition: background .25s ease, color .25s ease; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(38,182,212,.38); outline-offset: 2px; }
+    .shell { min-height: 100vh; display: grid; grid-template-columns: 260px minmax(0, 1fr); }
+    .sidebar { position: sticky; top: 0; height: 100vh; background: linear-gradient(180deg, #0b1423 0%, var(--brand) 100%); color: #fff; padding: 22px 18px; display: flex; flex-direction: column; gap: 22px; border-right: 1px solid rgba(255,255,255,.08); }
+    .brand { display: flex; align-items: center; gap: 12px; padding: 0 6px 18px; border-bottom: 1px solid rgba(255,255,255,.12); }
+    .brand-mark { width: 42px; height: 42px; border-radius: 14px; background: linear-gradient(135deg, var(--yellow), #ff9f43); color: #141a25; display: grid; place-items: center; font-weight: 900; box-shadow: 0 8px 24px rgba(244,196,48,.22); }
+    .brand strong { display: block; font-size: 18px; letter-spacing: -.02em; } .brand span { color: rgba(255,255,255,.62); font-size: 12px; }
+    .nav { display: grid; gap: 7px; overflow-y: auto; padding-right: 2px; }
+    .nav a { min-height: 42px; border-radius: 12px; display: flex; align-items: center; gap: 10px; padding: 0 12px; color: rgba(255,255,255,.72); font-weight: 750; font-size: 14px; transition: background .2s ease, color .2s ease, transform .2s ease; }
+    .nav a i { color: #8ea0b7; font-size: 18px; } .nav a:hover { background: rgba(255,255,255,.08); color: #fff; transform: translateX(2px); } .nav a.active { background: linear-gradient(90deg, rgba(118,82,237,.95), rgba(53,135,232,.58)); color: #fff; box-shadow: 0 8px 24px rgba(118,82,237,.2); } .nav a.active i { color: #fff; }
+    .main { min-width: 0; }
+    .top-header { min-height: 72px; background: rgba(8,14,24,.88); color: #fff; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(14px); position: sticky; top: 0; z-index: 10; }
+    .menu-toggle { display: none; width: 42px; height: 42px; border: 0; border-radius: 12px; background: rgba(255,255,255,.12); color: #fff; cursor: pointer; }
+    .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .content { width: min(1280px, calc(100% - 40px)); margin: 32px auto; }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 750; margin-bottom: 16px; }
+    .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; flex-wrap: wrap; margin-bottom: 22px; }
+    h1 { font-size: clamp(28px, 4vw, 38px); line-height: 1.1; letter-spacing: -.04em; } .lead { color: var(--muted); margin-top: 7px; line-height: 1.5; }
+    .btn { min-height: 40px; border: 1px solid transparent; border-radius: 12px; background: linear-gradient(135deg, #f4c430, #f09a36); color: #1a2230; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 850; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, filter .2s ease; }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 8px 20px rgba(244,196,48,.18); } .btn-light { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.15); } .btn-danger { background: rgba(196,61,85,.15); color: #ff9cab; border-color: rgba(196,61,85,.35); } .btn-danger:hover { background: #c43d55; color: #fff; box-shadow: 0 8px 20px rgba(196,61,85,.22); }
+    .grid-metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .metric, .panel { background: linear-gradient(145deg, color-mix(in srgb, var(--surface) 93%, transparent), var(--surface)); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .metric { padding: 18px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; transition: transform .2s ease, border-color .2s ease; }
+    .metric::after { content: ""; position: absolute; width: 72px; height: 72px; border-radius: 50%; right: -18px; bottom: -28px; background: var(--metric-accent, var(--purple)); opacity: .16; filter: blur(1px); }
+    .metric:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--metric-accent, var(--purple)) 55%, var(--line)); }
+    .metric:nth-child(1) { --metric-accent: var(--purple); } .metric:nth-child(2) { --metric-accent: var(--blue); } .metric:nth-child(3) { --metric-accent: var(--danger); } .metric:nth-child(4) { --metric-accent: var(--cyan); } .metric:nth-child(5) { --metric-accent: var(--yellow); }
+    .metric span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; font-weight: 850; display: flex; gap: 7px; align-items: center; } .metric span i { color: var(--metric-accent, var(--purple)); font-size: 17px; }
+    .metric strong { font-size: clamp(24px, 3vw, 32px); margin-top: 8px; display: block; letter-spacing: -.03em; }
+    .panel { padding: 20px; margin-bottom: 22px; scroll-margin-top: 90px; }
+    .panel-head { display: flex; justify-content: space-between; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+    .panel-title { font-size: 20px; font-weight: 850; letter-spacing: -.025em; } .muted { color: var(--muted); }
+    .split { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 18px; }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .mini-card { border: 1px solid var(--line); border-radius: 14px; padding: 14px; background: var(--surface-soft); }
+    .table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--line); }
+    table { width: 100%; min-width: 980px; border-collapse: collapse; font-size: 14px; }
+    tbody tr { transition: background .18s ease; } tbody tr:hover { background: color-mix(in srgb, var(--cyan) 6%, transparent); }
+    th, td { padding: 14px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; font-weight: 850; white-space: nowrap; }
+    tr:last-child td { border-bottom: 0; }
+    .product-img, .preview { object-fit: cover; background: #e5e7eb; border-radius: 12px; }
+    .product-img { width: 64px; height: 64px; border: 1px solid var(--line); } .preview { width: 100%; aspect-ratio: 16 / 9; display: block; margin-bottom: 12px; }
+    .badge { display: inline-flex; min-height: 24px; align-items: center; border-radius: 999px; padding: 0 9px; font-size: 12px; font-weight: 800; } .badge.stock-badge { gap: 5px; }
+    .ok { background: rgba(15,159,110,.14); color: #21c98d; } .low { background: rgba(190,130,16,.15); color: #e4b63d; } .out { background: rgba(196,61,85,.15); color: #ff8094; } .info { background: rgba(29,143,197,.15); color: #6dd3ff; }
+    .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .filter-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .filter-btn { min-height: 36px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--text); padding: 0 13px; font-weight: 800; cursor: pointer; }
+    .filter-btn.active, .filter-btn:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .category-filter-select { width: min(280px, 100%); min-height: 36px; border-radius: 999px; padding: 0 14px; font-weight: 800; }
+    .product-filters { display: grid; grid-template-columns: 2fr repeat(4, minmax(140px, 1fr)); gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-soft); margin-bottom: 16px; }
+    .product-filters .field { margin: 0; } .product-filters .field.wide { grid-column: span 2; } .product-filters .filter-actions { display: flex; gap: 8px; align-items: end; }
+    .product-filters .filter-actions .btn { min-height: 42px; } .product-filters input, .product-filters select { min-height: 42px; border-color: var(--line); background: var(--surface); color: var(--text); }
+    .filter-caption { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 2px 10px; }
+    .pagination { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 14px; } .pagination-links { display: flex; gap: 7px; align-items: center; } .page-link { min-height: 34px; min-width: 34px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 10px; color: var(--text); background: var(--surface-soft); font-weight: 800; } .page-link:hover, .page-link.current { background: var(--purple); border-color: var(--purple); color: #fff; }
+    .flow-panel { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 24px; align-items: center; }
+    .donut { width: 208px; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; margin: 0 auto; position: relative; background: conic-gradient(var(--blue) 0 var(--flow-in), var(--yellow) var(--flow-in) var(--flow-low), var(--purple) var(--flow-low) 100%); }
+    .donut::before { content: ""; position: absolute; inset: 28px; border-radius: 50%; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+    .donut-center { position: relative; z-index: 1; text-align: center; } .donut-center strong { display: block; font-size: 30px; letter-spacing: -.04em; } .donut-center span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 850; }
+    .flow-list { display: grid; gap: 10px; } .flow-row { display: grid; grid-template-columns: 12px 1fr auto; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); } .flow-row:last-child { border-bottom: 0; } .flow-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--flow-color); } .flow-available { --flow-color: var(--blue); } .flow-low { --flow-color: var(--yellow); } .flow-out { --flow-color: var(--purple); } .flow-row strong { font-size: 15px; } .flow-row small { color: var(--muted); }
+    form .field { display: grid; gap: 6px; margin-bottom: 12px; }
+    label { color: var(--muted); font-size: 11px; font-weight: 850; text-transform: uppercase; letter-spacing: .06em; }
+    input, select, textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 11px; background: #fff; color: #000; }
+    [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { border-color: var(--line); background: #0b1422; color: var(--text); }
+    textarea { min-height: 78px; resize: vertical; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .messages { margin-bottom: 16px; display: grid; gap: 8px; } .message { border-radius: 12px; background: rgba(15,159,110,.12); padding: 12px 14px; }
+    .modal { width: min(860px, calc(100% - 28px)); border: 0; border-radius: 16px; padding: 0; box-shadow: var(--shadow); }
+    .modal::backdrop { background: rgba(0,0,0,.62); } .modal-body { padding: 22px; background: var(--surface); color: var(--text); }
+    .module-note { border: 1px dashed var(--line); border-radius: 14px; padding: 16px; background: var(--surface-soft); color: var(--muted); }
+    @media (max-width: 1160px) { .shell { grid-template-columns: 86px minmax(0,1fr); } .sidebar { align-items: center; padding: 18px 12px; } .brand div:not(.brand-mark), .nav span { display: none; } .nav a { width: 48px; justify-content: center; padding: 0; } .grid-metrics { grid-template-columns: repeat(2, minmax(0,1fr)); } .product-filters { grid-template-columns: repeat(3, minmax(0,1fr)); } .product-filters .field.wide { grid-column: span 2; } }
+    @media (max-width: 860px) { .shell { display: block; } .sidebar { position: fixed; z-index: 20; inset: 0 auto 0 0; width: 280px; align-items: stretch; transform: translateX(-100%); transition: transform .25s ease; } body.sidebar-open .sidebar { transform: translateX(0); } .brand div:not(.brand-mark), .nav span { display: block; } .nav a { width: auto; justify-content: flex-start; padding: 0 12px; } .menu-toggle { display: inline-grid; place-items: center; } .content { width: min(100% - 28px, 1280px); margin: 24px auto; } .split, .flow-panel { grid-template-columns: 1fr; } .flow-panel { justify-items: stretch; } .product-filters { grid-template-columns: repeat(2, minmax(0,1fr)); } .product-filters .field.wide { grid-column: 1 / -1; } }
+    @media (max-width: 560px) { .grid-metrics, .form-grid, .product-filters { grid-template-columns: 1fr; } .product-filters .field.wide { grid-column: auto; } .top-header { padding: 0 16px; } .header-actions { width: 100%; } .header-actions .btn { flex: 1; } .panel { padding: 16px; } }
+
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" id="adminSidebar">
+      <div class="brand"><div class="brand-mark">SE</div><div><strong>ShopEase</strong><span>Admin Control Center</span></div></div>
+      <nav class="nav" aria-label="Admin navigation">
+        <a class="active" href="#overview"><i class="ti ti-dashboard"></i><span>Dashboard</span></a>
+        <a href="#products"><i class="ti ti-package"></i><span>Products</span></a>
+        <a href="#categories"><i class="ti ti-category"></i><span>Categories</span></a>
+        <a href="#orders"><i class="ti ti-receipt"></i><span>Orders</span></a>
+        <a href="#users"><i class="ti ti-users"></i><span>Users</span></a>
+        <a href="#media"><i class="ti ti-photo"></i><span>Banner Management</span></a>
+        <a href="#content"><i class="ti ti-settings"></i><span>Website Settings</span></a>
+        <a href="#image-management"><i class="ti ti-photo-edit"></i><span>Image Management</span></a>
+        <a href="{% url 'home' %}"><i class="ti ti-home"></i><span>Storefront</span></a>
+        <a href="{% url 'logout' %}"><i class="ti ti-logout"></i><span>Logout</span></a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="top-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="menu-toggle" id="sidebarToggle" type="button" aria-controls="adminSidebar" aria-expanded="false"><i class="ti ti-menu-2"></i></button>
+          <strong>ShopEase Admin</strong>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-light" type="button" id="themeToggle"><i class="ti ti-moon"></i> Theme</button>
+          <button class="btn btn-light" type="button" data-open-modal="addProductModal"><i class="ti ti-plus"></i> Add Product</button>
+        </div>
+      </header>
+
+      <section class="content">
+        {% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+        <nav class="breadcrumb"><a href="{% url 'admin_control_center' %}">Admin</a><i class="ti ti-chevron-right"></i><span>Control Center</span></nav>
+
+        <section class="topbar" id="overview">
+          <div><h1>Dashboard</h1><p class="lead">Manage products, categories, orders, users, website settings, banners, and images.</p></div>
+          <a class="btn" href="#media"><i class="ti ti-photo-edit"></i> Manage Images</a>
+        </section>
+
+        <section class="grid-metrics" aria-label="Product management statistics">
+          <div class="metric"><div><span><i class="ti ti-package"></i>Total Products</span><strong>{{ total_products }}</strong></div><small class="muted">Catalog records</small></div>
+          <div class="metric"><div><span><i class="ti ti-circle-check"></i>Active Products</span><strong>{{ active_products }}</strong></div><small class="muted">Visible in storefront</small></div>
+          <div class="metric"><div><span><i class="ti ti-circle-x"></i>Out of Stock</span><strong>{{ out_of_stock_count }}</strong></div><small class="muted">Requires replenishment</small></div>
+          <div class="metric"><div><span><i class="ti ti-box-seam"></i>Available Products</span><strong>{{ available_products }}</strong></div><small class="muted">At least one unit</small></div>
+          <div class="metric"><div><span><i class="ti ti-truck-delivery"></i>Outgoing Units</span><strong>{{ outgoing_units }}</strong></div><small class="muted">Paid order items</small></div>
+          <div class="metric"><div><span><i class="ti ti-category"></i>Categories</span><strong>{{ total_categories }}</strong></div><small class="muted">Product categories</small></div>
+          <div class="metric"><div><span><i class="ti ti-sitemap"></i>Subcategories</span><strong>{{ total_subcategories }}</strong></div><small class="muted">Detailed taxonomy</small></div>
+        </section>
+
+        <section class="panel" aria-labelledby="stock-flow-title">
+          <div class="panel-head"><div><h2 class="panel-title" id="stock-flow-title">Product Stock Flow</h2><p class="muted">Live product availability from ProductVariant quantities. Outgoing units are calculated from paid order items.</p></div><span class="badge info">{{ outgoing_units }} outgoing units recorded</span></div>
+          <div class="flow-panel">
+            <div class="donut" style="--flow-in: {{ stock_flow_in_end }}%; --flow-low: {{ stock_flow_low_end }}%;"><div class="donut-center"><span>Total products</span><strong>{{ stock_flow_total }}</strong></div></div>
+            <div class="flow-list">{% for flow in stock_flow %}<div class="flow-row"><span class="flow-dot {{ flow.class }}"></span><div><strong>{{ flow.label }}</strong><br><small>{{ flow.percentage }}% of catalog</small></div><strong>{{ flow.value }}</strong></div>{% endfor %}</div>
+          </div>
+        </section>
+
+        <section class="panel" id="products">
+          <div class="panel-head"><div><h2 class="panel-title">Product Management</h2><p class="muted">Use the same clear filter-and-reset pattern as Category Management. Results and statistics are loaded from the existing database.</p></div><button class="btn" type="button" data-open-modal="addProductModal"><i class="ti ti-plus"></i> Add Product</button></div>
+          <form class="product-filters" id="productFilterForm" method="get" action="{% url 'admin_control_center' %}">
+            <div class="field wide"><label for="product-search">Product name, SKU, or brand</label><input id="product-search" name="product_search" value="{{ product_filters.search }}" placeholder="Search products..." autocomplete="off"></div>
+            <div class="field"><label for="product-category">Category</label><select id="product-category" name="product_category"><option value="">All categories</option>{% for category in categories %}<option value="{{ category.category_id }}" {% if product_filters.category == category.category_id|stringformat:'s' %}selected{% endif %}>{{ category.category_name }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="product-subcategory">Subcategory</label><select id="product-subcategory" name="product_subcategory"><option value="">All subcategories</option>{% for subcategory in subcategories %}<option value="{{ subcategory.subcategory_id }}" data-category="{{ subcategory.category_id }}" {% if product_filters.subcategory == subcategory.subcategory_id|stringformat:'s' %}selected{% endif %}>{{ subcategory.subcategory_name }}{% if subcategory.category %} · {{ subcategory.category.category_name }}{% endif %}</option>{% endfor %}</select></div>
+            <div class="field"><label for="product-collection">Gender / collection</label><select id="product-collection" name="product_collection"><option value="">All collections</option>{% for option in product_collection_options %}<option value="{{ option.root_category_id }}" {% if product_filters.collection == option.root_category_id|stringformat:'s' %}selected{% endif %}>{{ option.root_category.category_name|default:option.name }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="product-status">Product status</label><select id="product-status" name="product_status"><option value="">All statuses</option><option value="active" {% if product_filters.status == 'active' %}selected{% endif %}>Active</option><option value="hidden" {% if product_filters.status == 'hidden' %}selected{% endif %}>Hidden</option></select></div>
+            <div class="field"><label for="stock-status">Stock availability</label><select id="stock-status" name="stock_status"><option value="">All stock</option><option value="in_stock" {% if product_filters.stock == 'in_stock' %}selected{% endif %}>In stock</option><option value="low_stock" {% if product_filters.stock == 'low_stock' %}selected{% endif %}>Low stock</option><option value="out_of_stock" {% if product_filters.stock == 'out_of_stock' %}selected{% endif %}>Out of stock</option></select></div>
+            <div class="field"><label for="min-price">Min price</label><input id="min-price" name="min_price" value="{{ product_filters.min_price }}" type="number" min="0" step="0.01" placeholder="₹ 0"></div>
+            <div class="field"><label for="max-price">Max price</label><input id="max-price" name="max_price" value="{{ product_filters.max_price }}" type="number" min="0" step="0.01" placeholder="₹ 99999"></div>
+            <div class="field"><label for="product-movement">Order movement</label><select id="product-movement" name="product_movement"><option value="">All movement</option><option value="has_outgoing" {% if product_filters.movement == 'has_outgoing' %}selected{% endif %}>Has outgoing units</option><option value="no_outgoing" {% if product_filters.movement == 'no_outgoing' %}selected{% endif %}>No outgoing units</option></select></div>
+            <div class="filter-actions"><button class="btn" type="submit"><i class="ti ti-adjustments-horizontal"></i> Filter products</button><a class="btn btn-light" href="{% url 'admin_control_center' %}#products">Reset filters</a></div>
+          </form>
+          <div class="filter-caption"><span class="muted">Showing <strong>{{ filtered_product_count }}</strong> of {{ total_products }} products</span>{% if product_filters.search or product_filters.category or product_filters.subcategory or product_filters.collection or product_filters.status or product_filters.stock or product_filters.min_price or product_filters.max_price or product_filters.movement %}<span class="badge info">Filters applied</span>{% endif %}</div>
+          <div class="table-wrap"><table><thead><tr><th>Image</th><th>Name / Brand</th><th>Category / Subcategory</th><th>Price</th><th>Stock</th><th>Outgoing</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+            {% for row in products %}
+            <tr data-product-row="{{ row.product.product_id }}">
+              <td><img class="product-img" data-product-image src="{% asset_src row.image_path %}" alt="{{ row.product.product_name }}"></td>
+              <td><strong data-product-name>{{ row.product.product_name }}</strong><br><span class="muted" data-product-brand>{{ row.product.brand|default:"No brand" }}</span><br><small class="muted" data-product-sku>{{ row.product.sku }}</small></td>
+              <td data-product-hierarchy>{{ row.hierarchy_label }}</td>
+              <td>₹ <span data-product-price>{{ row.product.offer_price }}</span></td>
+              <td data-product-stock>{% if row.total_stock == 0 %}<span class="badge stock-badge out">Out of stock</span>{% elif row.total_stock <= low_stock_threshold %}<span class="badge stock-badge low">{{ row.total_stock }} · Low</span>{% else %}<span class="badge stock-badge ok">{{ row.total_stock }} · In stock</span>{% endif %}</td>
+              <td><span class="badge info" data-product-outgoing>{{ row.outgoing_units }} units</span></td>
+              <td data-product-status>{% if row.product.is_active %}<span class="badge ok">Active</span>{% else %}<span class="badge out">Hidden</span>{% endif %}</td>
+              <td><div class="actions"><a class="btn" href="{% url 'admin_product_edit' row.product.product_id %}"><i class="ti ti-pencil"></i> Edit</a><form method="post" action="{% url 'admin_product_delete' row.product.product_id %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><button class="btn btn-danger" type="submit" onclick="return confirm('Delete this product?')"><i class="ti ti-trash"></i> Delete</button></form></div></td>
+            </tr>
+            {% empty %}<tr><td colspan="8" style="text-align:center;padding:32px;"><strong>No products match these filters.</strong><br><span class="muted">Try resetting the filters to restore the complete product list.</span></td></tr>{% endfor %}
+          </tbody></table></div>
+          {% if product_page.paginator.num_pages > 1 %}<div class="pagination"><span class="muted">Page {{ product_page.number }} of {{ product_page.paginator.num_pages }}</span><div class="pagination-links">{% if product_page.has_previous %}<a class="page-link" href="?{% if page_query_params %}{{ page_query_params }}&amp;{% endif %}page={{ product_page.previous_page_number }}#products">Previous</a>{% endif %}<span class="page-link current">{{ product_page.number }}</span>{% if product_page.has_next %}<a class="page-link" href="?{% if page_query_params %}{{ page_query_params }}&amp;{% endif %}page={{ product_page.next_page_number }}#products">Next</a>{% endif %}</div></div>{% endif %}
+        </section>
+
+        <section class="panel" id="categories">
+          <div class="panel-head"><div><h2 class="panel-title">Category Management</h2><p class="muted">Manage Gender roots, required main categories, and product-listing sub categories.</p></div></div>
+          <div class="split">
+            <form method="post" action="{% url 'admin_categories' %}" enctype="multipart/form-data" class="mini-card" data-admin-ajax="category">
+              {% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><input type="hidden" name="action" value="save_fashion_category">
+              <div class="field"><label>Name</label><input name="name" required></div>
+              <div class="field"><label>Gender</label><select name="root_category_id" required><option value="">Select gender</option>{% for category in categories %}<option value="{{ category.category_id }}">{{ category.category_name }}</option>{% endfor %}</select></div>
+              <div class="field"><label>Parent Main Category</label><select name="parent_id"><option value="">Create gender root/main category</option>{% for category in all_fashion_categories %}<option value="{{ category.fashion_category_id }}">{{ category.full_path }}</option>{% endfor %}</select></div>
+              <div class="field"><label>Sort Order</label><input name="sort_order" type="number" min="0" step="1" inputmode="numeric" value="0"></div>
+              <div class="field"><label>Description</label><textarea name="description"></textarea></div>
+              <div class="field"><label>Image Upload</label><input type="file" name="image_upload" accept="image/jpeg,image/png,image/webp"></div>
+              <div class="field"><label>Banner Upload</label><input type="file" name="banner_upload" accept="image/jpeg,image/png,image/webp"></div>
+              <label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_active" checked> Active</label>
+              <label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_under_maintenance"> Under Maintenance</label>
+              <p class="muted" style="margin:6px 0 12px;font-size:12px;">When enabled, customers see a maintenance page instead of products. Leave unchecked to publish this card.</p>
+              <button class="btn" type="submit">Save Category</button>
+            </form>
+            <div><div class="filter-bar" data-category-filters><button class="filter-btn active" type="button" data-gender-filter="all">All</button><button class="filter-btn" type="button" data-gender-filter="mens">Men</button><button class="filter-btn" type="button" data-gender-filter="womens">Women</button><button class="filter-btn" type="button" data-gender-filter="kids">Kids</button><select class="category-filter-select" data-subcategory-filter aria-label="Filter by subcategory"><option value="all" data-gender="all">All Subcategories</option>{% for option in category_filter_options %}<option value="{{ option.fashion_category_id }}" data-gender="{{ option.root_category.category_name|lower }}">{{ option.root_category.category_name }} - {{ option.name }}</option>{% endfor %}</select></div><div class="cards-grid">{% for group in card_groups %}{% for category in group.cards %}<form class="mini-card" method="post" action="{% url 'admin_categories' %}" enctype="multipart/form-data" data-admin-ajax="category" data-category-section="{{ category.root_category.category_name|lower }}" data-category-parent="{{ category.filter_group_id }}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><input type="hidden" name="action" value="save_fashion_category"><input type="hidden" name="fashion_category_id" value="{{ category.fashion_category_id }}">{% if category.image %}<img class="preview" src="{% asset_src category.image %}" alt="{{ category.name }}">{% endif %}<div class="field"><label>Name</label><input name="name" value="{{ category.name }}" required></div><input type="hidden" name="root_category_id" value="{{ category.root_category_id }}"><div class="field"><label>Parent</label><select name="parent_id"><option value="">Top level</option>{% for parent in all_fashion_categories %}{% if parent.fashion_category_id != category.fashion_category_id %}<option value="{{ parent.fashion_category_id }}" {% if category.parent_id == parent.fashion_category_id %}selected{% endif %}>{{ parent.full_path }}</option>{% endif %}{% endfor %}</select></div><div class="field"><label>Sort Order</label><input name="sort_order" type="number" min="0" value="{{ category.sort_order }}"></div><div class="field"><label>Image Path</label><input name="image" value="{{ category.image|default:'' }}"></div><div class="field"><label>Banner Path</label><input name="banner_image" value="{{ category.banner_image|default:'' }}"></div><div class="field"><label>Upload Image</label><input type="file" name="image_upload" accept="image/jpeg,image/png,image/webp"></div><div class="field"><label>Upload Banner</label><input type="file" name="banner_upload" accept="image/jpeg,image/png,image/webp"></div><label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_active" {% if category.is_active %}checked{% endif %}> Active</label><label style="display:flex;gap:8px;align-items:center;margin-top:8px;"><input style="width:auto;" type="checkbox" name="is_under_maintenance" {% if category.is_under_maintenance %}checked{% endif %}> Under Maintenance</label><div class="actions"><button class="btn" type="submit">Update</button><button class="btn btn-danger" type="submit" name="action" value="delete_fashion_category" onclick="return confirm('Delete this category card?')">Delete</button></div></form>{% endfor %}{% empty %}<div class="module-note">No category cards configured.</div>{% endfor %}</div></div>
+          </div>
+        </section>
+
+        <section class="panel" id="orders">
+          <div class="panel-head"><div><h2 class="panel-title">Order Management</h2><p class="muted">Update order, payment, and tracking details.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Tracking</th><th>Update</th></tr></thead><tbody>{% for order in orders %}<tr><td>#{{ order.order_id }}<br><span class="muted">{{ order.created_at }}</span></td><td>{{ order.full_name }}<br><span class="muted">{{ order.email }}</span></td><td>Rs. {{ order.subtotal }}</td><td>{{ order.status }} / {{ order.payment_status }}</td><td>{{ order.tracking_number|default:"-" }}</td><td><form class="actions" method="post" action="{% url 'admin_order_update' order.order_id %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><select name="status"><option value="Pending" {% if order.status == "Pending" %}selected{% endif %}>Pending</option><option value="Payment Confirmed" {% if order.status == "Payment Confirmed" %}selected{% endif %}>Payment Confirmed</option><option value="Processing" {% if order.status == "Processing" %}selected{% endif %}>Processing</option><option value="Placed" {% if order.status == "Placed" %}selected{% endif %}>Placed</option><option value="Pending Payment" {% if order.status == "Pending Payment" %}selected{% endif %}>Pending Payment</option><option value="Packed" {% if order.status == "Packed" %}selected{% endif %}>Packed</option><option value="Shipped" {% if order.status == "Shipped" %}selected{% endif %}>Shipped</option><option value="Out for Delivery" {% if order.status == "Out for Delivery" %}selected{% endif %}>Out for Delivery</option><option value="Delivered" {% if order.status == "Delivered" %}selected{% endif %}>Delivered</option><option value="Cancelled" {% if order.status == "Cancelled" %}selected{% endif %}>Cancelled</option></select><select name="payment_status"><option value="Pending" {% if order.payment_status == "Pending" %}selected{% endif %}>Pending</option><option value="Paid" {% if order.payment_status == "Paid" %}selected{% endif %}>Paid</option><option value="Failed" {% if order.payment_status == "Failed" %}selected{% endif %}>Failed</option><option value="Refunded" {% if order.payment_status == "Refunded" %}selected{% endif %}>Refunded</option></select><input name="tracking_number" value="{{ order.tracking_number|default:'' }}" placeholder="Tracking"><button class="btn" type="submit">Save</button></form></td></tr>{% empty %}<tr><td colspan="6" style="text-align:center;padding:32px;">No orders found.</td></tr>{% endfor %}</tbody></table></div>
+        </section>
+
+        <section class="panel" id="users"><div class="panel-head"><div><h2 class="panel-title">User Management</h2><p class="muted">Customer accounts, order counts, and lifetime spend.</p></div></div><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Email</th><th>Joined</th><th>Orders</th><th>Total Spent</th><th>Latest Order</th></tr></thead><tbody>{% for row in customers %}<tr><td>{{ row.customer.get_full_name|default:row.customer.username }}</td><td>{{ row.customer.email }}</td><td>{{ row.customer.date_joined }}</td><td>{{ row.order_count }}</td><td>Rs. {{ row.total_spent }}</td><td>{% if row.latest_order %}#{{ row.latest_order.order_id }}{% else %}-{% endif %}</td></tr>{% empty %}<tr><td colspan="6" style="text-align:center;padding:32px;">No customers yet.</td></tr>{% endfor %}</tbody></table></div></section>
+
+        <section class="panel" id="media"><div class="panel-head"><div><h2 class="panel-title">Banner & Background/Image Management</h2><p class="muted">Upload local images, preview, replace, and assign page backgrounds.</p></div></div><h3 style="margin-bottom:12px;">Site Assets / Banners</h3><div class="cards-grid">{% for asset in site_assets %}<form class="mini-card" method="post" enctype="multipart/form-data" data-admin-ajax="site-asset">{% csrf_token %}<input type="hidden" name="action" value="save_site_asset"><div class="field"><label>Asset Key</label><input name="asset_key" value="{{ asset.asset_key }}" required></div>{% if asset.image_path %}<img class="preview" data-preview-image src="{% asset_src asset.image_path %}" alt="{{ asset.asset_key }}">{% endif %}<div class="field"><label>Image Path</label><input name="image_path" value="{{ asset.image_path }}"></div><div class="field"><label>Upload Replacement</label><input type="file" name="asset_upload" accept="image/jpeg,image/png,image/webp" data-preview-input></div><label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_active" {% if asset.is_active %}checked{% endif %}> Active</label><button class="btn" type="submit">Save Asset</button></form>{% empty %}<form class="mini-card" method="post" enctype="multipart/form-data" data-admin-ajax="site-asset">{% csrf_token %}<input type="hidden" name="action" value="save_site_asset"><div class="field"><label>Asset Key</label><input name="asset_key" placeholder="logo" required></div><div class="field"><label>Upload Image</label><input type="file" name="asset_upload" accept="image/jpeg,image/png,image/webp" required></div><label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_active" checked> Active</label><button class="btn" type="submit">Create Asset</button></form>{% endfor %}</div><h3 style="margin:22px 0 12px;">Page Backgrounds</h3><div class="cards-grid">{% for background in backgrounds %}<form class="mini-card" method="post" action="{% url 'admin_backgrounds' %}" enctype="multipart/form-data" data-admin-ajax="background">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin_control_center' %}"><input type="hidden" name="choice_id" value="{{ background.choice_id }}"><img class="preview" data-preview-image src="{{ background.current_url }}" alt="{{ background.label }}"><strong>{{ background.label }}</strong><p class="muted" style="word-break:break-all;">{{ background.current_path }}</p><div class="field"><label>Image Path</label><input name="image_path" value="{{ background.saved_path }}" placeholder="{{ background.fallback }}"></div><div class="field"><label>Upload Background</label><input type="file" name="background_upload" accept="image/jpeg,image/png,image/webp" data-preview-input></div><label style="display:flex;gap:8px;align-items:center;"><input style="width:auto;" type="checkbox" name="is_active" {% if background.is_active %}checked{% endif %}> Active</label><div class="actions"><button class="btn" name="action" value="save_background" type="submit">Save</button><button class="btn btn-danger" name="action" value="delete_background" type="submit">Reset</button></div></form>{% endfor %}</div></section>
+
+
+
+        <section class="panel" id="image-management"><div class="panel-head"><div><h2 class="panel-title">Image Management</h2><p class="muted">Uploaded product, category, banner, and background images are stored persistently and reused across the storefront.</p></div></div><div class="cards-grid"><div class="mini-card"><strong>Supported Formats</strong><p class="muted">JPG, JPEG, PNG, and WEBP uploads are accepted.</p></div><div class="mini-card"><strong>Persistence</strong><p class="muted">New uploads are saved under media/uploads and referenced from the database.</p></div><div class="mini-card"><strong>Cleanup</strong><p class="muted">Replaced uploaded files are deleted automatically when no record uses them.</p></div></div></section>
+
+      </section>
+    </main>
+  </div>
+
+  <dialog class="modal" id="addProductModal"><div class="modal-body"><div class="panel-head"><h2 class="panel-title">Add Product</h2><button class="btn" type="button" data-close-modal>Close</button></div>{% include "store/partials/admin_product_fields.html" with action_url="admin_product_add" product=None variant=None submit_label="Add Product" %}</div></dialog>
+
+    <script>
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    if (sidebarToggle) sidebarToggle.addEventListener('click', () => {
+      const open = document.body.classList.toggle('sidebar-open');
+      sidebarToggle.setAttribute('aria-expanded', String(open));
+    });
+    const navLinks = [...document.querySelectorAll('.nav a')];
+    const sectionLinks = navLinks.filter((link) => link.getAttribute('href')?.startsWith('#'));
+    const setActiveNav = (hash) => {
+      const activeHash = hash || '#overview';
+      navLinks.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === activeHash));
+    };
+    sectionLinks.forEach((link) => link.addEventListener('click', () => {
+      document.body.classList.remove('sidebar-open');
+      setActiveNav(link.getAttribute('href'));
+    }));
+    window.addEventListener('hashchange', () => setActiveNav(window.location.hash));
+    const observedSections = sectionLinks.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+    if ('IntersectionObserver' in window && observedSections.length) {
+      const observer = new IntersectionObserver((entries) => {
+        const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActiveNav(`#${visible.target.id}`);
+      }, { rootMargin: '-20% 0px -65% 0px', threshold: [0.1, 0.25, 0.5] });
+      observedSections.forEach((section) => observer.observe(section));
+    }
+    setActiveNav(window.location.hash);
+    const productCategorySelect = document.getElementById('product-category');
+    const productSubcategorySelect = document.getElementById('product-subcategory');
+    const syncProductSubcategories = () => {
+      if (!productCategorySelect || !productSubcategorySelect) return;
+      const categoryId = productCategorySelect.value;
+      [...productSubcategorySelect.options].forEach((option) => {
+        if (!option.dataset.category) return;
+        option.hidden = Boolean(categoryId) && option.dataset.category !== categoryId;
+      });
+      const selected = productSubcategorySelect.selectedOptions[0];
+      if (selected?.hidden) productSubcategorySelect.value = '';
+    };
+    productCategorySelect?.addEventListener('change', syncProductSubcategories);
+    syncProductSubcategories();
+    document.querySelectorAll('[data-category-filters]').forEach((bar) => {
+      const targets = [...document.querySelectorAll('[data-category-section]')];
+      const subcategorySelect = bar.querySelector('[data-subcategory-filter]');
+      const options = subcategorySelect ? [...subcategorySelect.options] : [];
+      let activeGender = 'all';
+
+      const syncSubcategoryOptions = () => {
+        options.forEach((option) => {
+          const optionGender = option.dataset.gender || 'all';
+          option.hidden = activeGender !== 'all' && optionGender !== 'all' && optionGender !== activeGender;
+        });
+        if (subcategorySelect?.selectedOptions[0]?.hidden) subcategorySelect.value = 'all';
+      };
+
+      const applyCategoryFilters = () => {
+        syncSubcategoryOptions();
+        const activeSubcategory = subcategorySelect?.value || 'all';
+        targets.forEach((target) => {
+          const matchesGender = activeGender === 'all' || target.dataset.categorySection === activeGender;
+          const matchesSubcategory = activeSubcategory === 'all' || target.dataset.categoryParent === activeSubcategory;
+          target.hidden = !(matchesGender && matchesSubcategory);
+        });
+      };
+
+      bar.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-gender-filter]');
+        if (!button) return;
+        activeGender = button.dataset.genderFilter;
+        bar.querySelectorAll('[data-gender-filter]').forEach((item) => item.classList.toggle('active', item === button));
+        applyCategoryFilters();
+      });
+      subcategorySelect?.addEventListener('change', applyCategoryFilters);
+      applyCategoryFilters();
+    });
+    document.querySelectorAll('[data-open-modal]').forEach((button) => button.addEventListener('click', () => document.getElementById(button.dataset.openModal)?.showModal()));
+    document.querySelectorAll('[data-close-modal]').forEach((button) => button.addEventListener('click', () => button.closest('dialog')?.close()));
+    const findNearestPreview = (input) => {
+      const field = input.closest('.field');
+      const form = input.closest('form');
+      if (field?.querySelector('[data-preview-image], .preview')) return field.querySelector('[data-preview-image], .preview');
+      if (field?.previousElementSibling?.matches?.('[data-preview-image], .preview')) return field.previousElementSibling;
+      return form?.querySelector('[data-preview-image], .preview');
+    };
+    document.querySelectorAll('input[type="file"]').forEach((input) => input.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      const preview = findNearestPreview(input);
+      if (file && preview) preview.src = URL.createObjectURL(file);
+    }));
+    const ensureMessages = () => {
+      let messages = document.querySelector('.messages');
+      if (!messages) {
+        messages = document.createElement('div');
+        messages.className = 'messages';
+        document.querySelector('.content')?.prepend(messages);
+      }
+      return messages;
+    };
+    const showAdminMessage = (message, ok = true) => {
+      const messages = ensureMessages();
+      messages.innerHTML = `<div class="message ${ok ? 'success' : 'error'}">${message}</div>`;
+      messages.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    };
+    const setBusy = (form, busy) => {
+      form.querySelectorAll('button').forEach((button) => {
+        button.disabled = busy;
+        if (busy && button.type === 'submit') button.dataset.originalText = button.textContent;
+        if (busy && button.type === 'submit') button.textContent = 'Saving...';
+        if (!busy && button.dataset.originalText) button.textContent = button.dataset.originalText;
+      });
+    };
+    const updateProductRow = (product) => {
+      const row = document.querySelector(`[data-product-row="${product.id}"]`);
+      if (!row) return;
+      row.querySelector('[data-product-image]')?.setAttribute('src', product.image_url);
+      row.querySelector('[data-product-name]').textContent = product.name;
+      row.querySelector('[data-product-brand]').textContent = product.brand;
+      row.querySelector('[data-product-hierarchy]').textContent = product.hierarchy_label;
+      row.querySelector('[data-product-sku]').textContent = product.sku;
+      row.querySelector('[data-product-price]').textContent = product.price;
+      row.querySelector('[data-product-stock]').textContent = product.stock;
+      row.querySelector('[data-product-status]').innerHTML = product.active ? '<span class="badge ok">Active</span>' : '<span class="badge out">Hidden</span>';
+    };
+    const cacheBustedUrl = (url) => {
+      if (!url) return '';
+      const separator = url.includes('?') ? '&' : '?';
+      return `${url}${separator}v=${Date.now()}`;
+    };
+    const setInputValue = (form, name, value) => {
+      const input = form.querySelector(`[name="${name}"]`);
+      if (input) input.value = value || '';
+    };
+    const updateReturnedImages = (form, data) => {
+      const preview = form.querySelector('[data-preview-image], .preview');
+      if (data.asset && preview) preview.src = cacheBustedUrl(data.asset.url);
+      if (data.asset) setInputValue(form, 'image_path', data.asset.path);
+      if (data.background && preview) preview.src = cacheBustedUrl(data.background.url);
+      if (data.background) {
+        setInputValue(form, 'image_path', data.background.path);
+        const label = form.querySelector('.muted[style*="word-break"]');
+        if (label) label.textContent = data.background.path;
+      }
+      if (data.category?.image_url && preview) preview.src = cacheBustedUrl(data.category.image_url);
+      if (data.category) {
+        setInputValue(form, 'image', data.category.image);
+        setInputValue(form, 'banner_image', data.category.banner_image);
+        setInputValue(form, 'name', data.category.name);
+      }
+    };
+    document.querySelectorAll('[data-admin-ajax]').forEach((form) => {
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const submitter = event.submitter;
+        const body = new FormData(form);
+        if (submitter?.name) body.set(submitter.name, submitter.value);
+        setBusy(form, true);
+        try {
+          const actionUrl = form.getAttribute('action') || window.location.href;
+          const response = await fetch(actionUrl, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            body,
+          });
+          const contentType = response.headers.get('content-type') || '';
+          const isJson = contentType.includes('application/json');
+          if (!response.ok && !isJson) throw new Error(`HTTP ${response.status}`);
+          const data = isJson ? await response.json() : null;
+          if (!data) throw new Error(`Server returned ${response.status} ${response.statusText || 'HTML'} instead of JSON.`);
+          if (!response.ok || !data.success) throw new Error(data.message || `HTTP ${response.status}`);
+          if (data.product) updateProductRow(data.product);
+          if (data.deleted_id) form.remove();
+          updateReturnedImages(form, data);
+          localStorage.setItem('shopease:catalog-updated', String(Date.now()));
+          showAdminMessage(data.message || 'Saved successfully.', true);
+          if (data.product) form.closest('dialog')?.close();
+          if (data.category && !form.querySelector('[name="fashion_category_id"]')) window.location.reload();
+        } catch (error) {
+          showAdminMessage(error.message || 'Something went wrong while saving.', false);
+        } finally {
+          setBusy(form, false);
+        }
+      });
+    });
+    const themeButton = document.getElementById('themeToggle');
+    const applyTheme = (value) => {
+      const next = value === 'dark' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem('shopease-admin-theme', next);
+      if (themeButton) {
+        themeButton.setAttribute('aria-pressed', String(next === 'dark'));
+        themeButton.innerHTML = next === 'dark' ? '<i class="ti ti-sun"></i> Light mode' : '<i class="ti ti-moon"></i> Dark mode';
+      }
+    };
+    applyTheme(localStorage.getItem('shopease-admin-theme') || 'dark');
+    themeButton?.addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+  </script>
+</body>
+</html>

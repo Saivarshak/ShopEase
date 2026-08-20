@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #fef3f2, #fff7ed);
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 520px;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+      padding: 36px;
+    }
+    .logo { display:block; width:120px; margin:0 auto 12px auto; }
+    h1 { text-align:center; margin-bottom:20px; font-size: 28px; color: #000; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display:block; margin-bottom:8px; font-size:14px; color:#000000; font-weight: 500; }
+    .form-group input {
+      width:100%;
+      padding:12px 14px;
+      border:1px solid #ccc;
+      border-radius:12px;
+      font-size:16px;
+      transition: 0.3s ease;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #000;
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+    }
+    .btn {
+      width:100%;
+      border:none;
+      border-radius:12px;
+      background:#000000;
+      color:white;
+      padding:12px;
+      font-size:16px;
+      cursor:pointer;
+      font-weight: 600;
+      transition: 0.3s ease;
+    }
+    .btn:hover { 
+      background:#333333;
+      transform: translateY(-2px);
+    }
+    .message {
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #fee4e2;
+      color: #c41e3a;
+      font-size: 14px;
+      border: 1px solid #f5a5a0;
+    }
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border-color: #c3e6cb;
+    }
+
+    /* =========================
+       DIVIDER
+    ========================== */
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 20px 0;
+    }
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #e0e0e0;
+    }
+    .divider span {
+      padding: 0 12px;
+      color: #666;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    /* =========================
+       GOOGLE BUTTON
+    ========================== */
+    .btn-google {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: #ffffff;
+      color: #444444;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s ease;
+      text-decoration: none;
+    }
+    .btn-google:hover {
+      background: #f8f8f8;
+      border-color: #bbb;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .btn-google svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .login-link { 
+      margin-top: 20px; 
+      text-align: center; 
+      font-size: 14px;
+    }
+    .login-link a { 
+      color: #000000; 
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 576px) {
+      .container {
+        padding: 24px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      .logo {
+        width: 100px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="{% static 'css/shopease-theme.css' %}">
+</head>
+<body>
+  <div class="container">
+    <img src="{% static 'images/logo1.png' %}" alt="Logo" class="logo">
+    <h1>Create Account</h1>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" action="{% url 'register' %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next_url }}">
+      
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Create password" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm password" required>
+      </div>
+      
+      <button type="submit" class="btn">Register</button>
+    </form>
+
+    <!-- Divider -->
+    <div class="divider">
+      <span>or sign up with</span>
+    </div>
+
+    <!-- Google Sign-Up Button -->
+    <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ next_url }}" class="btn-google">
+      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#EA4335" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      Sign up with Google
+    </a>
+
+    <div class="login-link">
+      Already have an account? <a href="{% url 'login' %}?next={{ next_url }}">Login</a>
+    </div>
+  </div>
+  {% include 'store/partials/instagram_corner.html' %}
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Access</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(135deg, #f3f4f6, #fff7ed); color: #000000; min-height: 100vh; display: grid; place-items: center; }
+    .card { width: min(440px, calc(100vw - 32px)); background: white; border-radius: 22px; padding: 28px; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.10); }
+    h1 { margin: 0 0 8px; }
+    .muted { color: #000000; margin-bottom: 20px; }
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    input { border: 1px solid #d0d5dd; border-radius: 12px; padding: 12px 14px; font-size: 14px; }
+    button { width: 100%; border: none; border-radius: 999px; padding: 13px 18px; background: #000000; color: white; font-size: 15px; font-weight: 700; cursor: pointer; }
+    button:hover { background: #8b5cf6; }
+    .message { margin-bottom: 16px; padding: 14px; border-radius: 12px; background: #fff7ed; color: #000000; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Admin Access</h1>
+    <p class="muted">Staff users, superusers, and the configured admin account can access product management.</p>
+    <p class="muted" style="margin-top:-8px;">Configured admin email: {{ admin_email }}</p>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="message">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next_url }}">
+      <div class="field">
+        <label>Email or Username</label>
+        <input type="text" name="identifier" value="{{ admin_identifier|default:admin_email }}" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" required>
+      </div>
+      <button type="submit">Login to Admin Panel</button>
+    </form>
+  </div>
+</body>
+</html>

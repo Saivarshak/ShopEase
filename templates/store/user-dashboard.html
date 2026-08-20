@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard</title>
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#f6f8fb; color:#111; }
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      color: #111827;
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header a {
+      color: #111827;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+    .header a:hover {
+      color: #2563eb;
+    }
+    .wrap { max-width:1180px; margin:32px auto; padding:0 20px; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+    .btn { background:#000; color:#fff; border-radius:6px; padding:11px 15px; text-decoration:none; font-weight:700; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .panel { background:#fff; border-radius:8px; padding:22px; box-shadow:0 12px 32px rgba(0,0,0,.08); }
+    .row { border-top:1px solid #e5e7eb; padding:12px 0; }
+    .row:first-of-type { border-top:0; }
+    @media(max-width:860px){ .grid{grid-template-columns:1fr;} }
+  </style>
+  <link rel="stylesheet" href="{% static 'css/shopease-theme.css' %}">
+</head>
+<body>
+  <div class="header">
+    <div>My Dashboard</div>
+    <div style="display:flex;gap:14px;align-items:center;">
+      {% include 'store/partials/profile_badge.html' %}
+      <a href="{% url 'home' %}">Home</a>
+    </div>
+  </div>
+  <main class="wrap">
+    {% if messages %}{% for message in messages %}<div class="panel" style="margin-bottom:14px;">{{ message }}</div>{% endfor %}{% endif %}
+    <div class="actions">
+      <a class="btn" href="{% url 'profile_settings' %}">Profile</a>
+      <a class="btn" href="{% url 'address_book' %}">Addresses</a>
+      <a class="btn" href="{% url 'orders' %}">Order History</a>
+      <a class="btn" href="{% url 'wishlist' %}">Wishlist</a>
+    </div>
+    <div class="grid">
+      <section class="panel">
+        <h2>Recent Orders</h2>
+        {% for order in orders %}
+          <div class="row">Order #{{ order.order_id }} | {{ order.status }} | Rs. {{ order.subtotal }}</div>
+        {% empty %}
+          <p>No orders yet.</p>
+        {% endfor %}
+      </section>
+      <section class="panel">
+        <h2>Saved Addresses</h2>
+        {% for address in addresses %}
+          <div class="row">{{ address.full_name }}, {{ address.city }} - {{ address.pincode }}{% if address.is_default %} | Default{% endif %}</div>
+        {% empty %}
+          <p>No addresses saved.</p>
+        {% endfor %}
+      </section>
+      <section class="panel">
+        <h2>Wishlist</h2>
+        {% for item in wishlist_items %}
+          <div class="row">{{ item.product.product_name }} | Rs. {{ item.product.offer_price }}</div>
+        {% empty %}
+          <p>No wishlist items yet.</p>
+        {% endfor %}
+      </section>
+    </div>
+  </main>
+  {% include 'store/partials/instagram_corner.html' %}
+</body>
+</html>

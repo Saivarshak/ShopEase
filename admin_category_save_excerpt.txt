@@ -1,0 +1,82 @@
+def _save_admin_category_from_request(request):
+    action = (request.POST.get('action') or 'save_fashion_category').strip()
+    fashion_category_id = request.POST.get('fashion_category_id')
+
+    if action == 'delete_fashion_category':
+        return _delete_admin_category(fashion_category_id)
+
+    name = (request.POST.get('name') or '').strip()
+    root_category_id = request.POST.get('root_category_id')
+    parent_id = request.POST.get('parent_id')
+    raw_sort_order = request.POST.get('sort_order')
+    sort_order = None if raw_sort_order in (None, '') else max(0, _parse_int(raw_sort_order, 0))
+    description = (request.POST.get('description') or '').strip()
+    page_url = (request.POST.get('page_url') or '').strip()
+    raw_image_input = request.POST.get('image')
+    image_path = _normalize_admin_asset_path(raw_image_input)
+    raw_banner_image_input = request.POST.get('banner_image')
+    banner_image_path = _normalize_admin_asset_path(raw_banner_image_input)
+    is_under_maintenance = request.POST.get('is_under_maintenance') == 'on'
+    is_active = request.POST.get('is_active') == 'on'
+
+    if not name:
+        return False, 'Category name is required.', {}, 400
+
+    root_category = Category.objects.filter(category_id=root_category_id).first()
+    if root_category is None:
+        return False, 'Root category is required.', {}, 400
+
+    category = FashionCategory.objects.filter(fashion_category_id=fashion_category_id).first() if fashion_category_id else None
+    if fashion_category_id and category is None:
+        return False, 'Category card was not found.', {}, 404
+
+    parent = None
+    if parent_id:
+        parent = FashionCategory.objects.filter(fashion_category_id=parent_id).first()
+        if parent is None:
+            return False, 'Parent category was not found.', {}, 400
+        if category and _is_descendant_category(parent, category):
+            return False, 'A category cannot be moved under itself or its child category.', {}, 400
+
+    try:
+        uploaded_image_path = _save_uploaded_asset_image(request.FILES.get('image_upload'), name)
+        uploaded_banner_path = _save_uploaded_asset_image(request.FILES.get('banner_upload'), f'{name}-banner')
+    except ValueError as exc:
+        return False, str(exc), {}, 400
+
+    if category is None:
+        category = FashionCategory()
+
+    preserve_existing_image = raw_image_input is None and category.fashion_category_id and not _is_forbidden_image_reference(category.image)
+    final_image_path = uploaded_image_path or image_path or (category.image if preserve_existing_image else '')
+    preserve_existing_banner = raw_banner_image_input is None and category.fashion_category_id and not _is_forbidden_image_reference(category.banner_image)
+    final_banner_path = uploaded_banner_path or banner_image_path or (category.banner_image if preserve_existing_banner else '')
+    previous_paths = [category.image, category.banner_image]
+
+    category.name = name
+    category.slug = _unique_fashion_slug(name, parent, category.fashion_category_id)
+    category.root_category = root_category
+    category.parent = parent
+    category.level = (parent.level + 1) if parent else 0
+    category.sort_order = sort_order if sort_order is not None else _next_fashion_sort_order(root_category, parent, category.fashion_category_id)
+    category.image = final_image_path or None
+    category.banner_image = final_banner_path or None
+    category.description = description or None
+    category.page_url = page_url or None
+    category.is_active = is_active
+    category.is_under_maintenance = is_under_maintenance
+    category.save()
+    _delete_replaced_uploaded_assets(previous_paths, [category.image, category.banner_image])
+
+    if parent:
+        SubCategory.objects.get_or_create(category=root_category, subcategory_name=name)
+
+    return True, 'Operation completed successfully.', {'category': _admin_category_payload(category)}, 200
+
+def admin_categories(request):
+    access_redirect = _require_shop_admin(request)
+    if access_redirect:
+        return access_redirect
+
+    if request.method == 'POST':
+        success, message, payload, status = _save_admin_category_from_request(request)

@@ -1,0 +1,738 @@
+﻿[
+{
+  "model": "store.category",
+  "pk": 1,
+  "fields": {
+    "category_name": "mens",
+    "image": "images/men.jpg"
+  }
+},
+{
+  "model": "store.category",
+  "pk": 2,
+  "fields": {
+    "category_name": "womens",
+    "image": "categories/women.jpeg"
+  }
+},
+{
+  "model": "store.category",
+  "pk": 3,
+  "fields": {
+    "category_name": "kids",
+    "image": "categories/kid.jpeg"
+  }
+},
+{
+  "model": "store.subcategory",
+  "pk": 1,
+  "fields": {
+    "subcategory_name": "T-Shirts",
+    "category": 1
+  }
+},
+{
+  "model": "store.subcategory",
+  "pk": 2,
+  "fields": {
+    "subcategory_name": "Shirts",
+    "category": 1
+  }
+},
+{
+  "model": "store.subcategory",
+  "pk": 3,
+  "fields": {
+    "subcategory_name": "Jeans",
+    "category": 1
+  }
+},
+{
+  "model": "store.subcategory",
+  "pk": 4,
+  "fields": {
+    "subcategory_name": "Ethnic Wear",
+    "category": 2
+  }
+},
+{
+  "model": "store.subcategory",
+  "pk": 5,
+  "fields": {
+    "subcategory_name": "Western Wear",
+    "category": 2
+  }
+},
+{
+  "model": "store.subcategory",
+  "pk": 6,
+  "fields": {
+    "subcategory_name": "Footwear",
+    "category": 2
+  }
+},
+{
+  "model": "store.subcategory",
+  "pk": 7,
+  "fields": {
+    "subcategory_name": "Kids T-Shirts",
+    "category": 3
+  }
+},
+{
+  "model": "store.subcategory",
+  "pk": 8,
+  "fields": {
+    "subcategory_name": "Kids Dresses",
+    "category": 3
+  }
+},
+{
+  "model": "store.subcategory",
+  "pk": 9,
+  "fields": {
+    "subcategory_name": "Toys",
+    "category": 3
+  }
+},
+{
+  "model": "store.subcategory",
+  "pk": 11,
+  "fields": {
+    "subcategory_name": "Footwear",
+    "category": 3
+  }
+},
+{
+  "model": "store.mencategory",
+  "pk": 1,
+  "fields": {
+    "category": 1,
+    "category_name": "T-Shirts",
+    "image": "images/T-shirt.jpg",
+    "description": "Everyday picks for men.",
+    "page_url": "/mens_tshirts/",
+    "is_active": true,
+    "created_at": null
+  }
+},
+{
+  "model": "store.mencategory",
+  "pk": 2,
+  "fields": {
+    "category": 1,
+    "category_name": "Shirts",
+    "image": "images/mens_shirts.png",
+    "description": "Smart casual and formal shirts.",
+    "page_url": "/mens_shirts/",
+    "is_active": true,
+    "created_at": null
+  }
+},
+{
+  "model": "store.mencategory",
+  "pk": 3,
+  "fields": {
+    "category": 1,
+    "category_name": "Jeans",
+    "image": "images/mens_jeans.png",
+    "description": "Comfortable denim for daily wear.",
+    "page_url": "/mens_jeans/",
+    "is_active": true,
+    "created_at": null
+  }
+},
+{
+  "model": "store.womencategory",
+  "pk": 1,
+  "fields": {
+    "category": 2,
+    "category_name": "Ethnic Wear",
+    "image": "images/women-ethnic.png",
+    "description": "Traditional styles with a modern finish.",
+    "page_url": "/womens_ethnicware/",
+    "is_active": true,
+    "created_at": null
+  }
+},
+{
+  "model": "store.womencategory",
+  "pk": 2,
+  "fields": {
+    "category": 2,
+    "category_name": "Western Wear",
+    "image": "images/women-western.png",
+    "description": "Fresh western fits for daily fashion.",
+    "page_url": "/womens_westernware/",
+    "is_active": true,
+    "created_at": null
+  }
+},
+{
+  "model": "store.womencategory",
+  "pk": 3,
+  "fields": {
+    "category": 2,
+    "category_name": "Footwear",
+    "image": "images/women-footwear1.png",
+    "description": "Comfortable and versatile footwear.",
+    "page_url": "/womens_footwear/",
+    "is_active": true,
+    "created_at": null
+  }
+},
+{
+  "model": "store.kidscategory",
+  "pk": 1,
+  "fields": {
+    "category": 3,
+    "category_name": "T-Shirts",
+    "image": "images/kids-tshirts.png",
+    "description": "Soft and playful t-shirts for kids.",
+    "page_url": "/kids_tshirts/",
+    "is_active": true,
+    "created_at": null
+  }
+},
+{
+  "model": "store.kidscategory",
+  "pk": 2,
+  "fields": {
+    "category": 3,
+    "category_name": "Kids Dresses",
+    "image": "images/kids-dresses.png",
+    "description": "Dressy options for special occasions.",
+    "page_url": "/kids_dresses/",
+    "is_active": true,
+    "created_at": null
+  }
+},
+{
+  "model": "store.kidscategory",
+  "pk": 3,
+  "fields": {
+    "category": 3,
+    "category_name": "Toys",
+    "image": "images/kids-toys.png",
+    "description": "Fun picks for learning and play.",
+    "page_url": "/kids_toys/",
+    "is_active": true,
+    "created_at": null
+  }
+},
+{
+  "model": "store.kidscategory",
+  "pk": 4,
+  "fields": {
+    "category": 3,
+    "category_name": "Footwear",
+    "image": "images/kids-footwear.png",
+    "description": "Built for active days.",
+    "page_url": "/kids_footwear/",
+    "is_active": true,
+    "created_at": null
+  }
+},
+{
+  "model": "store.siteasset",
+  "pk": 1,
+  "fields": {
+    "asset_key": "logo",
+    "image_path": "images/logo1.png",
+    "is_active": true
+  }
+},
+{
+  "model": "store.siteasset",
+  "pk": 2,
+  "fields": {
+    "asset_key": "home_background",
+    "image_path": "images/homebg.jpg",
+    "is_active": true
+  }
+},
+{
+  "model": "store.siteasset",
+  "pk": 3,
+  "fields": {
+    "asset_key": "home_banner",
+    "image_path": "images/banner.png",
+    "is_active": true
+  }
+},
+{
+  "model": "store.homecontent",
+  "pk": 1,
+  "fields": {
+    "hero_subtitle": "For Modern Shoppers",
+    "hero_title": "Relax,",
+    "hero_highlight": "ShopEase",
+    "hero_tagline": "Fashion and essentials in one simple storefront.",
+    "hero_button_text": "Explore Products",
+    "hero_button_url": "/category_men/",
+    "search_placeholder": "Search for products...",
+    "search_button_text": "Search",
+    "nav_home_text": "Home",
+    "nav_home_url": "/",
+    "nav_products_text": "Products",
+    "nav_products_url": "#featured-products",
+    "nav_contact_text": "Contact Us",
+    "nav_contact_url": "/contact-us/",
+    "nav_login_text": "Login",
+    "nav_login_url": "/login/",
+    "category_section_title": "Shop by Category",
+    "men_description": "Casual wear, formals, accessories and more.",
+    "women_description": "Ethnic, western, and everything chic.",
+    "kids_description": "Comfortable styles for kids of all ages.",
+    "featured_section_title": "Featured Products",
+    "footer_text": "All rights reserved.",
+    "footer_brand_text": "ShopEase",
+    "footer_builder_text": "Varshak Shopeasy",
+    "is_active": true
+  }
+},
+{
+  "model": "store.product",
+  "pk": 26,
+  "fields": {
+    "product_name": "Men Blue T-Shirt",
+    "brand": "Levis",
+    "category": 1,
+    "subcategory": 1,
+    "sku": "MEN-TSHIRT-001",
+    "price": "1.00",
+    "discount_percent": "0.00",
+    "offer_price": "1.00",
+    "description": "Cotton casual t-shirt",
+    "is_active": true
+  }
+},
+{
+  "model": "store.product",
+  "pk": 27,
+  "fields": {
+    "product_name": "Men Black Shirt",
+    "brand": "Allen Solly",
+    "category": 1,
+    "subcategory": 2,
+    "sku": "MEN-SHIRT-001",
+    "price": "1.00",
+    "discount_percent": "0.00",
+    "offer_price": "1.00",
+    "description": "Formal slim fit shirt",
+    "is_active": true
+  }
+},
+{
+  "model": "store.product",
+  "pk": 28,
+  "fields": {
+    "product_name": "Men Denim Jeans",
+    "brand": "Wrangler",
+    "category": 1,
+    "subcategory": 3,
+    "sku": "MEN-JEANS-001",
+    "price": "1499.00",
+    "discount_percent": "20.00",
+    "offer_price": "1199.20",
+    "description": "Slim fit denim jeans",
+    "is_active": true
+  }
+},
+{
+  "model": "store.product",
+  "pk": 29,
+  "fields": {
+    "product_name": "Women Ethnic Kurta",
+    "brand": "Biba",
+    "category": 2,
+    "subcategory": 4,
+    "sku": "WOM-KURTA-001",
+    "price": "799.00",
+    "discount_percent": "10.00",
+    "offer_price": "719.10",
+    "description": "Traditional cotton kurta",
+    "is_active": true
+  }
+},
+{
+  "model": "store.product",
+  "pk": 30,
+  "fields": {
+    "product_name": "Women Western Dress",
+    "brand": "Zara",
+    "category": 2,
+    "subcategory": 5,
+    "sku": "WOM-DRESS-001",
+    "price": "1299.00",
+    "discount_percent": "12.00",
+    "offer_price": "1143.12",
+    "description": "Stylish western dress",
+    "is_active": true
+  }
+},
+{
+  "model": "store.product",
+  "pk": 31,
+  "fields": {
+    "product_name": "Women Sandals",
+    "brand": "Bata",
+    "category": 2,
+    "subcategory": 6,
+    "sku": "WOM-FOOT-001",
+    "price": "699.00",
+    "discount_percent": "5.00",
+    "offer_price": "664.05",
+    "description": "Comfortable sandals",
+    "is_active": true
+  }
+},
+{
+  "model": "store.product",
+  "pk": 32,
+  "fields": {
+    "product_name": "Kids White T-Shirt",
+    "brand": "H&M",
+    "category": 3,
+    "subcategory": 7,
+    "sku": "KID-TSHIRT-001",
+    "price": "1000.00",
+    "discount_percent": "10.00",
+    "offer_price": "900.00",
+    "description": "Soft cotton kids t-shirt",
+    "is_active": true
+  }
+},
+{
+  "model": "store.product",
+  "pk": 33,
+  "fields": {
+    "product_name": "Kids Party Dress",
+    "brand": "Max",
+    "category": 3,
+    "subcategory": 8,
+    "sku": "KID-DRESS-001",
+    "price": "899.00",
+    "discount_percent": "10.00",
+    "offer_price": "809.10",
+    "description": "Kids party dress",
+    "is_active": true
+  }
+},
+{
+  "model": "store.product",
+  "pk": 34,
+  "fields": {
+    "product_name": "Kids Toy Set",
+    "brand": "Funskool",
+    "category": 3,
+    "subcategory": 9,
+    "sku": "KID-TOY-001",
+    "price": "499.00",
+    "discount_percent": "0.00",
+    "offer_price": "499.00",
+    "description": "Educational toy set",
+    "is_active": true
+  }
+},
+{
+  "model": "store.product",
+  "pk": 35,
+  "fields": {
+    "product_name": "Kids Blue T-Shirt",
+    "brand": "MiniStyle",
+    "category": 3,
+    "subcategory": 7,
+    "sku": "KIDS-TSHIRT-001",
+    "price": "799.00",
+    "discount_percent": "10.00",
+    "offer_price": "719.10",
+    "description": "Soft cotton kids t-shirt for daily wear.",
+    "is_active": true
+  }
+},
+{
+  "model": "store.product",
+  "pk": 43,
+  "fields": {
+    "product_name": "Kids Sport Shoes",
+    "brand": "TinySteps",
+    "category": 3,
+    "subcategory": 11,
+    "sku": "KIDS-FOOT-001",
+    "price": "1299.00",
+    "discount_percent": "15.00",
+    "offer_price": "1104.15",
+    "description": "Comfortable kids footwear for play and outdoor use.",
+    "is_active": true
+  }
+},
+{
+  "model": "store.product",
+  "pk": 45,
+  "fields": {
+    "product_name": "Kids T-Shirt",
+    "brand": "Zara",
+    "category": 3,
+    "subcategory": 7,
+    "sku": "KID-TSHIRT-003",
+    "price": "1000.00",
+    "discount_percent": "20.00",
+    "offer_price": "800.00",
+    "description": "Kids Fashion",
+    "is_active": true
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 2,
+  "fields": {
+    "product": 35,
+    "size": "M",
+    "color": "Blue",
+    "quantity": 10,
+    "image1": "kids_tshirt_front.jpg",
+    "image2": "kids_tshirt_back.jpg",
+    "image3": "kids_tshirt_side.jpg",
+    "image4": "kids_tshirt_close.jpg"
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 3,
+  "fields": {
+    "product": 43,
+    "size": "30",
+    "color": "Black",
+    "quantity": 8,
+    "image1": "kids_shoe_front.jpg",
+    "image2": "kids_shoe_back.jpg",
+    "image3": "kids_shoe_side.jpg",
+    "image4": "kids_shoe_close.jpg"
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 4,
+  "fields": {
+    "product": 28,
+    "size": "32",
+    "color": "Blue",
+    "quantity": 10,
+    "image1": "mens_jeans_front.jpg",
+    "image2": "mens_jeans_back.jpg",
+    "image3": "mens_jeans_side.jpg",
+    "image4": "mens_jeans_close.jpg"
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 5,
+  "fields": {
+    "product": 31,
+    "size": "6",
+    "color": "Black",
+    "quantity": 10,
+    "image1": "women_footwear_front.jpg",
+    "image2": "women_footwear_back.jpg",
+    "image3": "women_footwear_side.jpg",
+    "image4": "women_footwear_close.jpg"
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 7,
+  "fields": {
+    "product": 30,
+    "size": "Free size",
+    "color": "White & Black",
+    "quantity": 9,
+    "image1": "women-western-dress_image1.jpg",
+    "image2": "women-western-dress_image2.jpg",
+    "image3": "women-western-dress_image3.jpg",
+    "image4": "women-western-dress_image4.jpg"
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 21,
+  "fields": {
+    "product": 32,
+    "size": "S",
+    "color": "White",
+    "quantity": 3,
+    "image1": "kids_shirt_front.jpg",
+    "image2": "kids_shirt_side.jpg",
+    "image3": "kids_shirt_back.jpg",
+    "image4": "kids_shirt_close.jpg"
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 22,
+  "fields": {
+    "product": 32,
+    "size": "M",
+    "color": "White",
+    "quantity": 2,
+    "image1": "kids_shirt_front.jpg",
+    "image2": "kids_shirt_side.jpg",
+    "image3": "kids_shirt_back.jpg",
+    "image4": "kids_shirt_close.jpg"
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 23,
+  "fields": {
+    "product": 32,
+    "size": "L",
+    "color": "White",
+    "quantity": 2,
+    "image1": "kids_shirt_front.jpg",
+    "image2": "kids_shirt_side.jpg",
+    "image3": "kids_shirt_back.jpg",
+    "image4": "kids_shirt_close.jpg"
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 24,
+  "fields": {
+    "product": 32,
+    "size": "XL",
+    "color": "White",
+    "quantity": 2,
+    "image1": "kids_shirt_front.jpg",
+    "image2": "kids_shirt_side.jpg",
+    "image3": "kids_shirt_back.jpg",
+    "image4": "kids_shirt_close.jpg"
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 25,
+  "fields": {
+    "product": 29,
+    "size": "S",
+    "color": null,
+    "quantity": 8,
+    "image1": "women-ethnic-kurta_image1.jpg",
+    "image2": "women-ethnic-kurta_image2.jpg",
+    "image3": "women-ethnic-kurta_image3.jpg",
+    "image4": "women-ethnic-kurta_image4.jpg"
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 27,
+  "fields": {
+    "product": 45,
+    "size": "S",
+    "color": null,
+    "quantity": 8,
+    "image1": "kids-t-shirt_image1.jpg",
+    "image2": "kids-t-shirt_image2.jpg",
+    "image3": "kids-t-shirt_image3.jpg",
+    "image4": "kids-t-shirt_image4.jpg"
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 102,
+  "fields": {
+    "product": 33,
+    "size": "6-8Y",
+    "color": "Pink",
+    "quantity": 6,
+    "image1": null,
+    "image2": null,
+    "image3": null,
+    "image4": null
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 103,
+  "fields": {
+    "product": 34,
+    "size": "Standard",
+    "color": "Multi",
+    "quantity": 12,
+    "image1": null,
+    "image2": null,
+    "image3": null,
+    "image4": null
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 104,
+  "fields": {
+    "product": 26,
+    "size": "M",
+    "color": "Blue",
+    "quantity": 10,
+    "image1": "men-blue-t-shirt_image1.jpg",
+    "image2": "men-blue-t-shirt_image2.jpg",
+    "image3": "men-blue-t-shirt_image3.jpg",
+    "image4": "men-blue-t-shirt_image4.jpg"
+  }
+},
+{
+  "model": "store.productvariant",
+  "pk": 107,
+  "fields": {
+    "product": 27,
+    "size": "M",
+    "color": "Black",
+    "quantity": 10,
+    "image1": "men_shirt_black_front.jpg",
+    "image2": "men_shirt_black_back.jpg",
+    "image3": "men_shirt_black_side.jpg",
+    "image4": "men_shirt_black_closeup.jpg"
+  }
+},
+{
+  "model": "store.cartitem",
+  "pk": 4,
+  "fields": {
+    "user": 1,
+    "product": 27,
+    "selected_size": "M",
+    "quantity": 1,
+    "created_at": "2026-04-12T04:17:39.591Z",
+    "updated_at": "2026-04-24T11:43:35.820Z"
+  }
+},
+{
+  "model": "store.cartitem",
+  "pk": 9,
+  "fields": {
+    "user": 1,
+    "product": 26,
+    "selected_size": "M",
+    "quantity": 1,
+    "created_at": "2026-05-07T07:14:43.473Z",
+    "updated_at": "2026-05-07T07:14:43.473Z"
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$mWMpGtZ2PUvtLKVT3nhe6w$egMS2vZ4vi8WmFoHDDx2Qd/4cDMj6L/b3vjfL9Pi+sE=",
+    "last_login": "2026-05-07T07:14:44.935Z",
+    "is_superuser": true,
+    "username": "saivarshak14@gmail.com",
+    "first_name": "",
+    "last_name": "",
+    "email": "saivarshak14@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-04-12T04:15:43.351Z",
+    "groups": [],
+    "user_permissions": []
+  }
+}
+]

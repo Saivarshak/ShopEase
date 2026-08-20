@@ -1,0 +1,20 @@
+def _save_uploaded_image(uploaded_file, folder, base_name):
+    if not uploaded_file:
+        return None
+
+    extension = _validate_upload_file(uploaded_file)
+    safe_name = slugify(base_name) or 'image'
+    token = uuid4().hex[:12]
+    filename = f"{safe_name}-{token}{extension}"
+    stored_path = (Path(DB_UPLOAD_PREFIX) / folder / filename).as_posix()
+    image_bytes = b''.join(uploaded_file.chunks())
+
+    UploadedImage.objects.create(
+        path=stored_path,
+        original_name=Path(uploaded_file.name).name[:255],
+        content_type=_content_type_for_extension(extension, uploaded_file),
+        data=image_bytes,
+        size=len(image_bytes),
+    )
+    return stored_path
+def _save_uploaded_product_image(uploaded_file, product_name, slot_name):

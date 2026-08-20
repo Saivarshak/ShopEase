@@ -1,0 +1,492 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <title>{{ page_title }} | ShopEase Status</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #657085;
+      --paper: #f8fafc;
+      --panel: rgba(255, 255, 255, 0.82);
+      --line: rgba(23, 32, 51, 0.11);
+      --accent: #7c3aed;
+      --accent-deep: #5b21b6;
+      --cyan: #06b6d4;
+      --green: #16a34a;
+      --shadow: 0 28px 80px rgba(30, 41, 59, 0.15);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-height: 100%; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(6, 182, 212, 0.20), transparent 26%),
+        radial-gradient(circle at 90% 8%, rgba(124, 58, 237, 0.18), transparent 28%),
+        linear-gradient(140deg, #f7fbff 0%, #f8f5ff 50%, #f3f8f7 100%);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; }
+
+    .site-header {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.70);
+      box-shadow: 0 10px 26px rgba(30, 41, 59, 0.10);
+    }
+
+    .brand-mark img {
+      width: 31px;
+      height: 31px;
+      object-fit: contain;
+    }
+
+    .brand-label {
+      display: grid;
+      gap: 2px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.05rem;
+    }
+
+    .brand-label small {
+      color: var(--muted);
+      font-family: "DM Sans", sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .header-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.62);
+      color: var(--ink);
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+    }
+
+    .header-link:hover {
+      transform: translateY(-2px);
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(30, 41, 59, 0.10);
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100% - 40px));
+      min-height: calc(100vh - 96px);
+      margin: 0 auto;
+      padding: 24px 0 56px;
+      display: grid;
+      place-items: center;
+    }
+
+    .status-card {
+      position: relative;
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+      gap: clamp(32px, 6vw, 86px);
+      align-items: center;
+      padding: clamp(30px, 6vw, 76px);
+      border: 1px solid rgba(255, 255, 255, 0.84);
+      border-radius: 32px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      overflow: hidden;
+    }
+
+    .status-card::before,
+    .status-card::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .status-card::before {
+      width: 300px;
+      height: 300px;
+      top: -190px;
+      left: 34%;
+      background: rgba(6, 182, 212, 0.10);
+    }
+
+    .status-card::after {
+      width: 270px;
+      height: 270px;
+      right: -160px;
+      bottom: -170px;
+      background: rgba(124, 58, 237, 0.10);
+    }
+
+    .copy,
+    .status-visual { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 12px;
+      border: 1px solid rgba(6, 182, 212, 0.22);
+      border-radius: 999px;
+      background: rgba(236, 254, 255, 0.72);
+      color: #0e7490;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 5px rgba(22, 163, 74, 0.12);
+    }
+
+    h1 {
+      max-width: 660px;
+      margin: 24px 0 18px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2.7rem, 5.7vw, 5.5rem);
+      line-height: 0.98;
+      letter-spacing: -0.075em;
+    }
+
+    .accent { color: var(--accent); }
+
+    .message {
+      max-width: 610px;
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.6vw, 1.18rem);
+      line-height: 1.7;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .button {
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 19px;
+      border-radius: 14px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button-primary {
+      background: var(--ink);
+      color: #fff;
+      box-shadow: 0 13px 25px rgba(23, 32, 51, 0.20);
+    }
+
+    .button-primary:hover { box-shadow: 0 17px 30px rgba(23, 32, 51, 0.27); }
+
+    .button-secondary {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--ink);
+    }
+
+    .promise-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 660px;
+      margin: 36px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .promise-list li {
+      min-height: 84px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .promise-list strong,
+    .promise-list span {
+      display: block;
+    }
+
+    .promise-list strong {
+      margin-bottom: 6px;
+      font-size: 0.86rem;
+    }
+
+    .promise-list span {
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.35;
+    }
+
+    .status-visual {
+      display: grid;
+      gap: 18px;
+      justify-items: center;
+    }
+
+    .signal-orbit {
+      position: relative;
+      width: min(330px, 70vw);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+    }
+
+    .signal-orbit::before,
+    .signal-orbit::after {
+      content: "";
+      position: absolute;
+      border: 1px solid rgba(124, 58, 237, 0.17);
+      border-radius: 50%;
+    }
+
+    .signal-orbit::before { inset: 8%; }
+    .signal-orbit::after { inset: 21%; border-color: rgba(6, 182, 212, 0.23); }
+
+    .orbit-ring {
+      position: absolute;
+      inset: 31%;
+      border: 12px solid rgba(124, 58, 237, 0.10);
+      border-top-color: var(--accent);
+      border-right-color: var(--cyan);
+      border-radius: 50%;
+      transform: rotate(-26deg);
+      animation: orbit 2.4s linear infinite;
+    }
+
+    .signal-core {
+      position: relative;
+      z-index: 1;
+      width: 118px;
+      height: 118px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.90);
+      border-radius: 34px;
+      background: linear-gradient(145deg, #ffffff, #eef2ff);
+      box-shadow: 0 18px 40px rgba(91, 33, 182, 0.17);
+      color: var(--accent-deep);
+    }
+
+    .signal-core svg { width: 54px; height: 54px; }
+
+    .signal-label {
+      position: absolute;
+      z-index: 2;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 12px 24px rgba(30, 41, 59, 0.10);
+      font-size: 0.76rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .signal-label.top { top: 8%; right: 2%; color: var(--accent-deep); }
+    .signal-label.bottom { bottom: 8%; left: 2%; color: #0e7490; }
+
+    .progress-panel {
+      width: min(390px, 100%);
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .progress-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    .progress-head span:last-child { color: var(--green); }
+
+    .progress-track {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e6eaf2;
+    }
+
+    .progress-value {
+      width: 72%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cyan), var(--accent));
+    }
+
+    .progress-note {
+      margin: 11px 0 0;
+      color: var(--muted);
+      font-size: 0.79rem;
+      line-height: 1.45;
+    }
+
+    .footer-note {
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    @keyframes orbit { to { transform: rotate(334deg); } }
+
+    @media (max-width: 900px) {
+      .status-card { grid-template-columns: 1fr; }
+      .status-visual { order: -1; }
+      .signal-orbit { width: min(300px, 68vw); }
+    }
+
+    @media (max-width: 580px) {
+      .site-header,
+      .page-shell { width: min(100% - 24px, 1180px); }
+      .site-header { padding: 15px 0; }
+      .brand-label small { display: none; }
+      .header-link { min-height: 38px; padding: 0 12px; font-size: 0.78rem; }
+      .page-shell { min-height: calc(100vh - 76px); padding: 12px 0 28px; }
+      .status-card { padding: 24px 18px 26px; border-radius: 24px; }
+      h1 { margin-top: 19px; font-size: clamp(2.55rem, 13vw, 4rem); }
+      .actions { flex-direction: column; }
+      .button { width: 100%; }
+      .promise-list { grid-template-columns: 1fr; margin-top: 25px; }
+      .promise-list li { min-height: auto; }
+      .signal-orbit { width: min(270px, 78vw); }
+      .signal-core { width: 98px; height: 98px; border-radius: 28px; }
+      .signal-core svg { width: 44px; height: 44px; }
+      .signal-label { font-size: 0.69rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">
+      <span class="brand-mark"><img src="{% static logo_image %}" alt="ShopEase logo"></span>
+      <span class="brand-label">ShopEase<small>Storefront status</small></span>
+    </a>
+    <a class="header-link" href="{{ category_return_url|default:'/' }}">Back to categories</a>
+  </header>
+
+  <main class="page-shell">
+    <section class="status-card" aria-labelledby="maintenance-title">
+      <div class="copy">
+        <div class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> Live update in progress</div>
+        <h1 id="maintenance-title">A better shopping experience is <span class="accent">loading.</span></h1>
+        <p class="message">{{ status_message }} We are putting the finishing touches on this area so your next visit feels faster, clearer, and more enjoyable.</p>
+
+        <div class="actions">
+          <a class="button button-primary" href="{{ category_return_url|default:'/' }}">Explore available fashion <span aria-hidden="true">→</span></a>
+          <a class="button button-secondary" href="{{ category_return_url|default:'/' }}">Return to categories</a>
+        </div>
+
+        <ul class="promise-list" aria-label="Update details">
+          <li><strong>Storefront</strong><span>Being refreshed now</span></li>
+          <li><strong>Catalog</strong><span>Returning shortly</span></li>
+          <li><strong>Your session</strong><span>Safe and unchanged</span></li>
+        </ul>
+      </div>
+
+      <div class="status-visual" aria-label="Maintenance progress">
+        <div class="signal-orbit">
+          <span class="signal-label top">Design refresh</span>
+          <span class="signal-label bottom">Almost ready</span>
+          <div class="orbit-ring"></div>
+          <div class="signal-core">
+            <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+              <path d="M32 8v8M32 48v8M8 32h8M48 32h8M15 15l6 6M43 43l6 6M49 15l-6 6M21 43l-6 6" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+              <circle cx="32" cy="32" r="11" stroke="currentColor" stroke-width="3.5"/>
+              <circle cx="32" cy="32" r="4" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="progress-panel">
+          <div class="progress-head"><span>Update progress</span><span>In progress</span></div>
+          <div class="progress-track" role="progressbar" aria-label="Update progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="72"><div class="progress-value"></div></div>
+          <p class="progress-note">We are finishing the final details. Please check back soon.</p>
+        </div>
+      </div>
+    </section>
+    <p class="footer-note">Thank you for your patience while ShopEase gets things ready.</p>
+  </main>
+</body>
+</html>

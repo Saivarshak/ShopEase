@@ -1,0 +1,304 @@
+{% load static %}
+{% load static store_assets %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shopping Cart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f4f4;
+  color: #000000;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  color: #111827;
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header a {
+  color: #111827;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+.header a:hover {
+  color: #2563eb;
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  gap: 24px;
+  padding: 24px 32px;
+  box-sizing: border-box;
+}
+
+.cart {
+  flex: 3;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.cart h1 {
+  margin: 0 0 20px;
+  font-size: 30px;
+}
+
+.cart-item {
+  display: flex;
+  gap: 20px;
+  padding: 24px 0;
+  border-top: 1px solid #ececec;
+}
+
+.cart-item:first-of-type {
+  border-top: none;
+}
+
+.cart-item img {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.item-meta {
+  color: #000000;
+  margin-bottom: 10px;
+}
+
+.stock {
+  color: #000000;
+  margin-bottom: 10px;
+}
+
+.remove-form {
+  margin-top: 12px;
+}
+.quantity-form { display: inline-flex; gap: 8px; align-items: center; margin: 10px 0; }
+.quantity-form input { width: 72px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; }
+.quantity-form button { border: none; background: #000; color: #fff; border-radius: 999px; padding: 9px 12px; font-weight: 700; cursor: pointer; }
+
+.remove-btn {
+  border: none;
+  background: #000000;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.remove-btn:hover {
+  background: #ec4899;
+}
+
+.price {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.line-total {
+  font-size: 18px;
+  font-weight: bold;
+  min-width: 140px;
+  text-align: right;
+}
+
+.summary {
+  flex: 1.2;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  height: fit-content;
+  position: sticky;
+  top: 90px;
+}
+
+.summary h2 {
+  margin-top: 0;
+  font-size: 22px;
+}
+
+.summary .total {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 12px 0 18px;
+}
+
+.summary button {
+  width: 100%;
+  border: none;
+  background: #000000;
+  color: white;
+  padding: 14px;
+  border-radius: 24px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.summary button:hover {
+  background: #8b5cf6;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+}
+
+.empty-state h2 {
+  margin-bottom: 12px;
+}
+
+.empty-state a {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: #000000;
+  color: white;
+  color: white;
+  text-decoration: none;
+}
+
+@media (max-width: 960px) {
+  .container {
+    flex-direction: column;
+    padding: 18px;
+  }
+
+  .cart-item {
+    flex-direction: column;
+  }
+
+  .line-total {
+    text-align: left;
+  }
+
+  .summary {
+    position: static;
+  }
+}
+</style>
+  <link rel="stylesheet" href="{% static 'css/shopease-theme.css' %}">
+</head>
+<body>
+
+<div class="header">
+  <div>Your Shopping Cart</div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    {% include 'store/partials/profile_badge.html' %}
+    <a href="{% url 'category_men' %}">Continue Shopping</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="cart">
+    <h1>Shopping Cart</h1>
+
+    {% if cart_items %}
+      {% for item in cart_items %}
+        <div class="cart-item">
+          <img src="{% asset_src item.image_path %}" alt="{{ item.product.product_name }}">
+
+          <div class="item-details">
+            <div class="item-title">{{ item.product.product_name }}</div>
+            <div class="item-meta">
+              {% if item.selected_size %}
+                Size: {{ item.selected_size }} |
+                Color: {{ item.variant.color|default:"-" }}
+              {% elif item.variant %}
+                Color: {{ item.variant.color|default:"-" }} |
+                Size: {{ item.variant.size|default:"-" }}
+              {% else %}
+                Variant details not available
+              {% endif %}
+            </div>
+            <div class="stock">In stock</div>
+            {% if item.cart_item_id %}
+            <form method="post" action="{% url 'update_cart_item' item.cart_item_id %}" class="quantity-form">
+            {% else %}
+            <form method="post" action="{% url 'update_session_cart_item' item.session_item_key %}" class="quantity-form">
+            {% endif %}
+              {% csrf_token %}
+              <label>Qty</label>
+              <input type="number" name="quantity" min="1" value="{{ item.quantity }}">
+              <button type="submit">Update</button>
+            </form>
+            <div class="price">Rs. {{ item.product.offer_price }}</div>
+            {% if item.cart_item_id %}
+            <form method="post" action="{% url 'remove_from_cart' item.cart_item_id %}" class="remove-form">
+            {% else %}
+            <form method="post" action="{% url 'remove_session_cart_item' item.session_item_key %}" class="remove-form">
+            {% endif %}
+              {% csrf_token %}
+              <button type="submit" class="remove-btn">Remove Item</button>
+            </form>
+          </div>
+
+          <div class="line-total">Rs. {{ item.line_total }}</div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <h2>Your cart is empty</h2>
+        <p>Add a product from the product page and it will appear here.</p>
+        <a href="{% url 'category_men' %}">Browse Categories</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="summary">
+    <h2>Subtotal ({{ total_items }} item{{ total_items|pluralize }})</h2>
+    <div class="total">Rs. {{ subtotal }}</div>
+    {% if requires_login_for_checkout %}
+      <a href="{% url 'login' %}?next=/payment/">
+        <button type="button">Login to Checkout</button>
+      </a>
+    {% else %}
+      <a href="{% url 'payment_gateway' %}">
+        <button type="button">Proceed to Buy</button>
+      </a>
+    {% endif %}
+  </div>
+</div>
+  {% include 'store/partials/instagram_corner.html' %}
+</body>
+</html>
