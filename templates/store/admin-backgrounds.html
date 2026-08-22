@@ -63,7 +63,7 @@
         <form class="asset-card" method="post" enctype="multipart/form-data">
           {% csrf_token %}
           <input type="hidden" name="choice_id" value="{{ background.choice_id }}">
-          <img class="preview" data-preview-image src="{{ background.current_url }}" alt="{{ background.label }}">
+          <img class="preview" data-preview-image src="{{ background.current_url }}" alt="{{ background.label }}" loading="lazy" decoding="async" />
           <h2 class="asset-title">{{ background.label }}</h2>
           <p class="meta">Current: {{ background.current_path }}</p>
 

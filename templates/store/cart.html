@@ -236,7 +236,7 @@ body {
     {% if cart_items %}
       {% for item in cart_items %}
         <div class="cart-item">
-          <img src="{% asset_src item.image_path %}" alt="{{ item.product.product_name }}">
+          <img src="{% asset_src item.image_path %}" alt="{{ item.product.product_name }}" loading="lazy" decoding="async" />
 
           <div class="item-details">
             <div class="item-title">{{ item.product.product_name }}</div>

@@ -440,7 +440,7 @@
 <body>
   <header class="site-header">
     <a class="brand" href="/">
-      <span class="brand-mark"><img src="{% static logo_image %}" alt="ShopEase logo"></span>
+      <span class="brand-mark"><img src="{% static logo_image %}" alt="ShopEase logo" loading="lazy" decoding="async" /></span>
       <span class="brand-label">ShopEase<small>Storefront status</small></span>
     </a>
     <a class="header-link" href="{{ category_return_url|default:'/' }}">Back to categories</a>

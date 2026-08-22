@@ -396,7 +396,7 @@
   <header class="header">
     <div class="header-inner">
       <a href="{% url 'home' %}" class="brand">
-        <img src="{% static logo_image %}" alt="ShopEase logo">
+        <img src="{% static logo_image %}" alt="ShopEase logo" loading="lazy" decoding="async" />
         <span>ShopEase</span>
       </a>
       <a href="{% url 'home' %}" class="nav-link">Back to Home</a>
@@ -501,7 +501,7 @@
       <div class="product-list">
         {% for item in order_items %}
           <article class="product-card">
-            <img src="{% asset_src item.image_path %}" alt="{{ item.product.product_name }}">
+            <img src="{% asset_src item.image_path %}" alt="{{ item.product.product_name }}" loading="lazy" decoding="async" />
             <div>
               <h3 class="product-name">{{ item.product.product_name }}</h3>
               <p class="product-meta">

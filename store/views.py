@@ -2,6 +2,7 @@ from pathlib import Path
 from decimal import Decimal, InvalidOperation
 import hashlib
 import hmac
+import mimetypes
 import json
 import time
 from uuid import uuid4
@@ -27,11 +28,14 @@ import urllib.parse
 # Keep this moderate while filenames are not content-hashed. If you later use
 # versioned/hashed filenames, STATIC_ASSET_MAX_AGE can be increased to a year.
 STATIC_ASSET_MAX_AGE = 60 * 60 * 24 * 7  # 7 days
-UPLOAD_ASSET_MAX_AGE = 60 * 60  # 1 hour; uploaded files may be replaced
+# Uploaded assets receive a random token in their filename. Replacements use a
+# new path, so a long immutable cache is safe and prevents repeat downloads.
+UPLOAD_ASSET_MAX_AGE = 60 * 60 * 24 * 365
 
 
 def _set_asset_cache_headers(response, max_age):
-    response['Cache-Control'] = f'public, max-age={max_age}, must-revalidate'
+    immutable = ', immutable' if max_age == UPLOAD_ASSET_MAX_AGE else ''
+    response['Cache-Control'] = f'public, max-age={max_age}, must-revalidate{immutable}'
     return response
 
 
@@ -1057,11 +1061,13 @@ def store_asset(request, asset_path):
 
     if resolved_path.parts[:1] == ('uploads',):
         file_path = Path(settings.MEDIA_ROOT) / resolved_path
-        response = FileResponse(file_path.open('rb'))
+        content_type, _ = mimetypes.guess_type(file_path.name)
+        response = FileResponse(file_path.open('rb'), content_type=content_type or 'application/octet-stream')
         return _set_asset_cache_headers(response, UPLOAD_ASSET_MAX_AGE)
 
     file_path = Path(settings.BASE_DIR) / 'static' / resolved_path
-    response = FileResponse(file_path.open('rb'))
+    content_type, _ = mimetypes.guess_type(file_path.name)
+    response = FileResponse(file_path.open('rb'), content_type=content_type or 'application/octet-stream')
     return _set_asset_cache_headers(response, STATIC_ASSET_MAX_AGE)
 
 def _get_session_cart(request):

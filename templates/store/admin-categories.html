@@ -136,7 +136,7 @@
                 <input type="hidden" name="action" value="save_fashion_category">
                 <input type="hidden" name="fashion_category_id" value="{{ category.fashion_category_id }}">
                 {% if category.image %}
-                  <img class="preview" src="{% asset_src category.image %}" alt="{{ category.name }}">
+                  <img class="preview" src="{% asset_src category.image %}" alt="{{ category.name }}" loading="lazy" decoding="async" />
                 {% endif %}
 
                 <label>Name</label>

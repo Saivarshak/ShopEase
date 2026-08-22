@@ -56,7 +56,7 @@
       <div class="grid">
         {% for item in wishlist_items %}
           <article class="card">
-            <img src="{% asset_src item.image_path %}" alt="{{ item.product.product_name }}">
+            <img src="{% asset_src item.image_path %}" alt="{{ item.product.product_name }}" loading="lazy" decoding="async" />
             <div class="body">
               <h3>{{ item.product.product_name }}</h3>
               <p>Rs. {{ item.product.offer_price }}</p>

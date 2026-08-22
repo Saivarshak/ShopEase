@@ -74,25 +74,25 @@
     </div>
     <div class="field">
       <label>Image 1 Filename</label>
-      {% if variant.image1 %}<img class="preview" data-preview-image src="{% asset_src variant.image1 %}" alt="Image 1 preview">{% else %}<img class="preview" data-preview-image src="{% asset_src 'images/placeholder.svg' %}" alt="Image 1 preview">{% endif %}
+      {% if variant.image1 %}<img class="preview" data-preview-image src="{% asset_src variant.image1 %}" alt="Image 1 preview" loading="lazy" decoding="async" />{% else %}<img class="preview" data-preview-image src="{% asset_src 'images/placeholder.svg' %}" alt="Image 1 preview" loading="lazy" decoding="async" />{% endif %}
       <input type="text" name="image1" value="{{ variant.image1|default:'' }}" placeholder="example.jpg">
       <input type="file" name="image1_upload" accept="image/jpeg,image/png,image/webp" data-preview-input>
     </div>
     <div class="field">
       <label>Image 2 Filename</label>
-      {% if variant.image2 %}<img class="preview" data-preview-image src="{% asset_src variant.image2 %}" alt="Image 2 preview">{% else %}<img class="preview" data-preview-image src="{% asset_src 'images/placeholder.svg' %}" alt="Image 2 preview">{% endif %}
+      {% if variant.image2 %}<img class="preview" data-preview-image src="{% asset_src variant.image2 %}" alt="Image 2 preview" loading="lazy" decoding="async" />{% else %}<img class="preview" data-preview-image src="{% asset_src 'images/placeholder.svg' %}" alt="Image 2 preview" loading="lazy" decoding="async" />{% endif %}
       <input type="text" name="image2" value="{{ variant.image2|default:'' }}" placeholder="example.jpg">
       <input type="file" name="image2_upload" accept="image/jpeg,image/png,image/webp" data-preview-input>
     </div>
     <div class="field">
       <label>Image 3 Filename</label>
-      {% if variant.image3 %}<img class="preview" data-preview-image src="{% asset_src variant.image3 %}" alt="Image 3 preview">{% else %}<img class="preview" data-preview-image src="{% asset_src 'images/placeholder.svg' %}" alt="Image 3 preview">{% endif %}
+      {% if variant.image3 %}<img class="preview" data-preview-image src="{% asset_src variant.image3 %}" alt="Image 3 preview" loading="lazy" decoding="async" />{% else %}<img class="preview" data-preview-image src="{% asset_src 'images/placeholder.svg' %}" alt="Image 3 preview" loading="lazy" decoding="async" />{% endif %}
       <input type="text" name="image3" value="{{ variant.image3|default:'' }}" placeholder="example.jpg">
       <input type="file" name="image3_upload" accept="image/jpeg,image/png,image/webp" data-preview-input>
     </div>
     <div class="field">
       <label>Image 4 Filename</label>
-      {% if variant.image4 %}<img class="preview" data-preview-image src="{% asset_src variant.image4 %}" alt="Image 4 preview">{% else %}<img class="preview" data-preview-image src="{% asset_src 'images/placeholder.svg' %}" alt="Image 4 preview">{% endif %}
+      {% if variant.image4 %}<img class="preview" data-preview-image src="{% asset_src variant.image4 %}" alt="Image 4 preview" loading="lazy" decoding="async" />{% else %}<img class="preview" data-preview-image src="{% asset_src 'images/placeholder.svg' %}" alt="Image 4 preview" loading="lazy" decoding="async" />{% endif %}
       <input type="text" name="image4" value="{{ variant.image4|default:'' }}" placeholder="example.jpg">
       <input type="file" name="image4_upload" accept="image/jpeg,image/png,image/webp" data-preview-input>
     </div>

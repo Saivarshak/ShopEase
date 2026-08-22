@@ -394,7 +394,7 @@
   <header class="site-header">
     <div class="header-inner">
       <a href="{% url 'home' %}" class="brand" aria-label="ShopEase home">
-        <img src="{% static logo_image %}" alt="ShopEase Logo">
+        <img src="{% static logo_image %}" alt="ShopEase Logo" loading="lazy" decoding="async" />
       </a>
       <nav class="nav-actions" aria-label="Contact page navigation">
         <a href="{% url 'home' %}" class="nav-link">Home</a>

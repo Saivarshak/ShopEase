@@ -96,7 +96,7 @@
         <tbody>
           {% for row in products %}
             <tr>
-              <td><img class="product" src="{% asset_src row.image_path %}" alt="{{ row.product.product_name }}"></td>
+              <td><img class="product" src="{% asset_src row.image_path %}" alt="{{ row.product.product_name }}" loading="lazy" decoding="async" /></td>
               <td>{{ row.product.product_name }}</td>
               <td>{{ row.product.category.category_name }}</td>
               <td>{{ row.product.subcategory.subcategory_name }}</td>

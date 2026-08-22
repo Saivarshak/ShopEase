@@ -69,7 +69,7 @@
 <body>
   <header>
     <div class="logo">
-      <a href="/"><img src="{% static logo_image %}" alt="ShopEase Logo"></a>
+      <a href="/"><img src="{% static logo_image %}" alt="ShopEase Logo" loading="lazy" decoding="async" /></a>
     </div>
   </header>
   {% if messages %}
@@ -80,12 +80,12 @@
 
   <main>
     <div class="product-images">
-      {% if variant and variant.image1 %}<img src="{% asset_src variant.image1 %}" alt="{{ product.product_name }} Front">{% endif %}
-      {% if variant and variant.image2 %}<img src="{% asset_src variant.image2 %}" alt="{{ product.product_name }} Back">{% endif %}
-      {% if variant and variant.image3 %}<img src="{% asset_src variant.image3 %}" alt="{{ product.product_name }} Side">{% endif %}
-      {% if variant and variant.image4 %}<img src="{% asset_src variant.image4 %}" alt="{{ product.product_name }} Closeup">{% endif %}
+      {% if variant and variant.image1 %}<img src="{% asset_src variant.image1 %}" alt="{{ product.product_name }} Front" loading="lazy" decoding="async" />{% endif %}
+      {% if variant and variant.image2 %}<img src="{% asset_src variant.image2 %}" alt="{{ product.product_name }} Back" loading="lazy" decoding="async" />{% endif %}
+      {% if variant and variant.image3 %}<img src="{% asset_src variant.image3 %}" alt="{{ product.product_name }} Side" loading="lazy" decoding="async" />{% endif %}
+      {% if variant and variant.image4 %}<img src="{% asset_src variant.image4 %}" alt="{{ product.product_name }} Closeup" loading="lazy" decoding="async" />{% endif %}
       {% if not variant or not variant.image1 and not variant.image2 and not variant.image3 and not variant.image4 %}
-        <img src="{% static detail_fallback_front %}" alt="{{ product.product_name }}">
+        <img src="{% static detail_fallback_front %}" alt="{{ product.product_name }}" loading="lazy" decoding="async" />
       {% endif %}
     </div>
 
@@ -155,7 +155,7 @@
     <div class="related-grid">
       {% for card in related_products %}
         <a class="related-card" href="{{ card.product_url|default:'' }}{% if not card.product_url %}{% url 'catalog_product_detail' card.product_id %}{% endif %}">
-          <img src="{% asset_src card.image_path %}" alt="{{ card.product_name }}">
+          <img src="{% asset_src card.image_path %}" alt="{{ card.product_name }}" loading="lazy" decoding="async" />
           <div>
             <strong>{{ card.product_name }}</strong><br>
             Rs. {{ card.offer_price }}

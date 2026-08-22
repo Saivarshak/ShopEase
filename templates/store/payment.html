@@ -373,7 +373,7 @@ body {
     {% if cart_items %}
       {% for item in cart_items %}
         <div class="order-item">
-          <img src="{% asset_src item.image_path %}" alt="{{ item.product.product_name }}">
+          <img src="{% asset_src item.image_path %}" alt="{{ item.product.product_name }}" loading="lazy" decoding="async" />
           <div>
             <div class="order-name">{{ item.product.product_name }}</div>
             <div class="muted">Qty: {{ item.quantity }}</div>

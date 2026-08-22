@@ -179,7 +179,7 @@ body{
         <a href="/" class="flex-shrink-0">
             <img src="{% static logo_image %}"
                  alt="ShopEase Logo"
-                 class="h-10 sm:h-14 md:h-16 w-auto">
+                 class="h-10 sm:h-14 md:h-16 w-auto" loading="lazy" decoding="async" />
         </a>
 
         <h1 class="text-lg sm:text-2xl font-bold mainheading text-center w-full sm:w-auto">
@@ -215,7 +215,7 @@ body{
                 <img src="{% asset_src item.image_path %}"
                      alt="{{ item.name }}"
                      class="w-full h-56 object-cover"
-                     loading="lazy">
+                     loading="lazy decoding="async" />
 
                 <div class="p-5">
 
