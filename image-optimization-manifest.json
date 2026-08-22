@@ -1,0 +1,126 @@
+{
+  "dry_run": false,
+  "min_kb": 50.0,
+  "max_dimension": 1600,
+  "quality": 82,
+  "method": 6,
+  "candidate_count": 5,
+  "converted_count": 0,
+  "skipped_count": 5,
+  "error_count": 0,
+  "source_bytes": 980389,
+  "output_bytes": 0,
+  "saving_bytes": 0,
+  "files": [
+    {
+      "source": "static/images/loginbg.jpg",
+      "output": "static/images/loginbg.webp",
+      "source_bytes": 234349,
+      "source_kb": 228.86,
+      "source_sha256": "6135ca5b209ca475b8bfebf5d48dcca06e0ed6113ed1a45e18afdb1c3a37bc06",
+      "status": "skipped-existing",
+      "output_bytes": 20144,
+      "output_kb": 19.67,
+      "saving_bytes": null,
+      "saving_percent": null,
+      "source_dimensions": [
+        5000,
+        2924
+      ],
+      "output_dimensions": [
+        1600,
+        936
+      ],
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "source": "static/images/logo1.png",
+      "output": "static/images/logo1.webp",
+      "source_bytes": 90281,
+      "source_kb": 88.17,
+      "source_sha256": "30d1ab505e2c231e389e62037b29f0c7eb52419b30c73d7f2944ba826f6efe4c",
+      "status": "skipped-existing",
+      "output_bytes": 17268,
+      "output_kb": 16.86,
+      "saving_bytes": null,
+      "saving_percent": null,
+      "source_dimensions": [
+        500,
+        500
+      ],
+      "output_dimensions": [
+        500,
+        500
+      ],
+      "mode": "RGBA",
+      "error": null
+    },
+    {
+      "source": "static/images/shirt.jpg",
+      "output": "static/images/shirt.webp",
+      "source_bytes": 489466,
+      "source_kb": 477.99,
+      "source_sha256": "fa497758c59042d832a7720f43855fe22378c525e2919ff916f04743cb4b9a74",
+      "status": "skipped-existing",
+      "output_bytes": 29632,
+      "output_kb": 28.94,
+      "saving_bytes": null,
+      "saving_percent": null,
+      "source_dimensions": [
+        1024,
+        683
+      ],
+      "output_dimensions": [
+        1024,
+        683
+      ],
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "source": "static/images/sweatshirts.jpg",
+      "output": "static/images/sweatshirts.webp",
+      "source_bytes": 93706,
+      "source_kb": 91.51,
+      "source_sha256": "42202822356d7c675075d183ba2bc991c1209766e4583a2cd385315c359fcad1",
+      "status": "skipped-existing",
+      "output_bytes": 47118,
+      "output_kb": 46.01,
+      "saving_bytes": null,
+      "saving_percent": null,
+      "source_dimensions": [
+        960,
+        1200
+      ],
+      "output_dimensions": [
+        960,
+        1200
+      ],
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "source": "static/images/tank_tops_vests.jpg",
+      "output": "static/images/tank_tops_vests.webp",
+      "source_bytes": 72587,
+      "source_kb": 70.89,
+      "source_sha256": "c21dc9203b1ee73cc97bfb3de107b07654a19bdeef650302fc1deb0462db0ec7",
+      "status": "skipped-existing",
+      "output_bytes": 32508,
+      "output_kb": 31.75,
+      "saving_bytes": null,
+      "saving_percent": null,
+      "source_dimensions": [
+        960,
+        1200
+      ],
+      "output_dimensions": [
+        960,
+        1200
+      ],
+      "mode": "RGB",
+      "error": null
+    }
+  ]
+}
