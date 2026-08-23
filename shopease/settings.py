@@ -104,8 +104,8 @@ INSTALLED_APPS = [
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "store.middleware.RestrictedCorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "store.middleware.RestrictedCorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
