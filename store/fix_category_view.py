@@ -14,10 +14,10 @@ replacement = r'''def category_view(request, category_name):
     }
 
     canonical_root_urls = {
-        "men": "/men/",
-        "mens": "/men/",
-        "women": "/women/",
-        "womens": "/women/",
+        "men": "/mens/",
+        "mens": "/mens/",
+        "women": "/womens/",
+        "womens": "/womens/",
         "kids": "/kids/",
     }
 

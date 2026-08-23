@@ -209,7 +209,7 @@ BACKGROUND_ASSET_CHOICES = [
         'page_key': '',
         'asset_key': 'home_background',
         'label': 'Home Page Background',
-        'fallback': 'images/homebg.jpg',
+        'fallback': 'images/homebg.svg',
     },
     {
         'scope': 'page',
@@ -324,7 +324,7 @@ def _get_product_image_path(product, variant):
         ('kids', 'toys'): 'images/kids-toys.png',
         ('kids', 'footwear'): 'images/kids-footwear.png',
     }
-    fallback_image = fallback_map.get((category_name, subcategory_name), 'images/homebg.jpg')
+    fallback_image = fallback_map.get((category_name, subcategory_name), 'images/homebg.svg')
     image_names = [variant.image1, variant.image2, variant.image3, variant.image4] if variant else []
 
     for image_name in image_names:
@@ -737,7 +737,7 @@ def _get_category_image_path(category):
         if resolved:
             return resolved
 
-    fallback = fallback_by_category.get(category.category_name.lower(), 'images/homebg.jpg')
+    fallback = fallback_by_category.get(category.category_name.lower(), 'images/homebg.svg')
     return _asset_exists(fallback) or fallback
 
 
@@ -807,7 +807,7 @@ def _get_fashion_card_fallback(category):
         'accessories': 'images/mens_accessories.png',
     }
     name = (category.name or '').lower()
-    return fallback_map.get(name, root_fallbacks.get(root_name, 'images/homebg.jpg'))
+    return fallback_map.get(name, root_fallbacks.get(root_name, 'images/homebg.svg'))
 
 
 def _public_fashion_category_filter():
@@ -1027,8 +1027,8 @@ def _catalog_context(request, products, page_title, search_placeholder_text='Sea
         'image_cards': _build_product_cards(products),
         'products_count': products.count(),
         'logo_image': _get_site_asset('logo', 'images/logo1.png'),
-        'page_background_image': _get_site_asset('home_background', 'images/homebg.jpg'),
-        'page_background_url': _get_site_asset_url('home_background', 'images/homebg.jpg'),
+        'page_background_image': _get_site_asset('home_background', 'images/homebg.svg'),
+        'page_background_url': _get_site_asset_url('home_background', 'images/homebg.svg'),
         'detail_url_name': 'catalog_product_detail',
     }
 
@@ -1354,7 +1354,7 @@ def home(request):
 ]
 
     logo_image = _get_site_asset('logo', 'images/logo1.png')
-    background_image = _get_site_asset('home_background', 'images/homebg.jpg')
+    background_image = _get_site_asset('home_background', 'images/homebg.svg')
     return render(request, 'store/home.html', {
         'products': products,
         'categories_context': categories_context,

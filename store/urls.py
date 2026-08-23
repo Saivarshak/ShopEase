@@ -20,19 +20,31 @@ urlpatterns = [
     # Home page
     path('', views.home, name='home'),
   # Root category pages
-path(
-    'mens/',
-    views.category_view,
-    {'category_name': 'mens'},
-    name='mens_root'
-),
+    path(
+        'mens/',
+        views.category_view,
+        {'category_name': 'mens'},
+        name='mens_root'
+    ),
+    path(
+        'men/',
+        views.category_view,
+        {'category_name': 'mens'},
+        name='men_root_legacy'
+    ),
 
-path(
-    'womens/',
-    views.category_view,
-    {'category_name': 'womens'},
-    name='womens_root'
-),
+    path(
+        'womens/',
+        views.category_view,
+        {'category_name': 'womens'},
+        name='womens_root'
+    ),
+    path(
+        'women/',
+        views.category_view,
+        {'category_name': 'womens'},
+        name='women_root_legacy'
+    ),
 
 path(
     'kids/',
