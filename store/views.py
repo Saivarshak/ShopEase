@@ -272,7 +272,7 @@ BACKGROUND_ASSET_CHOICES = [
         'page_key': 'womens_footwear',
         'asset_key': 'background',
         'label': "Women's Footwear Background",
-        'fallback': 'images/women-footwear1.png',
+        'fallback': 'images/women.webp',
     },
     {
         'scope': 'page',
@@ -286,21 +286,21 @@ BACKGROUND_ASSET_CHOICES = [
         'page_key': 'kids_dresses',
         'asset_key': 'background',
         'label': 'Kids Dresses Background',
-        'fallback': 'images/kids-dresses.png',
+        'fallback': 'images/kids.webp',
     },
     {
         'scope': 'page',
         'page_key': 'kids_toys',
         'asset_key': 'background',
         'label': 'Kids Toys Background',
-        'fallback': 'images/kids-toys.png',
+        'fallback': 'images/kids.webp',
     },
     {
         'scope': 'page',
         'page_key': 'kids_footwear',
         'asset_key': 'background',
         'label': 'Kids Footwear Background',
-        'fallback': 'images/kids-footwear.png',
+        'fallback': 'images/kids.webp',
     },
 ]
 
@@ -309,20 +309,20 @@ def _get_product_image_path(product, variant):
     category_name = (getattr(product.category, 'category_name', '') or '').lower()
     subcategory_name = (getattr(product.subcategory, 'subcategory_name', '') or '').lower()
     fallback_map = {
-        ('mens', 't-shirts'): 'images/T-shirt.jpg',
-        ('mens', 'shirts'): 'images/mens_shirts.png',
-        ('mens', 'jeans'): 'images/mens_jeans.png',
-        ('mens', 'accessories'): 'images/mens_accessories.png',
-        ('womens', 'ethnic wear'): 'images/women-ethnic.png',
-        ('womens', 'western wear'): 'images/women-western.png',
-        ('womens', 'footwear'): 'images/women-footwear1.png',
-        ('womens', 'bags & accessories'): 'images/women-bags.png',
-        ('womens', 'bags and accessories'): 'images/women-bags.png',
-        ('kids', 't-shirts'): 'images/kids-tshirts.png',
-        ('kids', 'kids dresses'): 'images/kids-dresses.png',
-        ('kids', 'dresses'): 'images/kids-dresses.png',
-        ('kids', 'toys'): 'images/kids-toys.png',
-        ('kids', 'footwear'): 'images/kids-footwear.png',
+        ('mens', 't-shirts'): 'images/shirt.webp',
+        ('mens', 'shirts'): 'images/shirt.webp',
+        ('mens', 'jeans'): 'images/cargo-pants.webp',
+        ('mens', 'accessories'): 'images/mens_accessories.webp',
+        ('womens', 'ethnic wear'): 'images/women.webp',
+        ('womens', 'western wear'): 'images/women.webp',
+        ('womens', 'footwear'): 'images/women.webp',
+        ('womens', 'bags & accessories'): 'images/women.webp',
+        ('womens', 'bags and accessories'): 'images/women.webp',
+        ('kids', 't-shirts'): 'images/kids.webp',
+        ('kids', 'kids dresses'): 'images/kids.webp',
+        ('kids', 'dresses'): 'images/kids.webp',
+        ('kids', 'toys'): 'images/kids.webp',
+        ('kids', 'footwear'): 'images/kids.webp',
     }
     fallback_image = fallback_map.get((category_name, subcategory_name), 'images/homebg.svg')
     image_names = [variant.image1, variant.image2, variant.image3, variant.image4] if variant else []
@@ -724,11 +724,11 @@ def _get_order_from_webhook_payload(payload):
 
 def _get_category_image_path(category):
     fallback_by_category = {
-        'mens': 'images/mens.jpg',
-        'men': 'images/mens.jpg',
-        'womens': 'images/womens.jpg',
-        'women': 'images/womens.jpg',
-        'kids': 'images/kids.jpg',
+        'mens': 'images/menstshirts.webp',
+        'men': 'images/menstshirts.webp',
+        'womens': 'images/women.webp',
+        'women': 'images/women.webp',
+        'kids': 'images/kids.webp',
     }
 
     if category.image:
@@ -769,42 +769,42 @@ def _load_category_cards(queryset, fallback_map, empty_fallback):
 
 def _get_fashion_card_fallback(category):
     fallback_map = {
-        't-shirts': 'images/T-shirt.jpg',
-        'shirts': 'images/mens_shirts.png',
+        't-shirts': 'images/shirt.webp',
+        'shirts': 'images/shirt.webp',
         'polos': 'images/menstshirts.webp',
-        'jeans': 'images/mens_jeans.png',
-        'trousers': 'images/mens_jeans.png',
-        'cargo pants': 'images/mens_jeans.png',
-        'shorts': 'images/mens_tshirts.png',
-        'hoodies & sweatshirts': 'images/mens_tshirts.webp',
-        'jackets & coats': 'images/mens.jpg',
-        'blazers': 'images/mens.jpg',
-        'suits': 'images/mens.jpg',
-        'innerwear': 'images/mens.jpg',
-        'nightwear': 'images/mens.jpg',
-        'activewear': 'images/mens_tshirts.png',
-        'traditional wear': 'images/mens_shirts.png',
-        'footwear': 'images/mens_shoes.png',
-        'accessories': 'images/mens_accessories.png',
-        'ethnic wear': 'images/women-ethnic.png',
-        'western wear': 'images/women-western.png',
-        'lingerie & sleepwear': 'images/womens.jpg',
-        'maternity wear': 'images/womens.jpg',
-        'winter wear': 'images/womens.jpg',
-        'bags & accessories': 'images/women-bags.png',
-        'boys wear': 'images/kids-tshirts.png',
-        'girls wear': 'images/kids-dresses.png',
-        'boys': 'images/kids-tshirts.png',
-        'girls': 'images/kids-dresses.png',
-        'baby care': 'images/kids.jpg',
-        'toys': 'images/kids-toys.png',
+        'jeans': 'images/cargo-pants.webp',
+        'trousers': 'images/cargo-pants.webp',
+        'cargo pants': 'images/cargo-pants.webp',
+        'shorts': 'images/menstshirts.webp',
+        'hoodies & sweatshirts': 'images/menstshirts.webp',
+        'jackets & coats': 'images/menstshirts.webp',
+        'blazers': 'images/menstshirts.webp',
+        'suits': 'images/menstshirts.webp',
+        'innerwear': 'images/menstshirts.webp',
+        'nightwear': 'images/menstshirts.webp',
+        'activewear': 'images/menstshirts.webp',
+        'traditional wear': 'images/shirt.webp',
+        'footwear': 'images/mens_shoes.webp',
+        'accessories': 'images/mens_accessories.webp',
+        'ethnic wear': 'images/women.webp',
+        'western wear': 'images/women.webp',
+        'lingerie & sleepwear': 'images/women.webp',
+        'maternity wear': 'images/women.webp',
+        'winter wear': 'images/women.webp',
+        'bags & accessories': 'images/women.webp',
+        'boys wear': 'images/kids.webp',
+        'girls wear': 'images/kids.webp',
+        'boys': 'images/kids.webp',
+        'girls': 'images/kids.webp',
+        'baby care': 'images/kids.webp',
+        'toys': 'images/kids.webp',
     }
     root_name = (getattr(category.root_category, 'category_name', '') or '').lower()
     root_fallbacks = {
-        'mens': 'images/mens.jpg',
-        'womens': 'images/womens.jpg',
-        'kids': 'images/kids.jpg',
-        'accessories': 'images/mens_accessories.png',
+        'mens': 'images/menstshirts.webp',
+        'womens': 'images/women.webp',
+        'kids': 'images/kids.webp',
+        'accessories': 'images/mens_accessories.webp',
     }
     name = (category.name or '').lower()
     return fallback_map.get(name, root_fallbacks.get(root_name, 'images/homebg.svg'))
@@ -837,7 +837,7 @@ def _render_fashion_maintenance(request, fashion_category):
     return render(request, 'store/under-maintenance.html', {
         'page_title': fashion_category.name,
         'status_message': f'{fashion_category.name} is currently under maintenance. Please check back later.',
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'category_tree': _build_category_tree(),
         'active_fashion_category': fashion_category,
         'category_return_url': category_return_url,
@@ -1026,7 +1026,7 @@ def _catalog_context(request, products, page_title, search_placeholder_text='Sea
         'page_title': page_title,
         'image_cards': _build_product_cards(products),
         'products_count': products.count(),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'page_background_image': _get_site_asset('home_background', 'images/homebg.svg'),
         'page_background_url': _get_site_asset_url('home_background', 'images/homebg.svg'),
         'detail_url_name': 'catalog_product_detail',
@@ -1335,25 +1335,25 @@ def home(request):
     categories_context = [
     {
         'name': 'Men',
-        'image_path': 'images/mens.jpg',
+        'image_path': 'images/menstshirts.webp',
         'route_name': 'mens_root',
         'description': 'Casual wear, formals, accessories and more.',
     },
     {
         'name': 'Women',
-        'image_path': 'images/womens.jpg',
+        'image_path': 'images/women.webp',
         'route_name': 'womens_root',
         'description': 'Ethnic, western, and everything chic!',
     },
     {
         'name': 'Kids',
-        'image_path': 'images/kids.jpg',
+        'image_path': 'images/kids.webp',
         'route_name': 'kids_root',
         'description': 'Trendy and comfy styles for kids of all ages.',
     },
 ]
 
-    logo_image = _get_site_asset('logo', 'images/logo1.png')
+    logo_image = _get_site_asset('logo', 'images/logo1.webp')
     background_image = _get_site_asset('home_background', 'images/homebg.svg')
     return render(request, 'store/home.html', {
         'products': products,
@@ -1438,7 +1438,7 @@ def search_results(request):
     return render(request, 'store/search-results.html', {
         'searched_products': searched_products,
         'search_query': search_query,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'search_placeholder': getattr(home_content, 'search_placeholder', None) or 'Search for products...',
         'search_button_text': getattr(home_content, 'search_button_text', None) or 'Search',
         'nav_home_text': getattr(home_content, 'nav_home_text', None) or 'Home',
@@ -1461,7 +1461,7 @@ def contact_us(request):
 
 def _shop_contact_context():
     return {
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'phone_number': '8247624897',
         'email_address': 'saivarshak14@gmail.com',
     }
@@ -1667,10 +1667,10 @@ def category_view(request, category_name):
 
     if category.category_name.lower() == "mens":
         fallback_map = {
-            "t-shirts": "images/T-shirt.jpg",
-            "shirts": "images/mens_shirts.png",
-            "jeans": "images/mens_jeans.png",
-            "accessories": "images/mens_accessories.png",
+            "t-shirts": "images/shirt.webp",
+            "shirts": "images/shirt.webp",
+            "jeans": "images/cargo-pants.webp",
+            "accessories": "images/mens_accessories.webp",
         }
 
         context["men_categories"] = (
@@ -1678,23 +1678,23 @@ def category_view(request, category_name):
             or _load_category_cards(
                 fashion_categories,
                 fallback_map,
-                "images/T-shirt.jpg",
+                "images/shirt.webp",
             )
         )
 
         context["page_background_image"] = _get_page_asset(
             "category_men",
             "background",
-            "images/mens.jpg",
+            "images/menstshirts.webp",
         )
 
     elif category.category_name.lower() == "womens":
         fallback_map = {
-            "ethnic wear": "images/women-ethnic.png",
-            "western wear": "images/women-western.png",
-            "footwear": "images/women-footwear1.png",
-            "bags & accessories": "images/women-bags.png",
-            "bags and accessories": "images/women-bags.png",
+            "ethnic wear": "images/women.webp",
+            "western wear": "images/women.webp",
+            "footwear": "images/women.webp",
+            "bags & accessories": "images/women.webp",
+            "bags and accessories": "images/women.webp",
         }
 
         context["women_categories"] = (
@@ -1702,23 +1702,23 @@ def category_view(request, category_name):
             or _load_category_cards(
                 fashion_categories,
                 fallback_map,
-                "images/womens.jpg",
+                "images/women.webp",
             )
         )
 
         context["page_background_image"] = _get_page_asset(
             "category_women",
             "background",
-            "images/womens.jpg",
+            "images/women.webp",
         )
 
     elif category.category_name.lower() == "kids":
         fallback_map = {
-            "t-shirts": "images/kids-tshirts.png",
-            "kids dresses": "images/kids-dresses.png",
-            "dresses": "images/kids-dresses.png",
-            "toys": "images/kids-toys.png",
-            "footwear": "images/kids-footwear.png",
+            "t-shirts": "images/kids.webp",
+            "kids dresses": "images/kids.webp",
+            "dresses": "images/kids.webp",
+            "toys": "images/kids.webp",
+            "footwear": "images/kids.webp",
         }
 
         context["kids_categories"] = (
@@ -1726,14 +1726,14 @@ def category_view(request, category_name):
             or _load_category_cards(
                 fashion_categories,
                 fallback_map,
-                "images/kids.jpg",
+                "images/kids.webp",
             )
         )
 
         context["page_background_image"] = _get_page_asset(
             "category_kids",
             "background",
-            "images/kids.jpg",
+            "images/kids.webp",
         )
 
     context["page_background_url"] = _asset_public_url(
@@ -1742,7 +1742,7 @@ def category_view(request, category_name):
 
     context["logo_image"] = _get_site_asset(
         "logo",
-        "images/logo1.png",
+        "images/logo1.webp",
     )
 
     return render(request, template_name, context)
@@ -1833,7 +1833,7 @@ def fashion_category_slug_listing(request, gender_slug, category_path):
             'page_title': fashion_category.name,
             'parent_category': fashion_category,
             'category_cards': child_cards,
-            'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+            'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
             'page_background_image': _resolve_static_image_path(
                 fashion_category.banner_image,
                 _get_fashion_card_fallback(fashion_category)
@@ -1923,7 +1923,7 @@ def _render_product_detail(request, product):
         'related_products': _build_product_cards(related_products),
         'is_wishlisted': request.user.is_authenticated and WishlistItem.objects.filter(user=request.user, product=product).exists(),
         'total_stock': _get_total_stock(product),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'detail_fallback_front': fallback_image,
         'detail_fallback_back': fallback_image,
         'detail_fallback_side': fallback_image,
@@ -1953,7 +1953,7 @@ def mens_tshirts(request):
 
     image_cards = []
     fallback_images = [
-        _get_page_asset('mens_tshirt_detail', 'fallback_front', 'images/T-shirt.jpg'),
+        _get_page_asset('mens_tshirt_detail', 'fallback_front', 'images/shirt.webp'),
         _get_page_asset('mens_tshirt_detail', 'fallback_side', 'images/T-shirt side.jpg'),
         _get_page_asset('mens_tshirt_detail', 'fallback_back', 'images/T-shirt back.jpg'),
         _get_page_asset('mens_tshirt_detail', 'fallback_close', 'images/T-shirt close.jpg'),
@@ -1987,7 +1987,7 @@ def mens_tshirts(request):
     page_background_image = _get_page_asset('mens_tshirts', 'background', 'images/menstshirts.jpg')
     return render(request, 'store/mens-tshirts.html', {
         'image_cards': image_cards,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'page_background_image': page_background_image,
         'page_background_url': _asset_public_url(page_background_image),
     })
@@ -2014,10 +2014,10 @@ def mens_jeans(request):
 
     image_cards = []
     fallback_images = [
-        _get_page_asset('mens_jeans_detail', 'fallback_front', 'images/mens_jeans.png'),
-        _get_page_asset('mens_jeans_detail', 'fallback_side', 'images/mens_jeans.png'),
-        _get_page_asset('mens_jeans_detail', 'fallback_back', 'images/mens_jeans.png'),
-        _get_page_asset('mens_jeans_detail', 'fallback_close', 'images/mens_jeans.png'),
+        _get_page_asset('mens_jeans_detail', 'fallback_front', 'images/cargo-pants.webp'),
+        _get_page_asset('mens_jeans_detail', 'fallback_side', 'images/cargo-pants.webp'),
+        _get_page_asset('mens_jeans_detail', 'fallback_back', 'images/cargo-pants.webp'),
+        _get_page_asset('mens_jeans_detail', 'fallback_close', 'images/cargo-pants.webp'),
     ]
 
     for product in products:
@@ -2048,7 +2048,7 @@ def mens_jeans(request):
     page_background_image = _get_page_asset('mens_jeans', 'background', 'images/jeansbg.jpg')
     return render(request, 'store/mens-Jeans.html', {
         'image_cards': image_cards,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'page_background_image': page_background_image,
         'page_background_url': _asset_public_url(page_background_image),
     })
@@ -2074,7 +2074,7 @@ def accessories_men(request):
     ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
 
     return render(request, 'store/accessories-men.html', {
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'product_count': products.count(),
         'page_title': "Men's Accessories",
         'status_message': 'Our accessories section is currently under maintenance.',
@@ -2092,7 +2092,7 @@ def accessories_women(request):
     ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
 
     return render(request, 'store/accessories-women.html', {
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'product_count': products.count(),
         'page_title': "Women's Accessories",
         'status_message': 'Our accessories section is currently under maintenance.',
@@ -2111,7 +2111,7 @@ def womens_ethnicware(request):
         'page_title': 'Stylish Ethnic Wear for Women',
         'search_placeholder_text': 'Search ethnic wear...',
         'image_cards': _build_product_cards(products),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'page_background_image': page_background_image,
         'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
@@ -2130,7 +2130,7 @@ def womens_westernware(request):
         'page_title': 'Stylish Western Wear for Women',
         'search_placeholder_text': 'Search western wear...',
         'image_cards': _build_product_cards(products),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'page_background_image': page_background_image,
         'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
@@ -2144,12 +2144,12 @@ def womens_footwear(request):
         subcategory__subcategory_name__iexact='footwear',
         is_active=True,
     ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
-    page_background_image = _get_page_asset('womens_footwear', 'background', 'images/women-footwear1.png')
+    page_background_image = _get_page_asset('womens_footwear', 'background', 'images/women.webp')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': "Women's Footwear",
         'search_placeholder_text': 'Search footwear...',
         'image_cards': _build_product_cards(products),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'page_background_image': page_background_image,
         'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
@@ -2171,7 +2171,7 @@ def kids_tshirts(request):
         'page_title': 'T-Shirts for Kids',
         'search_placeholder_text': 'Search kids t-shirts...',
         'image_cards': _build_product_cards(products),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'page_background_image': page_background_image,
         'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
@@ -2187,12 +2187,12 @@ def kids_dresses(request):
         Q(subcategory__subcategory_name__icontains='kids dresses') |
         Q(subcategory__subcategory_name__icontains='dresses')
     ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
-    page_background_image = _get_page_asset('kids_dresses', 'background', 'images/kids-dresses.png')
+    page_background_image = _get_page_asset('kids_dresses', 'background', 'images/kids.webp')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Kids Dresses',
         'search_placeholder_text': 'Search kids dresses...',
         'image_cards': _build_product_cards(products),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'page_background_image': page_background_image,
         'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
@@ -2206,12 +2206,12 @@ def kids_toys(request):
         subcategory__subcategory_name__iexact='toys',
         is_active=True,
     ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
-    page_background_image = _get_page_asset('kids_toys', 'background', 'images/kids-toys.png')
+    page_background_image = _get_page_asset('kids_toys', 'background', 'images/kids.webp')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Kids Toys',
         'search_placeholder_text': 'Search kids toys...',
         'image_cards': _build_product_cards(products),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'page_background_image': page_background_image,
         'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
@@ -2225,12 +2225,12 @@ def kids_footwear(request):
         subcategory__subcategory_name__iexact='footwear',
         is_active=True,
     ).select_related('category', 'subcategory').prefetch_related('productvariant_set')
-    page_background_image = _get_page_asset('kids_footwear', 'background', 'images/kids-footwear.png')
+    page_background_image = _get_page_asset('kids_footwear', 'background', 'images/kids.webp')
     return render(request, 'store/product-listing-generic.html', {
         'page_title': 'Kids Footwear',
         'search_placeholder_text': 'Search kids footwear...',
         'image_cards': _build_product_cards(products),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'page_background_image': page_background_image,
         'page_background_url': _asset_public_url(page_background_image),
         'detail_url_name': 'catalog_product_detail',
@@ -2317,7 +2317,7 @@ def cart(request):
         'cart_items': cart_items,
         'subtotal': subtotal,
         'total_items': total_items,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'requires_login_for_checkout': not request.user.is_authenticated,
     })
 
@@ -2334,7 +2334,7 @@ def payment_gateway(request):
         'cart_items': cart_items,
         'subtotal': subtotal,
         'total_items': total_items,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'default_email': request.user.email,
         'default_full_name': request.user.get_full_name() or request.user.username,
         'default_phone_number': _get_default_phone_number(request),
@@ -2429,7 +2429,7 @@ def wishlist(request):
 
     return render(request, 'store/wishlist.html', {
         'wishlist_items': wishlist_cards,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -2460,7 +2460,7 @@ def user_dashboard(request):
         'orders': recent_orders,
         'addresses': addresses,
         'wishlist_items': wishlist_items,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -2480,7 +2480,7 @@ def profile_settings(request):
         return redirect('user_dashboard')
 
     return render(request, 'store/profile-settings.html', {
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -2509,7 +2509,7 @@ def address_book(request):
 
     return render(request, 'store/address-book.html', {
         'addresses': UserAddress.objects.filter(user=request.user),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -3096,7 +3096,7 @@ def order_success(request, order_id):
     return render(request, 'store/order-success.html', {
         'order': order,
         'order_items': order_items,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'invoice_delivery_notice': invoice_delivery_notice,
     })
 
@@ -3108,7 +3108,7 @@ def order_tracking(request, order_id):
     order = get_object_or_404(Order.objects.prefetch_related('items__product'), order_id=order_id, user=request.user)
     return render(request, 'store/order-tracking.html', {
         'order': order,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -3137,7 +3137,7 @@ def orders(request):
     user_orders = Order.objects.filter(user=request.user).prefetch_related('items__product')
     return render(request, 'store/orders.html', {
         'orders': user_orders,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -3209,7 +3209,7 @@ def admin_access(request):
         'next_url': next_url,
         'admin_email': SHOP_ADMIN_EMAIL,
         'admin_identifier': submitted_identifier,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -3535,7 +3535,7 @@ def admin_control_center(request):
         'revenue': revenue,
         'low_stock_count': low_stock_count,
         'low_stock_threshold': low_stock_threshold,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -3921,7 +3921,7 @@ def admin_product_form(request, product_id=None):
         'categories': categories,
         'subcategories': subcategories,
         'fashion_categories': fashion_categories,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'page_title': 'Edit Product' if product else 'Add Product',
         'form_action_label': 'Update Product' if product else 'Add Product',
     })
@@ -3957,7 +3957,7 @@ def admin_orders(request):
         orders_qs = orders_qs.filter(status__iexact=status_filter)
     return render(request, 'store/admin-orders.html', {
         'orders': orders_qs,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -3997,7 +3997,7 @@ def admin_customers(request):
         })
     return render(request, 'store/admin-customers.html', {
         'customers': rows,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -4011,7 +4011,7 @@ def admin_customer_detail(request, user_id):
         'customer': customer,
         'orders': Order.objects.filter(user=customer).prefetch_related('items__product'),
         'addresses': UserAddress.objects.filter(user=customer),
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -4024,7 +4024,7 @@ def admin_inventory(request):
     return render(request, 'store/admin-inventory.html', {
         'variants': variants,
         'low_stock_threshold': 5,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -4185,7 +4185,7 @@ def admin_categories(request):
         'categories': Category.objects.order_by('category_name'),
         'fashion_categories': fashion_categories,
         'card_groups': card_groups,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -4343,7 +4343,7 @@ def admin_backgrounds(request):
 
     return render(request, 'store/admin-backgrounds.html', {
         'backgrounds': background_rows,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
     })
 
 
@@ -4385,7 +4385,7 @@ def mens_shirts(request):
     page_background_image = _get_page_asset('mens_shirts', 'background', 'images/shirt.jpg')
     return render(request, 'store/mens-shirts.html', {
         'image_cards': image_cards,
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'page_background_image': page_background_image,
         'page_background_url': _asset_public_url(page_background_image),
     })
@@ -4404,6 +4404,7 @@ def under_maintenance_view(request):
     return render(request, 'store/under-maintenance.html', {
         'page_title': 'Under Maintenance',
         'status_message': 'This section is currently under maintenance. Please check back later.',
-        'logo_image': _get_site_asset('logo', 'images/logo1.png'),
+        'logo_image': _get_site_asset('logo', 'images/logo1.webp'),
         'category_return_url': '/',
     })
+
