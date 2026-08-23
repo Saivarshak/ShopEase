@@ -1,0 +1,190 @@
+{
+  "mode": "local-isolated-django-test-client",
+  "paths": [
+    "/",
+    "/mens/",
+    "/womens/",
+    "/kids/",
+    "/static/images/shirt.webp",
+    "/static/images/logo1.webp"
+  ],
+  "repeat": 3,
+  "request_count": 18,
+  "total_bytes": 321999,
+  "total_mb": 0.307,
+  "status_counts": {
+    "200": 18
+  },
+  "routes": [
+    {
+      "path": "/static/images/shirt.webp",
+      "requests": 3,
+      "bytes": 88896,
+      "mb": 0.085,
+      "avg_bytes": 29632
+    },
+    {
+      "path": "/mens/",
+      "requests": 3,
+      "bytes": 83268,
+      "mb": 0.079,
+      "avg_bytes": 27756
+    },
+    {
+      "path": "/static/images/logo1.webp",
+      "requests": 3,
+      "bytes": 51804,
+      "mb": 0.049,
+      "avg_bytes": 17268
+    },
+    {
+      "path": "/",
+      "requests": 3,
+      "bytes": 34584,
+      "mb": 0.033,
+      "avg_bytes": 11528
+    },
+    {
+      "path": "/kids/",
+      "requests": 3,
+      "bytes": 33654,
+      "mb": 0.032,
+      "avg_bytes": 11218
+    },
+    {
+      "path": "/womens/",
+      "requests": 3,
+      "bytes": 29793,
+      "mb": 0.028,
+      "avg_bytes": 9931
+    }
+  ],
+  "responses": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 11528,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": ""
+    },
+    {
+      "path": "/mens/",
+      "status": 200,
+      "bytes": 27756,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": ""
+    },
+    {
+      "path": "/womens/",
+      "status": 200,
+      "bytes": 9931,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": ""
+    },
+    {
+      "path": "/kids/",
+      "status": 200,
+      "bytes": 11218,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": ""
+    },
+    {
+      "path": "/static/images/shirt.webp",
+      "status": 200,
+      "bytes": 29632,
+      "content_type": "image/webp",
+      "cache_control": "max-age=31536000, public"
+    },
+    {
+      "path": "/static/images/logo1.webp",
+      "status": 200,
+      "bytes": 17268,
+      "content_type": "image/webp",
+      "cache_control": "max-age=31536000, public"
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 11528,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": ""
+    },
+    {
+      "path": "/mens/",
+      "status": 200,
+      "bytes": 27756,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": ""
+    },
+    {
+      "path": "/womens/",
+      "status": 200,
+      "bytes": 9931,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": ""
+    },
+    {
+      "path": "/kids/",
+      "status": 200,
+      "bytes": 11218,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": ""
+    },
+    {
+      "path": "/static/images/shirt.webp",
+      "status": 200,
+      "bytes": 29632,
+      "content_type": "image/webp",
+      "cache_control": "max-age=31536000, public"
+    },
+    {
+      "path": "/static/images/logo1.webp",
+      "status": 200,
+      "bytes": 17268,
+      "content_type": "image/webp",
+      "cache_control": "max-age=31536000, public"
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 11528,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": ""
+    },
+    {
+      "path": "/mens/",
+      "status": 200,
+      "bytes": 27756,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": ""
+    },
+    {
+      "path": "/womens/",
+      "status": 200,
+      "bytes": 9931,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": ""
+    },
+    {
+      "path": "/kids/",
+      "status": 200,
+      "bytes": 11218,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": ""
+    },
+    {
+      "path": "/static/images/shirt.webp",
+      "status": 200,
+      "bytes": 29632,
+      "content_type": "image/webp",
+      "cache_control": "max-age=31536000, public"
+    },
+    {
+      "path": "/static/images/logo1.webp",
+      "status": 200,
+      "bytes": 17268,
+      "content_type": "image/webp",
+      "cache_control": "max-age=31536000, public"
+    }
+  ]
+}

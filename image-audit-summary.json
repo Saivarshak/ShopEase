@@ -1,0 +1,516 @@
+{
+  "root": "C:\\Users\\saiva\\OneDrive\\Desktop\\Live project Online shoping",
+  "image_count": 167,
+  "total_bytes": 2767693,
+  "total_mb": 2.639,
+  "by_extension": {
+    "jpg": {
+      "count": 61,
+      "bytes": 2248065,
+      "mb": 2.144
+    },
+    "png": {
+      "count": 20,
+      "bytes": 215934,
+      "mb": 0.206
+    },
+    "webp": {
+      "count": 40,
+      "bytes": 259080,
+      "mb": 0.247
+    },
+    "svg": {
+      "count": 42,
+      "bytes": 35496,
+      "mb": 0.034
+    },
+    "jpeg": {
+      "count": 2,
+      "bytes": 6012,
+      "mb": 0.006
+    },
+    "gif": {
+      "count": 2,
+      "bytes": 3106,
+      "mb": 0.003
+    }
+  },
+  "duplicates": [
+    [
+      "staticfiles/images/sweatshirts.jpg",
+      "static/images/sweatshirts.jpg"
+    ],
+    [
+      "staticfiles/images/logo1.dff6f0c10b34.png",
+      "static/images/logo1.png"
+    ],
+    [
+      "staticfiles/images/tank_tops_vests.jpg",
+      "static/images/tank_tops_vests.jpg"
+    ],
+    [
+      "staticfiles/admin/img/selector-icons.b4555096cea2.svg",
+      "staticfiles/admin/img/selector-icons.svg"
+    ],
+    [
+      "staticfiles/images/categories/womens.a614c3bda267.jpg",
+      "staticfiles/images/categories/womens.jpg"
+    ],
+    [
+      "staticfiles/images/loginbg.0d4e1f1be7ee.jpg",
+      "staticfiles/images/loginbg.jpg"
+    ],
+    [
+      "staticfiles/images/menstshirts.71cb045005a2.jpg",
+      "staticfiles/images/menstshirts.jpg",
+      "static/images/menstshirts.jpg"
+    ],
+    [
+      "staticfiles/images/men_shirt_black_front.1b692fcea1a4.jpg",
+      "staticfiles/images/men_shirt_black_front.jpg",
+      "static/images/men_shirt_black_front.jpg"
+    ],
+    [
+      "staticfiles/images/categories/mens.2f5304e2f3d5.jpg",
+      "staticfiles/images/categories/mens.jpg"
+    ],
+    [
+      "staticfiles/images/categories/kids.3c4c4cf3c774.jpg",
+      "staticfiles/images/categories/kids.jpg"
+    ],
+    [
+      "staticfiles/images/men-blue-t-shirt_image1.0e5cab39b3bc.jpg",
+      "staticfiles/images/men-blue-t-shirt_image1.jpg"
+    ],
+    [
+      "staticfiles/images/ethicwearebg.d7405171087b.jpeg",
+      "staticfiles/images/ethicwearebg.jpeg"
+    ],
+    [
+      "staticfiles/images/mens.9d89f6c13237.jpg",
+      "staticfiles/images/mens.jpg"
+    ],
+    [
+      "staticfiles/images/shirt.ed2b0910ae0e.jpg",
+      "staticfiles/images/shirt.jpg"
+    ],
+    [
+      "staticfiles/admin/img/calendar-icons.93ab098d1ac1.svg",
+      "staticfiles/admin/img/calendar-icons.svg"
+    ],
+    [
+      "staticfiles/images/logo1.1a318e8cbdac.png",
+      "staticfiles/images/logo1.png"
+    ],
+    [
+      "staticfiles/images/mens_accessories.8b4485dde4be.png",
+      "staticfiles/images/mens_accessories.png",
+      "static/images/mens_accessories.png"
+    ],
+    [
+      "staticfiles/images/mens_tshirts.544a41d58e55.png",
+      "staticfiles/images/mens_tshirts.png"
+    ],
+    [
+      "staticfiles/images/mens_shoes.03785c0c60cd.png",
+      "staticfiles/images/mens_shoes.png",
+      "static/images/mens_shoes.png"
+    ],
+    [
+      "staticfiles/images/mens_shirts.e527c2e71995.png",
+      "staticfiles/images/mens_shirts.png"
+    ],
+    [
+      "staticfiles/images/women.fef76b26cfd8.png",
+      "staticfiles/images/women.png",
+      "static/images/women.png"
+    ],
+    [
+      "staticfiles/django_extensions/img/indicator.03ce3dcc84af.gif",
+      "staticfiles/django_extensions/img/indicator.gif"
+    ],
+    [
+      "staticfiles/images/kids.cd3e121f4754.png",
+      "staticfiles/images/kids.png",
+      "static/images/kids.png"
+    ],
+    [
+      "staticfiles/admin/img/gis/move_vertex_off.7a23bf31ef8a.svg",
+      "staticfiles/admin/img/gis/move_vertex_off.svg"
+    ],
+    [
+      "staticfiles/admin/img/gis/move_vertex_on.0047eba25b67.svg",
+      "staticfiles/admin/img/gis/move_vertex_on.svg"
+    ],
+    [
+      "staticfiles/admin/img/sorting-icons.3a097b59f104.svg",
+      "staticfiles/admin/img/sorting-icons.svg"
+    ],
+    [
+      "staticfiles/admin/img/icon-calendar.ac7aea671bea.svg",
+      "staticfiles/admin/img/icon-calendar.svg"
+    ],
+    [
+      "staticfiles/admin/img/icon-hidelink.8d245a995e18.svg",
+      "staticfiles/admin/img/icon-hidelink.svg"
+    ],
+    [
+      "staticfiles/admin/img/icon-clock.e1d4dfac3f2b.svg",
+      "staticfiles/admin/img/icon-clock.svg"
+    ],
+    [
+      "staticfiles/admin/img/icon-unknown-alt.81536e128bb6.svg",
+      "staticfiles/admin/img/icon-unknown-alt.svg"
+    ],
+    [
+      "staticfiles/admin/img/icon-unknown.a18cb4398978.svg",
+      "staticfiles/admin/img/icon-unknown.svg"
+    ],
+    [
+      "staticfiles/admin/img/icon-viewlink.41eb31f7826e.svg",
+      "staticfiles/admin/img/icon-viewlink.svg"
+    ],
+    [
+      "staticfiles/admin/img/icon-no.439e821418cd.svg",
+      "staticfiles/admin/img/icon-no.svg"
+    ],
+    [
+      "staticfiles/admin/img/inline-delete.358e965fe3e7.svg",
+      "staticfiles/admin/img/inline-delete.svg"
+    ],
+    [
+      "staticfiles/admin/img/icon-alert.034cc7d8a67f.svg",
+      "staticfiles/admin/img/icon-alert.svg"
+    ],
+    [
+      "staticfiles/admin/img/search.7cf54ff789c6.svg",
+      "staticfiles/admin/img/search.svg"
+    ],
+    [
+      "staticfiles/admin/img/icon-yes.d2f9f035226a.svg",
+      "staticfiles/admin/img/icon-yes.svg"
+    ],
+    [
+      "staticfiles/admin/img/icon-deletelink.564ef9dc3854.svg",
+      "staticfiles/admin/img/icon-deletelink.svg"
+    ],
+    [
+      "staticfiles/admin/img/icon-changelink.7eddb320e61f.svg",
+      "staticfiles/admin/img/icon-changelink.svg"
+    ],
+    [
+      "staticfiles/admin/img/icon-addlink.073aeb1feda7.svg",
+      "staticfiles/admin/img/icon-addlink.svg"
+    ],
+    [
+      "staticfiles/admin/img/tooltag-add.e59d620a9742.svg",
+      "staticfiles/admin/img/tooltag-add.svg"
+    ],
+    [
+      "staticfiles/admin/img/tooltag-arrowright.bbfb788a849e.svg",
+      "staticfiles/admin/img/tooltag-arrowright.svg"
+    ]
+  ],
+  "largest": [
+    {
+      "path": "static/images/shirt.jpg",
+      "bytes": 489466,
+      "kb": 477.99,
+      "extension": "jpg",
+      "sha256": "fa497758c59042d832a7720f43855fe22378c525e2919ff916f04743cb4b9a74",
+      "width": 1024,
+      "height": 683,
+      "format": "PNG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/loginbg.jpg",
+      "bytes": 234349,
+      "kb": 228.86,
+      "extension": "jpg",
+      "sha256": "6135ca5b209ca475b8bfebf5d48dcca06e0ed6113ed1a45e18afdb1c3a37bc06",
+      "width": 5000,
+      "height": 2924,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "staticfiles/images/casual_shirts.jpg",
+      "bytes": 172595,
+      "kb": 168.55,
+      "extension": "jpg",
+      "sha256": "367b448eba42bc4c0569c1c0ec6ec0fe4ab579bf49dd2b4afd1e5a87b48a9f18",
+      "width": 960,
+      "height": 1200,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "staticfiles/images/lounge_wear.jpg",
+      "bytes": 118396,
+      "kb": 115.62,
+      "extension": "jpg",
+      "sha256": "70d3af7c9ddd0ab98e2db49c08dc7ab8f3092b08909abb18f7033e49d4812b61",
+      "width": 960,
+      "height": 1200,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "staticfiles/images/jackets.jpg",
+      "bytes": 99023,
+      "kb": 96.7,
+      "extension": "jpg",
+      "sha256": "52816275c8139812620ca987e3d22763c67ccde6d7a6be1b8588101ed2923b08",
+      "width": 960,
+      "height": 1200,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "staticfiles/images/sweatshirts.jpg",
+      "bytes": 93706,
+      "kb": 91.51,
+      "extension": "jpg",
+      "sha256": "42202822356d7c675075d183ba2bc991c1209766e4583a2cd385315c359fcad1",
+      "width": 960,
+      "height": 1200,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/sweatshirts.jpg",
+      "bytes": 93706,
+      "kb": 91.51,
+      "extension": "jpg",
+      "sha256": "42202822356d7c675075d183ba2bc991c1209766e4583a2cd385315c359fcad1",
+      "width": 960,
+      "height": 1200,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "staticfiles/images/logo1.dff6f0c10b34.png",
+      "bytes": 90281,
+      "kb": 88.17,
+      "extension": "png",
+      "sha256": "30d1ab505e2c231e389e62037b29f0c7eb52419b30c73d7f2944ba826f6efe4c",
+      "width": 500,
+      "height": 500,
+      "format": "PNG",
+      "mode": "RGBA",
+      "error": null
+    },
+    {
+      "path": "static/images/logo1.png",
+      "bytes": 90281,
+      "kb": 88.17,
+      "extension": "png",
+      "sha256": "30d1ab505e2c231e389e62037b29f0c7eb52419b30c73d7f2944ba826f6efe4c",
+      "width": 500,
+      "height": 500,
+      "format": "PNG",
+      "mode": "RGBA",
+      "error": null
+    },
+    {
+      "path": "staticfiles/images/joggers.jpg",
+      "bytes": 87276,
+      "kb": 85.23,
+      "extension": "jpg",
+      "sha256": "d3018583811d9a814920d21267963c5542991ad9585e727aacd1a2348fff26c1",
+      "width": 960,
+      "height": 1200,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "staticfiles/images/cargo_pants.jpg",
+      "bytes": 84295,
+      "kb": 82.32,
+      "extension": "jpg",
+      "sha256": "7c14a060a5ece7a906d6892e93958aa003d45dc928bbf88496468ba204deda5e",
+      "width": 960,
+      "height": 1200,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "staticfiles/images/tank_tops_vests.jpg",
+      "bytes": 72587,
+      "kb": 70.89,
+      "extension": "jpg",
+      "sha256": "c21dc9203b1ee73cc97bfb3de107b07654a19bdeef650302fc1deb0462db0ec7",
+      "width": 960,
+      "height": 1200,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/tank_tops_vests.jpg",
+      "bytes": 72587,
+      "kb": 70.89,
+      "extension": "jpg",
+      "sha256": "c21dc9203b1ee73cc97bfb3de107b07654a19bdeef650302fc1deb0462db0ec7",
+      "width": 960,
+      "height": 1200,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "staticfiles/images/track_pants.jpg",
+      "bytes": 57947,
+      "kb": 56.59,
+      "extension": "jpg",
+      "sha256": "f59987763b26acda76d1a46c58868654c08492b0743e252fd63a7d3eae512df1",
+      "width": 960,
+      "height": 1200,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/sweatshirts.webp",
+      "bytes": 47118,
+      "kb": 46.01,
+      "extension": "webp",
+      "sha256": "42994fc30422331e2d0db89225abb3d5d09724829e60cd7b9bc1f2ddb9bcbead",
+      "width": 960,
+      "height": 1200,
+      "format": "WEBP",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/tank_tops_vests.webp",
+      "bytes": 32508,
+      "kb": 31.75,
+      "extension": "webp",
+      "sha256": "1dd88bd3ebd436584cde66ff9a303644d25d371cc45ee7fe7dd381809bd391a6",
+      "width": 960,
+      "height": 1200,
+      "format": "WEBP",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/shirt.webp",
+      "bytes": 29632,
+      "kb": 28.94,
+      "extension": "webp",
+      "sha256": "a6dbf9c38bc49fb8e56ff160247b89ed6b0f7aa2c69a025030e4a11d00d7252a",
+      "width": 1024,
+      "height": 683,
+      "format": "WEBP",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/loginbg.webp",
+      "bytes": 20144,
+      "kb": 19.67,
+      "extension": "webp",
+      "sha256": "aa34188dc87affe21794f10040562d9fa53328db50730e5f96e6da8f0f87d63c",
+      "width": 1600,
+      "height": 936,
+      "format": "WEBP",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/allen-solly-formal-shirts.jpg",
+      "bytes": 19676,
+      "kb": 19.21,
+      "extension": "jpg",
+      "sha256": "0d3c90ea38c5f06732a4fcba598e85b999dcbf4c5156b443ed2d5c33aa5f8bcc",
+      "width": 800,
+      "height": 800,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/american-tourister-bags.jpg",
+      "bytes": 19637,
+      "kb": 19.18,
+      "extension": "jpg",
+      "sha256": "1c6670923980fcedf5fd38279f8706640849d412ad74e93d9ab19e57b19e81ca",
+      "width": 800,
+      "height": 800,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/allen-solly-polo-shirts.jpg",
+      "bytes": 19189,
+      "kb": 18.74,
+      "extension": "jpg",
+      "sha256": "ea92c841cb4949d957bee7b565d14c424505c530c2930b3155e0dabc7d7044cd",
+      "width": 800,
+      "height": 800,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/bags-accessories.jpg",
+      "bytes": 18934,
+      "kb": 18.49,
+      "extension": "jpg",
+      "sha256": "20770f1afae58362124a335473763cef088ac59c80cfa18a239f221c9da26d1d",
+      "width": 800,
+      "height": 800,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/polaroid-sunglasses.jpg",
+      "bytes": 18812,
+      "kb": 18.37,
+      "extension": "jpg",
+      "sha256": "b97b91b26b38e9ac803047350c5a41462fd3bb2cc3c643fd862433cc18a9243b",
+      "width": 800,
+      "height": 800,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/biba-kids-ethnic-wear.jpg",
+      "bytes": 18449,
+      "kb": 18.02,
+      "extension": "jpg",
+      "sha256": "b30f51e32b03b7e328305fa98b984b2363b830ae029a7a398fb4aaeac2343eed",
+      "width": 800,
+      "height": 800,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    },
+    {
+      "path": "static/images/allen-solly-blazers.jpg",
+      "bytes": 18414,
+      "kb": 17.98,
+      "extension": "jpg",
+      "sha256": "ed2112a7add07bc332d027e4c74d82eae5545edaf77a2e1919e58fcf94b890fa",
+      "width": 800,
+      "height": 800,
+      "format": "JPEG",
+      "mode": "RGB",
+      "error": null
+    }
+  ]
+}

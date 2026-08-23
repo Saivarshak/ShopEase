@@ -1,0 +1,458 @@
+{
+  "reference_count": 104,
+  "unique_reference_count": 18,
+  "references": {
+    "{% static": [
+      {
+        "template": "templates/store/accessories-men.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/accessories-women.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/address-book.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/cart.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/category-children.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/category-women.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/dashboard.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/login.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/login.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-Jeans.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/mens-jeans1-detailed.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/mens-shirt1-detailed.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/mens-shirts.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/mens-tshirt1-detailed.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/mens-tshirts.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/order-success.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/order-tracking.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/orders.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/payment.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/policy-page.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/product-detail-generic.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/product-listing-generic.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/profile-settings.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/register.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/register.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/search-results.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/user-dashboard.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/wishlist.html",
+        "attribute": "href"
+      }
+    ],
+    "{% static logo_image %}": [
+      {
+        "template": "templates/store/accessories-men.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/accessories-women.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/category-children.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/category-kids.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/category-men.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/contact-us.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/home.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-Jeans.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-jeans1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-shirt1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-shirts.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-tshirt1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-tshirts.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/order-success.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/policy-page.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/product-detail-generic.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/product-listing-generic.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/search-results.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/under-maintenance.html",
+        "attribute": "src"
+      }
+    ],
+    "{% asset_src item.image_path %}": [
+      {
+        "template": "templates/store/cart.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/category-kids.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/category-men.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/category-women.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/order-success.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/payment.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/search-results.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/wishlist.html",
+        "attribute": "src"
+      }
+    ],
+    "{% asset_src card.image_path %}": [
+      {
+        "template": "templates/store/category-children.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-Jeans.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-shirts.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-tshirts.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/product-detail-generic.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/product-listing-generic.html",
+        "attribute": "src"
+      }
+    ],
+    "{% asset_src variant.image1 %}": [
+      {
+        "template": "templates/store/mens-jeans1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-shirt1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-tshirt1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/product-detail-generic.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/partials/admin_product_fields.html",
+        "attribute": "src"
+      }
+    ],
+    "{% asset_src variant.image2 %}": [
+      {
+        "template": "templates/store/mens-jeans1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-shirt1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-tshirt1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/product-detail-generic.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/partials/admin_product_fields.html",
+        "attribute": "src"
+      }
+    ],
+    "{% asset_src variant.image3 %}": [
+      {
+        "template": "templates/store/mens-jeans1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-shirt1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-tshirt1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/product-detail-generic.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/partials/admin_product_fields.html",
+        "attribute": "src"
+      }
+    ],
+    "{% asset_src variant.image4 %}": [
+      {
+        "template": "templates/store/mens-jeans1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-shirt1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-tshirt1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/product-detail-generic.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/partials/admin_product_fields.html",
+        "attribute": "src"
+      }
+    ],
+    "{% asset_src": [
+      {
+        "template": "templates/store/partials/admin_product_fields.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/partials/admin_product_fields.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/partials/admin_product_fields.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/partials/admin_product_fields.html",
+        "attribute": "src"
+      }
+    ],
+    "{% static detail_fallback_front %}": [
+      {
+        "template": "templates/store/mens-jeans1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-shirt1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-tshirt1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/product-detail-generic.html",
+        "attribute": "src"
+      }
+    ],
+    "https://fonts.gstatic.com": [
+      {
+        "template": "templates/store/category-kids.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/category-men.html",
+        "attribute": "href"
+      },
+      {
+        "template": "templates/store/under-maintenance.html",
+        "attribute": "href"
+      }
+    ],
+    "{% asset_src category.image %}": [
+      {
+        "template": "templates/store/admin-categories.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/admin-control-center.html",
+        "attribute": "src"
+      }
+    ],
+    "{% asset_src row.image_path %}": [
+      {
+        "template": "templates/store/admin-control-center.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/dashboard.html",
+        "attribute": "src"
+      }
+    ],
+    "{% static detail_fallback_back %}": [
+      {
+        "template": "templates/store/mens-jeans1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-tshirt1-detailed.html",
+        "attribute": "src"
+      }
+    ],
+    "{% static detail_fallback_close %}": [
+      {
+        "template": "templates/store/mens-jeans1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-tshirt1-detailed.html",
+        "attribute": "src"
+      }
+    ],
+    "{% static detail_fallback_side %}": [
+      {
+        "template": "templates/store/mens-jeans1-detailed.html",
+        "attribute": "src"
+      },
+      {
+        "template": "templates/store/mens-tshirt1-detailed.html",
+        "attribute": "src"
+      }
+    ],
+    "{% asset_src asset.image_path %}": [
+      {
+        "template": "templates/store/admin-control-center.html",
+        "attribute": "src"
+      }
+    ],
+    "{% asset_src category.image_path %}": [
+      {
+        "template": "templates/store/home.html",
+        "attribute": "src"
+      }
+    ]
+  }
+}

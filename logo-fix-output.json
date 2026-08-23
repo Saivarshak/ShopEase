@@ -1,0 +1,155 @@
+{
+  "mode": "local-isolated-django-test-client",
+  "paths": [
+    "/womens/"
+  ],
+  "repeat": 1,
+  "include_referenced_assets": true,
+  "accept_encoding": "gzip, br",
+  "request_count": 7,
+  "page_request_count": 1,
+  "asset_request_count": 6,
+  "total_bytes": 62812,
+  "total_mb": 0.06,
+  "status_counts": {
+    "200": 6,
+    "404": 1
+  },
+  "routes": [
+    {
+      "path": "/assets/images/shirt.webp",
+      "kind": "referenced-asset",
+      "requests": 1,
+      "bytes": 29632,
+      "mb": 0.028,
+      "avg_bytes": 29632
+    },
+    {
+      "path": "/static/images/logo1.webp",
+      "kind": "referenced-asset",
+      "requests": 1,
+      "bytes": 17268,
+      "mb": 0.016,
+      "avg_bytes": 17268
+    },
+    {
+      "path": "/womens/",
+      "kind": "page",
+      "requests": 1,
+      "bytes": 9931,
+      "mb": 0.009,
+      "avg_bytes": 9931
+    },
+    {
+      "path": "/assets/images/placeholder.svg",
+      "kind": "referenced-asset",
+      "requests": 1,
+      "bytes": 3231,
+      "mb": 0.003,
+      "avg_bytes": 3231
+    },
+    {
+      "path": "/assets/images/menstshirts.webp",
+      "kind": "referenced-asset",
+      "requests": 1,
+      "bytes": 1020,
+      "mb": 0.001,
+      "avg_bytes": 1020
+    },
+    {
+      "path": "/assets/images/mens_accessories.webp",
+      "kind": "referenced-asset",
+      "requests": 1,
+      "bytes": 938,
+      "mb": 0.001,
+      "avg_bytes": 938
+    },
+    {
+      "path": "/assets/images/mens_shoes.webp",
+      "kind": "referenced-asset",
+      "requests": 1,
+      "bytes": 792,
+      "mb": 0.001,
+      "avg_bytes": 792
+    }
+  ],
+  "responses": [
+    {
+      "path": "/womens/",
+      "parent_path": null,
+      "kind": "page",
+      "status": 200,
+      "bytes": 9931,
+      "content_type": "text/html; charset=utf-8",
+      "content_encoding": "",
+      "content_length": "9931",
+      "cache_control": ""
+    },
+    {
+      "path": "/static/images/logo1.webp",
+      "parent_path": "/womens/",
+      "kind": "referenced-asset",
+      "status": 200,
+      "bytes": 17268,
+      "content_type": "image/webp",
+      "content_encoding": "",
+      "content_length": "17268",
+      "cache_control": "max-age=31536000, public"
+    },
+    {
+      "path": "/assets/images/menstshirts.webp",
+      "parent_path": "/womens/",
+      "kind": "referenced-asset",
+      "status": 200,
+      "bytes": 1020,
+      "content_type": "image/webp",
+      "content_encoding": "",
+      "content_length": "1020",
+      "cache_control": "public, max-age=604800, must-revalidate"
+    },
+    {
+      "path": "/assets/images/shirt.webp",
+      "parent_path": "/womens/",
+      "kind": "referenced-asset",
+      "status": 200,
+      "bytes": 29632,
+      "content_type": "image/webp",
+      "content_encoding": "",
+      "content_length": "29632",
+      "cache_control": "public, max-age=604800, must-revalidate"
+    },
+    {
+      "path": "/assets/images/placeholder.svg",
+      "parent_path": "/womens/",
+      "kind": "referenced-asset",
+      "status": 404,
+      "bytes": 3231,
+      "content_type": "text/html; charset=utf-8",
+      "content_encoding": "",
+      "content_length": "3231",
+      "cache_control": ""
+    },
+    {
+      "path": "/assets/images/mens_shoes.webp",
+      "parent_path": "/womens/",
+      "kind": "referenced-asset",
+      "status": 200,
+      "bytes": 792,
+      "content_type": "image/webp",
+      "content_encoding": "",
+      "content_length": "792",
+      "cache_control": "public, max-age=604800, must-revalidate"
+    },
+    {
+      "path": "/assets/images/mens_accessories.webp",
+      "parent_path": "/womens/",
+      "kind": "referenced-asset",
+      "status": 200,
+      "bytes": 938,
+      "content_type": "image/webp",
+      "content_encoding": "",
+      "content_length": "938",
+      "cache_control": "public, max-age=604800, must-revalidate"
+    }
+  ]
+}
