@@ -2,9 +2,6 @@
 import os
 from pathlib import Path
 from urllib.parse import urlparse
-from dotenv import load_dotenv
-import os
-load_dotenv()
 
 import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
@@ -29,7 +26,8 @@ def _env_list(name, default=""):
 
 def _build_host_security_settings():
     """Build host and CSRF allowlists from the public callback URL too."""
-    allowed_hosts = _env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver")
+    default_hosts = "" if IS_PRODUCTION else "localhost,127.0.0.1,testserver"
+    allowed_hosts = _env_list("ALLOWED_HOSTS", default_hosts)
     trusted_origins = _env_list("CSRF_TRUSTED_ORIGINS", "")
     for raw_url in (os.environ.get("APP_BASE_URL", ""), os.environ.get("PAYMENT_CALLBACK_BASE_URL", "")):
         parsed = urlparse(raw_url.strip())
@@ -50,6 +48,8 @@ IS_PRODUCTION = (
     _env_bool("IS_PRODUCTION", False)
     or os.environ.get("DJANGO_ENV", "").lower() == "production"
 )
+if IS_PRODUCTION and DEBUG:
+    raise ImproperlyConfigured("DEBUG must be false when IS_PRODUCTION=true.")
 SECRET_KEY = os.environ.get("SECRET_KEY", "")
 if not SECRET_KEY:
     if IS_PRODUCTION:
@@ -130,15 +130,42 @@ TEMPLATES = [{
 WSGI_APPLICATION = "shopease.wsgi.application"
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+DB_CONN_MAX_AGE = int(os.environ.get("DB_CONN_MAX_AGE", "600"))
+DATABASE_SSL_REQUIRE = _env_bool("DATABASE_SSL_REQUIRE", False)
 
 if DATABASE_URL:
     DATABASES = {
         "default": dj_database_url.config(
             default=DATABASE_URL,
-            conn_max_age=600,
+            conn_max_age=DB_CONN_MAX_AGE,
+            ssl_require=DATABASE_SSL_REQUIRE,
         )
     }
+    if IS_PRODUCTION and DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
+        raise ImproperlyConfigured("IS_PRODUCTION requires a PostgreSQL DATABASE_URL.")
+elif any(os.environ.get(name, "").strip() for name in ("POSTGRES_DB", "DB_NAME")):
+    # Discrete variables are useful for Docker Compose and providers that do
+    # not expose a DATABASE_URL. POSTGRES_* takes precedence over DB_*.
+    DATABASES = {
+        "default": {
+            "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
+            "NAME": os.environ.get("POSTGRES_DB", os.environ.get("DB_NAME", "")),
+            "USER": os.environ.get("POSTGRES_USER", os.environ.get("DB_USER", "")),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", os.environ.get("DB_PASSWORD", "")),
+            "HOST": os.environ.get("POSTGRES_HOST", os.environ.get("DB_HOST", "localhost")),
+            "PORT": os.environ.get("POSTGRES_PORT", os.environ.get("DB_PORT", "5432")),
+            "CONN_MAX_AGE": DB_CONN_MAX_AGE,
+        }
+    }
+    if IS_PRODUCTION and DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
+        raise ImproperlyConfigured("IS_PRODUCTION requires the PostgreSQL database backend.")
+    if DATABASE_SSL_REQUIRE:
+        DATABASES["default"]["OPTIONS"] = {"sslmode": "require"}
 else:
+    if IS_PRODUCTION:
+        raise ImproperlyConfigured(
+            "Production requires DATABASE_URL or POSTGRES_DB/DB_NAME and PostgreSQL credentials."
+        )
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -174,7 +201,19 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STORAGES = {"staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"}}
+# A manifest is essential in production, where WhiteNoise serves immutable,
+# fingerprinted assets.  Local runserver and Django's test client should use
+# source static files instead: they must not depend on a previously collected
+# manifest that may be stale while an asset is being edited.
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": (
+            "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            if IS_PRODUCTION
+            else "django.contrib.staticfiles.storage.StaticFilesStorage"
+        )
+    }
+}
 WHITENOISE_MAX_AGE = 31536000
 WHITENOISE_USE_FINDERS = not IS_PRODUCTION
 # The existing app stores new uploads in UploadedImage (PostgreSQL); MEDIA_ROOT

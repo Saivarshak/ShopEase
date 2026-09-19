@@ -1,0 +1,43 @@
+services:
+  web:
+    build: .
+    env_file: .env
+    environment:
+      IS_PRODUCTION: "true"
+      DEBUG: "false"
+      DATABASE_URL: ""
+      POSTGRES_DB: ${POSTGRES_DB:-shopease}
+      POSTGRES_USER: ${POSTGRES_USER:-shopease}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-before-sharing}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      DATABASE_SSL_REQUIRE: "false"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-shopease}
+      POSTGRES_USER: ${POSTGRES_USER:-shopease}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-before-sharing}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
+  media_data:
+  static_data:

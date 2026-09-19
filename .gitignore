@@ -1,0 +1,25 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python/Django runtime files
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+media/
+
+# Build and local tooling output
+.venv/
+venv/
+staticfiles/*
+!staticfiles/.gitkeep
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
+
+# Local exports and audit artefacts
+data/production-export.json
+*.bak
