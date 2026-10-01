@@ -1,0 +1,90 @@
+
+Status  Bytes Path                                 Error                       
+------  ----- ----                                 -----                       
+   200  11517 /                                                                
+   200      2 /health/                                                         
+   200  14336 /contact.html                                                    
+   200  14336 /contact-us/                                                     
+   200  13285 /login/                                                          
+   200   7961 /register/                                                       
+   200   6543 /cart/                                                           
+   200  13312 /wishlist/                                                       
+   200  13315 /dashboard/                                                      
+   200   4806 /search/                                                         
+   200   4822 /catalog/                                                        
+   200  13988 /accessories/common/                                             
+   404      0 /accessories_men/                    The remote server returne...
+   404      0 /accessories_women/                  The remote server returne...
+   404      0 /mens/                               The remote server returne...
+   404      0 /womens/                             The remote server returne...
+   404      0 /kids/                               The remote server returne...
+   404      0 /men/                                The remote server returne...
+   404      0 /women/                              The remote server returne...
+   404      0 /category_men/                       The remote server returne...
+   404      0 /category_women/                     The remote server returne...
+   404      0 /category_kids/                      The remote server returne...
+   404      0 /mens_tshirts/                       The remote server returne...
+   200   4972 /mens_shirts/                                                    
+   404      0 /mens_jeans/                         The remote server returne...
+   404      0 /womens_ethnicware/                  The remote server returne...
+   404      0 /womens_westernware/                 The remote server returne...
+   404      0 /womens_footwear/                    The remote server returne...
+   200   4830 /kids_tshirts/                                                   
+   200   4815 /kids_dresses/                                                   
+   200   7003 /kids_toys/                                                      
+   200   7615 /kids_footwear/                                                  
+   200   1995 /admin/                                                          
+   200   1996 /admin_panel/                                                    
+   200   1995 /admin-panel/                                                    
+   404      0 /favicon.ico                         The remote server returne...
+   404      0 /assets/images/homebg.jpg            The remote server returne...
+   200    682 /assets/images/homebg.svg                                        
+   200    563 /assets/images/placeholder.svg                                   
+   200  90281 /static/images/logo1.png                                         
+   200  17268 /static/images/logo1.webp                                        
+   200 234349 /static/images/loginbg.jpg                                       
+   200  20144 /static/images/loginbg.webp                                      
+   200 489466 /static/images/shirt.jpg                                         
+   200  29632 /static/images/shirt.webp                                        
+   200    938 /static/images/mens_accessories.webp                             
+   200    792 /static/images/mens_shoes.webp                                   
+
+
+
+TOTAL_REQUESTS=47
+ERROR_OR_4XX=17
+TOTAL_RESPONSE_BYTES=1037559
+--- NON-2XX RESULTS ---
+404	0	/accessories_men/
+404	0	/accessories_women/
+404	0	/mens/
+404	0	/womens/
+404	0	/kids/
+404	0	/men/
+404	0	/women/
+404	0	/category_men/
+404	0	/category_women/
+404	0	/category_kids/
+404	0	/mens_tshirts/
+404	0	/mens_jeans/
+404	0	/womens_ethnicware/
+404	0	/womens_westernware/
+404	0	/womens_footwear/
+404	0	/favicon.ico
+404	0	/assets/images/homebg.jpg
+--- TOP RESPONSES BY BYTES ---
+200	489466	/static/images/shirt.jpg
+200	234349	/static/images/loginbg.jpg
+200	90281	/static/images/logo1.png
+200	29632	/static/images/shirt.webp
+200	20144	/static/images/loginbg.webp
+200	17268	/static/images/logo1.webp
+200	14336	/contact-us/
+200	14336	/contact.html
+200	13988	/accessories/common/
+200	13315	/dashboard/
+200	13312	/wishlist/
+200	13285	/login/
+200	11517	/
+200	7961	/register/
+200	7615	/kids_footwear/

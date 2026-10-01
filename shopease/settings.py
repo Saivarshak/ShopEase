@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 
 import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
+from django.core.management.utils import get_random_secret_key
 
 try:
     from dotenv import load_dotenv
@@ -54,28 +55,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "")
 if not SECRET_KEY:
     if IS_PRODUCTION:
         raise ImproperlyConfigured("SECRET_KEY must be set when IS_PRODUCTION=true.")
-    SECRET_KEY = "i%9@d!%ik+*h4xtss8mj@%a-xw@)dy2&%(i7jocdsoy3=m_@dz"
-    
-# -------------------------------------------------------------------
-# HTTPS / Security
-# -------------------------------------------------------------------
-
-if IS_PRODUCTION:
-    # Render/prod runs behind HTTPS.
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-
-    # Tell Django that the original client connection was HTTPS.
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
-else:
-    # Local development.
-    # HTTPS is provided by runserver_plus, not Django's settings.
-    SECURE_SSL_REDIRECT = False
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SECURE = False    
-    
+    # A local developer who has not created .env still gets a safe ephemeral
+    # key, instead of a secret that is published in the source tree.
+    SECRET_KEY = get_random_secret_key()
 
 APP_BASE_URL = os.environ.get("APP_BASE_URL", "").strip().rstrip("/")
 ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS = _build_host_security_settings()
@@ -141,6 +123,7 @@ if DATABASE_URL:
             ssl_require=DATABASE_SSL_REQUIRE,
         )
     }
+    DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
     if IS_PRODUCTION and DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
         raise ImproperlyConfigured("IS_PRODUCTION requires a PostgreSQL DATABASE_URL.")
 elif any(os.environ.get(name, "").strip() for name in ("POSTGRES_DB", "DB_NAME")):
@@ -155,10 +138,18 @@ elif any(os.environ.get(name, "").strip() for name in ("POSTGRES_DB", "DB_NAME")
             "HOST": os.environ.get("POSTGRES_HOST", os.environ.get("DB_HOST", "localhost")),
             "PORT": os.environ.get("POSTGRES_PORT", os.environ.get("DB_PORT", "5432")),
             "CONN_MAX_AGE": DB_CONN_MAX_AGE,
+            "CONN_HEALTH_CHECKS": True,
         }
     }
     if IS_PRODUCTION and DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
         raise ImproperlyConfigured("IS_PRODUCTION requires the PostgreSQL database backend.")
+    if IS_PRODUCTION and any(
+        not DATABASES["default"][setting]
+        for setting in ("NAME", "USER", "PASSWORD", "HOST")
+    ):
+        raise ImproperlyConfigured(
+            "Production PostgreSQL configuration requires database name, user, password, and host."
+        )
     if DATABASE_SSL_REQUIRE:
         DATABASES["default"]["OPTIONS"] = {"sslmode": "require"}
 else:
@@ -222,11 +213,8 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 MAX_UPLOAD_IMAGE_BYTES = int(os.environ.get("MAX_UPLOAD_IMAGE_BYTES", str(10 * 1024 * 1024)))
 
-SECURE_PROXY_SSL_HEADER = (
-    ("HTTP_X_FORWARDED_PROTO", "https")
-    if IS_PRODUCTION
-    else None
-)
+TRUST_X_FORWARDED_PROTO = _env_bool("TRUST_X_FORWARDED_PROTO", IS_PRODUCTION)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https") if TRUST_X_FORWARDED_PROTO else None
 
 USE_X_FORWARDED_HOST = _env_bool("USE_X_FORWARDED_HOST", IS_PRODUCTION)
 

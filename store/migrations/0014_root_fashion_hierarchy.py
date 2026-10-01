@@ -180,7 +180,7 @@ def seed_root_hierarchy(apps, schema_editor):
         target = leaf_lookup.get(target_key)
         if target:
             product.fashion_category = target
-        product.save()
+        product.save(update_fields=["slug", "fashion_category"])
 
 
 class Migration(migrations.Migration):
@@ -191,6 +191,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # These fields are read by ``seed_root_hierarchy`` below, so they must
+        # exist in the database as well as Django's migration state.  Keeping
+        # them state-only makes every fresh SQLite/PostgreSQL deployment fail
+        # before the hierarchy can be seeded.
         migrations.AddField(
             model_name='fashioncategory',
             name='banner_image',

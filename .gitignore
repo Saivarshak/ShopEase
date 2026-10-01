@@ -7,14 +7,15 @@
 __pycache__/
 *.py[cod]
 *.sqlite3
+*.sqlite3-*
+db.sqlite3
 *.log
 media/
+staticfiles/
 
 # Build and local tooling output
 .venv/
 venv/
-staticfiles/*
-!staticfiles/.gitkeep
 .pytest_cache/
 .coverage
 htmlcov/
@@ -22,4 +23,5 @@ htmlcov/
 
 # Local exports and audit artefacts
 data/production-export.json
+data/neon_migration_fixture.json
 *.bak

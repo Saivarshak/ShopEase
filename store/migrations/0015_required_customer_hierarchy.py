@@ -155,7 +155,7 @@ def normalize_required_hierarchy(apps, schema_editor):
         if target:
             product.fashion_category = target
             product.subcategory = _ensure_subcategory(SubCategory, product.category, target.name)
-            product.save()
+            product.save(update_fields=["fashion_category", "subcategory"])
 
 
 class Migration(migrations.Migration):

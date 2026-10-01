@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from django.urls import path, include
 from . import views
 
@@ -189,11 +188,7 @@ path(
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
 ]
 
-
-def health_check(request):
-    return HttpResponse("OK")
-
 urlpatterns += [
-    path('health/', health_check, name='health_check'),
+    path('health/', views.health_check, name='health_check'),
     path('under-maintenance/', views.under_maintenance_view, name='under_maintenance_view'),
 ]

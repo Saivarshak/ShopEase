@@ -44,6 +44,27 @@ class PublicPolicyPagesTests(TestCase):
         self.assertContains(response, 'ShopEase')
 
 
+class OperationsEndpointTests(TestCase):
+    def test_health_check_reports_ready_and_is_not_cacheable(self):
+        response = self.client.get(reverse('health_check'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'OK')
+        self.assertEqual(response['Cache-Control'], 'no-store')
+
+    def test_django_admin_is_available_without_removing_custom_control_center(self):
+        staff_user = User.objects.create_user(
+            username='operations-admin',
+            email='operations-admin@example.com',
+            password='secret123',
+            is_staff=True,
+        )
+
+        self.client.force_login(staff_user)
+        self.assertEqual(self.client.get('/admin/').status_code, 200)
+        self.assertEqual(self.client.get(reverse('admin_control_center')).status_code, 200)
+
+
 class HostSecuritySettingsTests(TestCase):
     def test_payment_callback_domain_is_added_to_allowed_hosts_and_csrf_origins(self):
         with patch.dict(os.environ, {
@@ -66,7 +87,7 @@ class PublicSecurityTests(TestCase):
             password='secret123',
         )
 
-        with TemporaryDirectory(dir=r'C:\tmp') as media_root, override_settings(MEDIA_ROOT=media_root):
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
             response = self.client.post(
                 reverse('login'),
                 {
@@ -212,7 +233,7 @@ class AdminCategoryImageUploadTests(TestCase):
             content_type='image/jpeg',
         )
 
-        with TemporaryDirectory(dir=r'C:\tmp') as media_root, override_settings(MEDIA_ROOT=media_root):
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
             response = self.client.post(
                 reverse('admin_categories'),
                 {

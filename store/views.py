@@ -60,6 +60,21 @@ from .models import (
 )
 
 
+def health_check(request):
+    """Return readiness only when Django can reach its configured database."""
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT 1')
+            cursor.fetchone()
+    except (OperationalError, ProgrammingError):
+        response = JsonResponse({'status': 'unhealthy', 'database': 'unavailable'}, status=503)
+    else:
+        response = HttpResponse('OK', content_type='text/plain')
+
+    response['Cache-Control'] = 'no-store'
+    return response
+
+
 def _extract_profile_photo_url(value):
     """Return a valid Google profile-photo URL from OAuth data."""
     if isinstance(value, str):
@@ -823,6 +838,38 @@ def _is_maintenance_category(category):
     return False
 
 
+def _preferred_root_category(category_name):
+    """Choose one usable hierarchy when imports contain roots with both cases.
+
+    Fresh databases are seeded with lower-case names (``mens``/``womens``),
+    while older imports can also contain title-case roots. Prefer the title-case
+    hierarchy when it has public nodes, but retain the fresh-database fallback.
+    """
+    normalized = (category_name or '').strip().lower()
+    if not normalized:
+        return None
+
+    canonical_name = normalized.capitalize()
+    candidates = list(
+        Category.objects.filter(category_name__iexact=normalized).order_by('category_id')
+    )
+    candidates.sort(
+        key=lambda category: (
+            category.category_name != canonical_name,
+            category.category_name != normalized,
+            category.category_id,
+        )
+    )
+    for category in candidates:
+        if FashionCategory.objects.filter(
+            _public_fashion_category_filter(),
+            root_category=category,
+            parent__isnull=True,
+        ).exists():
+            return category
+    return candidates[0] if candidates else None
+
+
 def _get_maintenance_return_url(fashion_category):
     root_slug = _fashion_root_slug(fashion_category)
     if fashion_category.parent_id and fashion_category.parent.parent_id:
@@ -901,7 +948,10 @@ def _build_fashion_category_cards(root_category):
                 'name': item.name,
                 'image_path': _resolve_static_image_path(item.image, _get_fashion_card_fallback(item)),
                 'description': item.description or f'Explore {item.name.lower()} styles and essentials.',
-                'page_url': item.page_url or _get_fashion_category_url(item),
+                # Build the route from the stored hierarchy.  Imported
+                # ``page_url`` values can contain obsolete slugs and would
+                # otherwise surface as customer-facing 404 links.
+                'page_url': _get_fashion_category_url(item),
                 'is_under_maintenance': _is_maintenance_category(item),
             })
         return cards
@@ -913,15 +963,12 @@ def _build_fashion_child_cards(parent_category):
     for item in parent_category.children.filter(
         _public_fashion_category_filter()
     ).order_by("sort_order", "fashion_category_id"):
-
-        print("CARD SENT TO TEMPLATE:", item.name)
-
         cards.append({
             "id": item.fashion_category_id,
             "name": item.name,
             "image_path": _resolve_static_image_path(item.image, _get_fashion_card_fallback(item)),
             "description": item.description or f"Explore {item.name.lower()} in {parent_category.name.lower()}.",
-            "page_url": item.page_url or _get_fashion_category_url(item),
+            "page_url": _get_fashion_category_url(item),
             "is_under_maintenance": _is_maintenance_category(item),
         })
 
@@ -999,6 +1046,10 @@ def _build_category_tree():
     try:
         categories = list(
             FashionCategory.objects.filter(is_active=True)
+            # Ignore the obsolete lower-case category roots retained only for
+            # historical data. Their URLs overlap the current title-case
+            # hierarchy and can otherwise create stale navigation links.
+            .exclude(root_category__category_name__in=['mens', 'womens', 'kids'])
             .select_related('parent', 'root_category')
             .order_by('level', 'sort_order', 'fashion_category_id')
         )
@@ -1616,24 +1667,11 @@ def category_view(request, category_name):
 
     normalized = category_lookup.get(requested_key, requested_key)
 
-    active_category_ids = {
-        "mens": 5,
-        "womens": 6,
-        "kids": 7,
-    }
-
-    category_id = active_category_ids.get(normalized)
-
-    if category_id is not None:
-        category = get_object_or_404(
-            Category,
-            category_id=category_id,
-        )
-    else:
-        category = get_object_or_404(
-            Category,
-            category_name__iexact=normalized,
-        )
+    # Category primary keys are database-dependent. Historical imports may
+    # contain a legacy lower-case root alongside the current title-case root.
+    category = _preferred_root_category(normalized)
+    if category is None:
+        category = get_object_or_404(Category, category_name__iexact=normalized)
 
     products = (
         Product.objects.filter(category=category, is_active=True)
@@ -1652,9 +1690,10 @@ def category_view(request, category_name):
     }
 
     root = FashionCategory.objects.filter(
+        _public_fashion_category_filter(),
         root_category=category,
         parent__isnull=True,
-    ).first()
+    ).order_by('sort_order', 'fashion_category_id').first()
 
     fashion_categories = (
         FashionCategory.objects.filter(
@@ -1787,7 +1826,9 @@ def _resolve_fashion_category_by_path(gender_slug, category_path):
     if not root_category_name:
         raise Http404('Category not found.')
 
-    root_category = get_object_or_404(Category, category_name__iexact=root_category_name)
+    root_category = _preferred_root_category(root_category_name)
+    if root_category is None:
+        raise Http404('Category not found.')
     current = FashionCategory.objects.filter(
         _public_fashion_category_filter(),
         root_category=root_category,
@@ -1806,20 +1847,7 @@ def _resolve_fashion_category_by_path(gender_slug, category_path):
 
 def fashion_category_slug_listing(request, gender_slug, category_path):
     fashion_category = _resolve_fashion_category_by_path(gender_slug, category_path)
-
-    # ===== DEBUG =====
-    print("=" * 50)
-    print("CATEGORY:", fashion_category.name)
-    print("ID:", fashion_category.fashion_category_id)
-    print("URL:", request.path)
-
     child_cards = _build_fashion_child_cards(fashion_category)
-
-    print("CHILD CARDS:", len(child_cards))
-    for c in child_cards:
-        print(c["name"], c["page_url"])
-    print("=" * 50)
-    # ===== END DEBUG =====
 
     canonical_url = _get_fashion_category_url(fashion_category)
     if request.path != canonical_url:
@@ -2300,7 +2328,10 @@ def register_view(request):
             messages.error(request, 'An account with this email already exists.')
         else:
             user = User.objects.create_user(username=email, email=email, password=password)
-            login(request, user)
+            # Registration creates a local Django user.  Name the backend
+            # explicitly because Google OAuth is configured alongside Django's
+            # model backend.
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             _merge_session_cart_into_db(request, user)
             _set_session_cart(request, {})
             _set_session_profile_photo(request, user)

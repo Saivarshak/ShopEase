@@ -1,8 +1,13 @@
 #!/bin/sh
 set -eu
 
-python manage.py migrate --noinput
-python manage.py collectstatic --noinput
+if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
+    python manage.py migrate --noinput
+fi
+
+if [ "${COLLECT_STATIC:-true}" = "true" ]; then
+    python manage.py collectstatic --noinput
+fi
 
 if [ "$#" -gt 0 ]; then
     exec "$@"
@@ -13,5 +18,7 @@ exec gunicorn shopease.wsgi:application \
     --workers "${WEB_CONCURRENCY:-2}" \
     --threads "${GUNICORN_THREADS:-4}" \
     --timeout "${GUNICORN_TIMEOUT:-120}" \
+    --graceful-timeout "${GUNICORN_GRACEFUL_TIMEOUT:-30}" \
+    --keep-alive "${GUNICORN_KEEP_ALIVE:-5}" \
     --access-logfile - \
     --error-logfile -

@@ -1,0 +1,758 @@
+CATEGORY_FK_FIELDS:
+store.SubCategory category CASCADE
+  1 mens 52
+  2 womens 54
+  3 kids 55
+  4 accessories 12
+  5 Mens 62
+  6 Womens 5
+  7 Kids 5
+store.FashionCategory root_category CASCADE
+  1 mens 0
+  2 womens 57
+  3 kids 63
+  4 accessories 17
+  5 Mens 52
+  6 Womens 29
+  7 Kids 28
+store.MenCategory category CASCADE
+  1 mens 0
+  2 womens 0
+  3 kids 0
+  4 accessories 0
+  5 Mens 0
+  6 Womens 0
+  7 Kids 0
+store.WomenCategory category CASCADE
+  1 mens 0
+  2 womens 0
+  3 kids 0
+  4 accessories 0
+  5 Mens 0
+  6 Womens 0
+  7 Kids 0
+store.KidsCategory category CASCADE
+  1 mens 0
+  2 womens 0
+  3 kids 0
+  4 accessories 0
+  5 Mens 0
+  6 Womens 0
+  7 Kids 0
+store.Product category CASCADE
+  1 mens 0
+  2 womens 0
+  3 kids 0
+  4 accessories 0
+  5 Mens 70
+  6 Womens 92
+  7 Kids 64
+SUBCATEGORY_ROWS_BY_ROOT:
+ROOT 1 mens
+  1 'T-Shirts' products= 0
+  2 'Shirts' products= 0
+  3 'Polos' products= 0
+  4 'Jeans' products= 0
+  5 'Trousers' products= 0
+  6 'Cargo Pants' products= 0
+  7 'Shorts' products= 0
+  8 'Hoodies & Sweatshirts' products= 0
+  9 'Jackets & Coats' products= 0
+  10 'Blazers' products= 0
+  11 'Suits' products= 0
+  12 'Innerwear' products= 0
+  13 'Nightwear' products= 0
+  14 'Activewear' products= 0
+  15 'Traditional Wear' products= 0
+  16 'Kurtas' products= 0
+  17 'Kurta Sets' products= 0
+  18 'Sherwanis' products= 0
+  19 'Footwear' products= 0
+  20 'Casual Shoes' products= 0
+  21 'Formal Shoes' products= 0
+  22 'Sports Shoes' products= 0
+  23 'Sandals & Floaters' products= 0
+  24 'Slippers' products= 0
+  25 'Accessories' products= 0
+  88 'Casual Wear' products= 0
+  89 'Polo Shirts' products= 0
+  90 'Formal Wear' products= 0
+  91 'Dress Shirts' products= 0
+  92 'Dress Trousers' products= 0
+  93 'Tuxedos' products= 0
+  94 'Sneakers' products= 0
+  95 'Boots' products= 0
+  96 'Dress Shoes' products= 0
+  97 'Loafers' products= 0
+  98 'Outerwear' products= 0
+  99 'Overcoats' products= 0
+  100 'Trench Coats' products= 0
+  101 'Puffer Jackets' products= 0
+  102 'Bags' products= 0
+  103 'Belts' products= 0
+  104 'Watches' products= 0
+  105 'Sunglasses' products= 0
+  106 'Wallets' products= 0
+  154 'Dresses' products= 0
+  155 'Formal Shirts' products= 0
+  156 'Ethnic Wear' products= 0
+  157 'Sarees' products= 0
+  158 'Lehengas' products= 0
+  159 'Ethnic Dresses' products= 0
+  160 'Sandals' products= 0
+  161 'Toys' products= 0
+ROOT 2 womens
+  26 'Ethnic Wear' products= 0
+  27 'Sarees' products= 0
+  28 'Kurtas & Kurtis' products= 0
+  29 'Salwar Suits' products= 0
+  30 'Lehenga Cholis' products= 0
+  31 'Dupattas' products= 0
+  32 'Western Wear' products= 0
+  33 'Tops' products= 0
+  34 'T-Shirts' products= 0
+  35 'Shirts' products= 0
+  36 'Dresses' products= 0
+  37 'Jumpsuits' products= 0
+  38 'Skirts' products= 0
+  39 'Jeans' products= 0
+  40 'Trousers' products= 0
+  41 'Lingerie & Sleepwear' products= 0
+  42 'Maternity Wear' products= 0
+  43 'Activewear' products= 0
+  44 'Winter Wear' products= 0
+  45 'Footwear' products= 0
+  46 'Heels' products= 0
+  47 'Flats' products= 0
+  48 'Sandals' products= 0
+  49 'Sneakers' products= 0
+  50 'Boots' products= 0
+  51 'Bags & Accessories' products= 0
+  107 'Casual Wear' products= 0
+  108 'Polo Shirts' products= 0
+  109 'Hoodies & Sweatshirts' products= 0
+  110 'Shorts' products= 0
+  111 'Formal Wear' products= 0
+  112 'Suits' products= 0
+  113 'Dress Shirts' products= 0
+  114 'Blazers' products= 0
+  115 'Dress Trousers' products= 0
+  116 'Tuxedos' products= 0
+  117 'Dress Shoes' products= 0
+  118 'Loafers' products= 0
+  119 'Outerwear' products= 0
+  120 'Overcoats' products= 0
+  121 'Trench Coats' products= 0
+  122 'Puffer Jackets' products= 0
+  123 'Accessories' products= 0
+  124 'Bags' products= 0
+  125 'Belts' products= 0
+  126 'Watches' products= 0
+  127 'Sunglasses' products= 0
+  128 'Wallets' products= 0
+  162 'Formal Shirts' products= 0
+  163 'Kurtas' products= 0
+  164 'Lehengas' products= 0
+  165 'Sherwanis' products= 0
+  166 'Ethnic Dresses' products= 0
+  167 'Toys' products= 0
+ROOT 3 kids
+  52 'Boys' products= 0
+  53 'T-Shirts' products= 0
+  54 'Shirts' products= 0
+  55 'Jeans' products= 0
+  56 'Shorts' products= 0
+  57 'Trousers' products= 0
+  58 'Ethnic Wear' products= 0
+  59 'Nightwear' products= 0
+  60 'Winter Wear' products= 0
+  61 'Girls' products= 0
+  62 'Dresses' products= 0
+  63 'Frocks' products= 0
+  64 'Tops & T-Shirts' products= 0
+  65 'Skirts' products= 0
+  66 'Leggings' products= 0
+  67 'Baby Care' products= 0
+  68 'Newborn Clothing' products= 0
+  69 'Rompers' products= 0
+  70 'Baby Sets' products= 0
+  71 'Baby Essentials' products= 0
+  72 'Toys' products= 0
+  73 'Footwear' products= 0
+  74 'School Shoes' products= 0
+  75 'Casual Shoes' products= 0
+  76 'Sandals' products= 0
+  77 'Slippers' products= 0
+  129 'Casual Wear' products= 0
+  130 'Polo Shirts' products= 0
+  131 'Hoodies & Sweatshirts' products= 0
+  132 'Formal Wear' products= 0
+  133 'Suits' products= 0
+  134 'Dress Shirts' products= 0
+  135 'Blazers' products= 0
+  136 'Dress Trousers' products= 0
+  137 'Tuxedos' products= 0
+  138 'Sneakers' products= 0
+  139 'Boots' products= 0
+  140 'Dress Shoes' products= 0
+  141 'Loafers' products= 0
+  142 'Outerwear' products= 0
+  143 'Overcoats' products= 0
+  144 'Trench Coats' products= 0
+  145 'Puffer Jackets' products= 0
+  146 'Accessories' products= 0
+  147 'Bags' products= 0
+  148 'Belts' products= 0
+  149 'Watches' products= 0
+  150 'Sunglasses' products= 0
+  151 'Wallets' products= 0
+  168 'Formal Shirts' products= 0
+  169 'Kurtas' products= 0
+  170 'Sarees' products= 0
+  171 'Lehengas' products= 0
+  172 'Sherwanis' products= 0
+  173 'Ethnic Dresses' products= 0
+ROOT 4 accessories
+  78 "Men's Accessories" products= 0
+  79 "Women's Accessories" products= 0
+  80 'Kids Accessories' products= 0
+  81 'Watches' products= 0
+  82 'Bags' products= 0
+  83 'Jewelry' products= 0
+  84 'Sunglasses' products= 0
+  85 'Wallets' products= 0
+  86 'Belts' products= 0
+  87 'Caps & Hats' products= 0
+  152 'Common For All Genders' products= 0
+  153 'Other Future Accessories' products= 0
+ROOT 5 Mens
+  174 "Men's Casual wear" products= 0
+  175 'Formal wear' products= 0
+  176 'Ethnic Wear' products= 0
+  177 'Footwear' products= 0
+  178 'Accessories' products= 0
+  189 'T-Shirts' products= 1
+  190 'Polo Shirts' products= 1
+  191 'Jeans' products= 0
+  192 'Shorts' products= 0
+  193 'Hoodies & Sweatshirts' products= 0
+  194 'Formal Shirts' products= 1
+  195 'Blazers' products= 1
+  196 'Suits' products= 0
+  197 'Dress Trousers' products= 0
+  198 'Wedding Shirts' products= 1
+  199 'Wedding Suits' products= 1
+  200 'Sherwanis' products= 2
+  201 'Wedding Accessories' products= 0
+  202 'Kurtas' products= 2
+  203 'Nehru Jackets' products= 0
+  204 'Dhoti Sets' products= 0
+  205 'Party Shirts' products= 1
+  206 'Party Blazers' products= 1
+  207 'Party Trousers' products= 0
+  208 'Party Accessories' products= 0
+  209 'Two-Piece Suits' products= 1
+  210 'Three-Piece Suits' products= 1
+  211 'Tuxedos' products= 0
+  212 'Denim Jeans' products= 1
+  213 'Denim Jackets' products= 1
+  214 'Denim Shirts' products= 0
+  215 'Denim Shorts' products= 0
+  216 'Graphic T-Shirts' products= 1
+  217 'Cargo Pants' products= 1
+  218 'Joggers' products= 0
+  219 'Oversized Hoodies' products= 0
+  220 'Gym T-Shirts' products= 1
+  221 'Track Pants' products= 1
+  222 'Training Shorts' products= 0
+  223 'Winter Jackets' products= 1
+  224 'Sweaters' products= 1
+  225 'Overcoats' products= 0
+  226 'Sports T-Shirts' products= 1
+  227 'Sports Shorts' products= 1
+  228 'Sports Jackets' products= 0
+  229 'Formal Trousers' products= 1
+  230 'Casual Trousers' products= 1
+  231 'Chinos' products= 0
+  232 'Vests' products= 1
+  233 'Briefs' products= 1
+  234 'Boxers' products= 0
+  235 'Thermal Wear' products= 0
+  236 'Sneakers' products= 1
+  237 'Dress Shoes' products= 1
+  238 'Loafers' products= 0
+  239 'Sandals' products= 0
+  240 'Boots' products= 0
+  241 'Bags' products= 8
+  242 'Belts' products= 8
+  243 'Watches' products= 8
+  244 'Wallets' products= 8
+  245 'Sunglasses' products= 8
+ROOT 6 Womens
+  179 'Casual Wear' products= 20
+  180 'Formal Wear' products= 16
+  181 'Ethnic Wear' products= 16
+  182 'Footwear' products= 20
+  183 'Accessories' products= 20
+ROOT 7 Kids
+  184 'Boys Wear' products= 28
+  185 'Girls Wear' products= 20
+  186 'Baby Care' products= 16
+  187 'Footwear' products= 0
+  188 'Accessories' products= 0
+FASHION_TREE_BY_ROOT:
+ROOT 1 mens
+ROOT 2 womens
+  27 'Women' women parent= None level= 0 active= True maintenance= False products= 0
+  120 'Casual Wear' casual-wear parent= 27 level= 1 active= True maintenance= False products= 0
+  34 'Western Wear' western-wear parent= 27 level= 1 active= False maintenance= False products= 0
+  126 'Formal Wear' formal-wear parent= 27 level= 1 active= True maintenance= False products= 0
+  28 'Ethnic Wear' ethnic-wear parent= 27 level= 1 active= True maintenance= False products= 0
+  43 'Lingerie & Sleepwear' lingerie-sleepwear parent= 27 level= 1 active= False maintenance= False products= 0
+  44 'Maternity Wear' maternity-wear parent= 27 level= 1 active= False maintenance= False products= 0
+  47 'Footwear' footwear parent= 27 level= 1 active= True maintenance= False products= 0
+  134 'Outerwear' outerwear parent= 27 level= 1 active= False maintenance= False products= 0
+  45 'Activewear' activewear parent= 27 level= 1 active= False maintenance= False products= 0
+  138 'Accessories' accessories parent= 27 level= 1 active= True maintenance= False products= 0
+  46 'Winter Wear' winter-wear parent= 27 level= 1 active= False maintenance= False products= 0
+  53 'Bags & Accessories' bags-accessories parent= 27 level= 1 active= False maintenance= True products= 0
+  35 'Tops' tops parent= 34 level= 2 active= True maintenance= False products= 0
+  48 'Heels' heels parent= 47 level= 2 active= True maintenance= False products= 0
+  121 'T-Shirts' t-shirts parent= 120 level= 2 active= True maintenance= False products= 0
+  128 'Formal Shirts' formal-shirts parent= 126 level= 2 active= True maintenance= False products= 0
+  135 'Overcoats' overcoats parent= 134 level= 2 active= True maintenance= False products= 0
+  139 'Bags' bags parent= 138 level= 2 active= True maintenance= False products= 0
+  185 'Kurtas' kurtas parent= 28 level= 2 active= True maintenance= False products= 0
+  29 'Sarees' sarees parent= 28 level= 2 active= True maintenance= False products= 0
+  36 'T-Shirts' t-shirts parent= 34 level= 2 active= True maintenance= False products= 0
+  51 'Sneakers' sneakers parent= 47 level= 2 active= True maintenance= False products= 0
+  122 'Polo Shirts' polo-shirts parent= 120 level= 2 active= True maintenance= False products= 0
+  127 'Suits' suits parent= 126 level= 2 active= True maintenance= False products= 0
+  136 'Trench Coats' trench-coats parent= 134 level= 2 active= True maintenance= False products= 0
+  140 'Belts' belts parent= 138 level= 2 active= True maintenance= False products= 0
+  30 'Kurtas & Kurtis' kurtas-kurtis parent= 28 level= 2 active= True maintenance= False products= 0
+  37 'Shirts' shirts parent= 34 level= 2 active= True maintenance= False products= 0
+  49 'Flats' flats parent= 47 level= 2 active= True maintenance= False products= 0
+  123 'Jeans' jeans parent= 120 level= 2 active= True maintenance= False products= 0
+  129 'Blazers' blazers parent= 126 level= 2 active= True maintenance= False products= 0
+  137 'Puffer Jackets' puffer-jackets parent= 134 level= 2 active= True maintenance= False products= 0
+  141 'Watches' watches parent= 138 level= 2 active= True maintenance= False products= 0
+  31 'Salwar Suits' salwar-suits parent= 28 level= 2 active= True maintenance= False products= 0
+  38 'Dresses' dresses parent= 34 level= 2 active= True maintenance= False products= 0
+  50 'Sandals' sandals parent= 47 level= 2 active= True maintenance= False products= 0
+  124 'Hoodies & Sweatshirts' hoodies-sweatshirts parent= 120 level= 2 active= True maintenance= False products= 0
+  130 'Dress Trousers' dress-trousers parent= 126 level= 2 active= True maintenance= False products= 0
+  142 'Sunglasses' sunglasses parent= 138 level= 2 active= True maintenance= False products= 0
+  39 'Jumpsuits' jumpsuits parent= 34 level= 2 active= True maintenance= False products= 0
+  52 'Boots' boots parent= 47 level= 2 active= True maintenance= False products= 0
+  125 'Shorts' shorts parent= 120 level= 2 active= True maintenance= False products= 0
+  131 'Tuxedos' tuxedos parent= 126 level= 2 active= True maintenance= False products= 0
+  143 'Wallets' wallets parent= 138 level= 2 active= True maintenance= False products= 0
+  186 'Lehengas' lehengas parent= 28 level= 2 active= True maintenance= False products= 0
+  32 'Lehenga Cholis' lehenga-cholis parent= 28 level= 2 active= True maintenance= False products= 0
+  40 'Skirts' skirts parent= 34 level= 2 active= True maintenance= False products= 0
+  132 'Dress Shoes' dress-shoes parent= 47 level= 2 active= True maintenance= False products= 0
+  184 'Dresses' dresses parent= 120 level= 2 active= True maintenance= False products= 0
+  189 'Toys' toys parent= 138 level= 2 active= True maintenance= False products= 0
+  41 'Jeans' jeans parent= 34 level= 2 active= True maintenance= False products= 0
+  133 'Loafers' loafers parent= 47 level= 2 active= True maintenance= False products= 0
+  187 'Sherwanis' sherwanis parent= 28 level= 2 active= True maintenance= False products= 0
+  33 'Dupattas' dupattas parent= 28 level= 2 active= True maintenance= False products= 0
+  42 'Trousers' trousers parent= 34 level= 2 active= True maintenance= False products= 0
+  188 'Ethnic Dresses' ethnic-dresses parent= 28 level= 2 active= True maintenance= False products= 0
+ROOT 3 kids
+  54 'Kids' kids parent= None level= 0 active= True maintenance= False products= 0
+  55 'Boys Wear' boys-wear parent= 54 level= 1 active= False maintenance= False products= 0
+  144 'Casual Wear' casual-wear parent= 54 level= 1 active= True maintenance= False products= 0
+  64 'Girls Wear' girls-wear parent= 54 level= 1 active= False maintenance= False products= 0
+  150 'Formal Wear' formal-wear parent= 54 level= 1 active= True maintenance= False products= 0
+  73 'Baby Care' baby-care parent= 54 level= 1 active= False maintenance= False products= 0
+  160 'Ethnic Wear' ethnic-wear parent= 54 level= 1 active= True maintenance= False products= 0
+  78 'Toys' toys parent= 54 level= 1 active= False maintenance= False products= 0
+  79 'Footwear' footwear parent= 54 level= 1 active= True maintenance= False products= 0
+  164 'Accessories' accessories parent= 54 level= 1 active= True maintenance= False products= 0
+  56 'T-Shirts' t-shirts parent= 55 level= 2 active= True maintenance= False products= 0
+  65 'Dresses' dresses parent= 64 level= 2 active= True maintenance= False products= 0
+  74 'Newborn Clothing' newborn-clothing parent= 73 level= 2 active= True maintenance= False products= 0
+  80 'School Shoes' school-shoes parent= 79 level= 2 active= True maintenance= False products= 0
+  145 'T-Shirts' t-shirts parent= 144 level= 2 active= True maintenance= False products= 0
+  152 'Formal Shirts' formal-shirts parent= 150 level= 2 active= True maintenance= False products= 0
+  161 'Overcoats' overcoats parent= 160 level= 2 active= True maintenance= False products= 0
+  165 'Bags' bags parent= 164 level= 2 active= True maintenance= False products= 0
+  57 'Shirts' shirts parent= 55 level= 2 active= True maintenance= False products= 0
+  66 'Frocks' frocks parent= 64 level= 2 active= True maintenance= False products= 0
+  75 'Rompers' rompers parent= 73 level= 2 active= True maintenance= False products= 0
+  146 'Polo Shirts' polo-shirts parent= 144 level= 2 active= True maintenance= False products= 0
+  151 'Suits' suits parent= 150 level= 2 active= True maintenance= False products= 0
+  156 'Sneakers' sneakers parent= 79 level= 2 active= True maintenance= False products= 0
+  166 'Belts' belts parent= 164 level= 2 active= True maintenance= False products= 0
+  191 'Kurtas' kurtas parent= 160 level= 2 active= True maintenance= False products= 0
+  58 'Jeans' jeans parent= 55 level= 2 active= True maintenance= False products= 0
+  67 'Tops & T-Shirts' tops-t-shirts parent= 64 level= 2 active= True maintenance= False products= 0
+  76 'Baby Sets' baby-sets parent= 73 level= 2 active= True maintenance= False products= 0
+  81 'Casual Shoes' casual-shoes parent= 79 level= 2 active= True maintenance= False products= 0
+  147 'Jeans' jeans parent= 144 level= 2 active= True maintenance= False products= 0
+  153 'Blazers' blazers parent= 150 level= 2 active= True maintenance= False products= 0
+  162 'Trench Coats' trench-coats parent= 160 level= 2 active= True maintenance= False products= 0
+  167 'Watches' watches parent= 164 level= 2 active= True maintenance= False products= 0
+  59 'Shorts' shorts parent= 55 level= 2 active= True maintenance= False products= 0
+  68 'Skirts' skirts parent= 64 level= 2 active= True maintenance= False products= 0
+  77 'Baby Essentials' baby-essentials parent= 73 level= 2 active= True maintenance= False products= 0
+  82 'Sandals' sandals parent= 79 level= 2 active= True maintenance= False products= 0
+  148 'Hoodies & Sweatshirts' hoodies-sweatshirts parent= 144 level= 2 active= True maintenance= False products= 0
+  154 'Dress Trousers' dress-trousers parent= 150 level= 2 active= True maintenance= False products= 0
+  168 'Sunglasses' sunglasses parent= 164 level= 2 active= True maintenance= False products= 0
+  192 'Sarees' sarees parent= 160 level= 2 active= True maintenance= False products= 0
+  60 'Trousers' trousers parent= 55 level= 2 active= True maintenance= False products= 0
+  69 'Leggings' leggings parent= 64 level= 2 active= True maintenance= False products= 0
+  149 'Shorts' shorts parent= 144 level= 2 active= True maintenance= False products= 0
+  155 'Tuxedos' tuxedos parent= 150 level= 2 active= True maintenance= False products= 0
+  157 'Boots' boots parent= 79 level= 2 active= True maintenance= False products= 0
+  163 'Puffer Jackets' puffer-jackets parent= 160 level= 2 active= True maintenance= False products= 0
+  169 'Wallets' wallets parent= 164 level= 2 active= True maintenance= False products= 0
+  61 'Ethnic Wear' ethnic-wear parent= 55 level= 2 active= True maintenance= False products= 0
+  70 'Ethnic Wear' ethnic-wear parent= 64 level= 2 active= True maintenance= False products= 0
+  83 'Slippers' slippers parent= 79 level= 2 active= True maintenance= False products= 0
+  190 'Dresses' dresses parent= 144 level= 2 active= True maintenance= False products= 0
+  193 'Lehengas' lehengas parent= 160 level= 2 active= True maintenance= False products= 0
+  196 'Toys' toys parent= 164 level= 2 active= True maintenance= False products= 0
+  62 'Nightwear' nightwear parent= 55 level= 2 active= True maintenance= False products= 0
+  71 'Nightwear' nightwear parent= 64 level= 2 active= True maintenance= False products= 0
+  158 'Dress Shoes' dress-shoes parent= 79 level= 2 active= True maintenance= False products= 0
+  194 'Sherwanis' sherwanis parent= 160 level= 2 active= True maintenance= False products= 0
+  63 'Winter Wear' winter-wear parent= 55 level= 2 active= True maintenance= False products= 0
+  72 'Winter Wear' winter-wear parent= 64 level= 2 active= True maintenance= False products= 0
+  159 'Loafers' loafers parent= 79 level= 2 active= True maintenance= False products= 0
+  195 'Ethnic Dresses' ethnic-dresses parent= 160 level= 2 active= True maintenance= False products= 0
+ROOT 4 accessories
+  84 'Accessories' accessories parent= None level= 0 active= True maintenance= True products= 0
+  85 "Men's Accessories" mens-accessories parent= 84 level= 1 active= True maintenance= True products= 0
+  170 'Common For All Genders' common-for-all-genders parent= 84 level= 1 active= True maintenance= True products= 0
+  86 "Women's Accessories" womens-accessories parent= 84 level= 1 active= True maintenance= True products= 0
+  87 'Kids Accessories' kids-accessories parent= 84 level= 1 active= True maintenance= True products= 0
+  88 'Watches' watches parent= 84 level= 1 active= True maintenance= True products= 0
+  89 'Bags' bags parent= 84 level= 1 active= True maintenance= True products= 0
+  90 'Jewelry' jewelry parent= 84 level= 1 active= True maintenance= True products= 0
+  91 'Sunglasses' sunglasses parent= 84 level= 1 active= True maintenance= True products= 0
+  92 'Wallets' wallets parent= 84 level= 1 active= True maintenance= True products= 0
+  93 'Belts' belts parent= 84 level= 1 active= True maintenance= True products= 0
+  94 'Caps & Hats' caps-hats parent= 84 level= 1 active= True maintenance= True products= 0
+  171 'Bags' bags parent= 170 level= 2 active= True maintenance= True products= 0
+  172 'Watches' watches parent= 170 level= 2 active= True maintenance= True products= 0
+  173 'Sunglasses' sunglasses parent= 170 level= 2 active= True maintenance= True products= 0
+  174 'Wallets' wallets parent= 170 level= 2 active= True maintenance= True products= 0
+  175 'Other Future Accessories' other-future-accessories parent= 170 level= 2 active= True maintenance= True products= 0
+ROOT 5 Mens
+  197 'Mens' mens parent= None level= 0 active= True maintenance= False products= 0
+  200 'Casual Wear' casual-wear parent= 197 level= 1 active= True maintenance= False products= 0
+  201 'Formal Wear' formal-wear parent= 197 level= 1 active= True maintenance= False products= 0
+  281 'Wedding Wear' wedding-wear parent= 197 level= 1 active= True maintenance= False products= 0
+  284 'Suits & Blazers' suits-blazers parent= 197 level= 1 active= True maintenance= False products= 0
+  202 'Ethnic Wear' ethnic-wear parent= 197 level= 1 active= True maintenance= False products= 0
+  283 'Traditional Wear' traditional-wear parent= 197 level= 1 active= True maintenance= False products= 0
+  282 'Party Wear' party-wear parent= 197 level= 1 active= True maintenance= False products= 0
+  286 'Streetwear' streetwear parent= 197 level= 1 active= True maintenance= False products= 0
+  287 'Activewear' activewear parent= 197 level= 1 active= True maintenance= False products= 0
+  285 'Denim Wear' denim-wear parent= 197 level= 1 active= True maintenance= False products= 0
+  290 'Pants & Trousers' pants-trousers parent= 197 level= 1 active= True maintenance= False products= 0
+  288 'Winter Wear' winter-wear parent= 197 level= 1 active= True maintenance= False products= 0
+  289 'Sportswear' sportswear parent= 197 level= 1 active= True maintenance= False products= 0
+  291 'Innerwear' innerwear parent= 197 level= 1 active= True maintenance= False products= 0
+  203 'Footwear' footwear parent= 197 level= 1 active= True maintenance= False products= 0
+  204 'Accessories' accessories parent= 197 level= 1 active= True maintenance= True products= 0
+  205 'T-Shirts' casual-wear-t-shirts parent= 200 level= 2 active= True maintenance= False products= 1
+  210 'Formal Shirts' formal-wear-formal-shirts parent= 201 level= 2 active= True maintenance= False products= 1
+  214 'Kurtas' ethnic-wear-kurtas parent= 202 level= 2 active= True maintenance= False products= 1
+  216 'Sneakers' footwear-sneakers parent= 203 level= 2 active= True maintenance= False products= 1
+  221 'Bags' bags parent= 204 level= 2 active= True maintenance= False products= 8
+  292 'Wedding Shirts' wedding-wear-wedding-shirts parent= 281 level= 2 active= True maintenance= False products= 1
+  298 'Party Shirts' party-wear-party-shirts parent= 282 level= 2 active= True maintenance= False products= 1
+  302 'Kurtas' traditional-wear-kurtas parent= 283 level= 2 active= True maintenance= False products= 1
+  306 'Two-Piece Suits' suits-blazers-two-piece-suits parent= 284 level= 2 active= True maintenance= False products= 1
+  310 'Denim Jeans' denim-wear-denim-jeans parent= 285 level= 2 active= True maintenance= False products= 1
+  314 'Graphic T-Shirts' streetwear-graphic-t-shirts parent= 286 level= 2 active= True maintenance= False products= 1
+  318 'Gym T-Shirts' activewear-gym-t-shirts parent= 287 level= 2 active= True maintenance= False products= 1
+  322 'Winter Jackets' winter-wear-winter-jackets parent= 288 level= 2 active= True maintenance= False products= 1
+  326 'Sports T-Shirts' sportswear-sports-t-shirts parent= 289 level= 2 active= True maintenance= False products= 1
+  330 'Formal Trousers' pants-trousers-formal-trousers parent= 290 level= 2 active= True maintenance= False products= 1
+  334 'Vests' innerwear-vests parent= 291 level= 2 active= True maintenance= False products= 1
+  206 'Polo Shirts' casual-wear-polo-shirts parent= 200 level= 2 active= True maintenance= False products= 1
+  211 'Blazers' formal-wear-blazers parent= 201 level= 2 active= True maintenance= False products= 1
+  215 'Sherwanis' ethnic-wear-sherwanis parent= 202 level= 2 active= True maintenance= False products= 1
+  217 'Dress Shoes' footwear-dress-shoes parent= 203 level= 2 active= True maintenance= False products= 1
+  222 'Belts' belts parent= 204 level= 2 active= True maintenance= False products= 8
+  293 'Wedding Suits' wedding-wear-wedding-suits parent= 281 level= 2 active= True maintenance= False products= 1
+  299 'Party Blazers' party-wear-party-blazers parent= 282 level= 2 active= True maintenance= False products= 1
+  303 'Sherwanis' traditional-wear-sherwanis parent= 283 level= 2 active= True maintenance= False products= 1
+  307 'Three-Piece Suits' suits-blazers-three-piece-suits parent= 284 level= 2 active= True maintenance= False products= 1
+  311 'Denim Jackets' denim-wear-denim-jackets parent= 285 level= 2 active= True maintenance= False products= 1
+  315 'Cargo Pants' streetwear-cargo-pants parent= 286 level= 2 active= True maintenance= False products= 1
+  319 'Track Pants' activewear-track-pants parent= 287 level= 2 active= True maintenance= False products= 1
+  323 'Sweaters' winter-wear-sweaters parent= 288 level= 2 active= True maintenance= False products= 1
+  327 'Sports Shorts' sportswear-sports-shorts parent= 289 level= 2 active= True maintenance= False products= 1
+  331 'Casual Trousers' pants-trousers-casual-trousers parent= 290 level= 2 active= True maintenance= False products= 1
+  335 'Briefs' innerwear-briefs parent= 291 level= 2 active= True maintenance= False products= 1
+  223 'Watches' watches parent= 204 level= 2 active= True maintenance= False products= 8
+  224 'Wallets' wallets parent= 204 level= 2 active= True maintenance= False products= 8
+  225 'Sunglasses' sunglasses parent= 204 level= 2 active= True maintenance= False products= 8
+ROOT 6 Womens
+  198 'Womens' womens parent= None level= 0 active= True maintenance= False products= 0
+  226 'Casual Wear' casual-wear parent= 198 level= 1 active= True maintenance= False products= 0
+  227 'Formal Wear' formal-wear parent= 198 level= 1 active= True maintenance= False products= 0
+  228 'Ethnic Wear' ethnic-wear parent= 198 level= 1 active= True maintenance= False products= 0
+  229 'Footwear' footwear parent= 198 level= 1 active= True maintenance= False products= 0
+  230 'Accessories' accessories parent= 198 level= 1 active= True maintenance= False products= 0
+  231 'T-Shirts' t-shirts parent= 226 level= 2 active= True maintenance= False products= 4
+  236 'Formal Shirts' formal-shirts parent= 227 level= 2 active= True maintenance= False products= 4
+  240 'Kurtas' kurtas parent= 228 level= 2 active= True maintenance= False products= 4
+  244 'Heels' heels parent= 229 level= 2 active= True maintenance= False products= 4
+  249 'Handbags' handbags parent= 230 level= 2 active= True maintenance= False products= 4
+  232 'Tops' tops parent= 226 level= 2 active= True maintenance= False products= 4
+  237 'Blazers' blazers parent= 227 level= 2 active= True maintenance= False products= 4
+  241 'Sarees' sarees parent= 228 level= 2 active= True maintenance= False products= 4
+  245 'Flats' flats parent= 229 level= 2 active= True maintenance= False products= 4
+  250 'Belts' belts parent= 230 level= 2 active= True maintenance= False products= 4
+  233 'Jeans' jeans parent= 226 level= 2 active= True maintenance= False products= 4
+  238 'Suits' suits parent= 227 level= 2 active= True maintenance= False products= 4
+  242 'Lehengas' lehengas parent= 228 level= 2 active= True maintenance= False products= 4
+  246 'Sandals' sandals parent= 229 level= 2 active= True maintenance= False products= 4
+  251 'Watches' watches parent= 230 level= 2 active= True maintenance= False products= 4
+  234 'Dresses' dresses parent= 226 level= 2 active= True maintenance= False products= 4
+  239 'Dress Trousers' dress-trousers parent= 227 level= 2 active= True maintenance= False products= 4
+  243 'Salwar Suits' salwar-suits parent= 228 level= 2 active= True maintenance= False products= 4
+  247 'Sneakers' sneakers parent= 229 level= 2 active= True maintenance= False products= 4
+  252 'Wallets' wallets parent= 230 level= 2 active= True maintenance= False products= 4
+  235 'Hoodies & Sweatshirts' hoodies-sweatshirts parent= 226 level= 2 active= True maintenance= False products= 4
+  248 'Boots' boots parent= 229 level= 2 active= True maintenance= False products= 4
+  253 'Sunglasses' sunglasses parent= 230 level= 2 active= True maintenance= False products= 4
+ROOT 7 Kids
+  199 'Kids' kids parent= None level= 0 active= True maintenance= False products= 0
+  254 'Boys Wear' boys-wear parent= 199 level= 1 active= True maintenance= False products= 0
+  255 'Girls Wear' girls-wear parent= 199 level= 1 active= True maintenance= False products= 0
+  256 'Baby Care' baby-care parent= 199 level= 1 active= True maintenance= False products= 0
+  257 'Footwear' footwear parent= 199 level= 1 active= True maintenance= False products= 0
+  258 'Accessories' accessories parent= 199 level= 1 active= True maintenance= False products= 0
+  259 'T-Shirts' t-shirts parent= 254 level= 2 active= True maintenance= False products= 4
+  264 'Frocks' frocks parent= 255 level= 2 active= True maintenance= False products= 4
+  269 'Newborn Clothing' newborn-clothing parent= 256 level= 2 active= True maintenance= False products= 4
+  273 'School Shoes' school-shoes parent= 257 level= 2 active= True maintenance= False products= 4
+  277 'Bags' bags parent= 258 level= 2 active= True maintenance= False products= 0
+  260 'Shirts' shirts parent= 254 level= 2 active= True maintenance= False products= 4
+  265 'Dresses' dresses parent= 255 level= 2 active= True maintenance= False products= 4
+  270 'Rompers' rompers parent= 256 level= 2 active= True maintenance= False products= 4
+  274 'Casual Shoes' casual-shoes parent= 257 level= 2 active= True maintenance= False products= 4
+  278 'Watches' watches parent= 258 level= 2 active= True maintenance= False products= 0
+  261 'Jeans' jeans parent= 254 level= 2 active= True maintenance= False products= 4
+  266 'Tops' tops parent= 255 level= 2 active= True maintenance= False products= 4
+  271 'Baby Sets' baby-sets parent= 256 level= 2 active= True maintenance= False products= 4
+  275 'Sandals' sandals parent= 257 level= 2 active= True maintenance= False products= 0
+  279 'Toys' toys parent= 258 level= 2 active= True maintenance= False products= 0
+  262 'Shorts' shorts parent= 254 level= 2 active= True maintenance= False products= 4
+  267 'Skirts' skirts parent= 255 level= 2 active= True maintenance= False products= 4
+  272 'Baby Essentials' baby-essentials parent= 256 level= 2 active= True maintenance= False products= 4
+  276 'Slippers' slippers parent= 257 level= 2 active= True maintenance= False products= 0
+  280 'Sunglasses' sunglasses parent= 258 level= 2 active= True maintenance= False products= 0
+  263 'Ethnic Wear' ethnic-wear parent= 254 level= 2 active= True maintenance= False products= 4
+  268 'Ethnic Wear' ethnic-wear parent= 255 level= 2 active= True maintenance= False products= 4
+DUPLICATE_SUBCATEGORY_NAMES_BY_CANONICAL_ROOT:
+PAIR 1 TO 5
+  accessories canonical_ids= [178] duplicate_ids= [25]
+  activewear canonical_ids= [] duplicate_ids= [14]
+  bags canonical_ids= [241] duplicate_ids= [102]
+  belts canonical_ids= [242] duplicate_ids= [103]
+  blazers canonical_ids= [195] duplicate_ids= [10]
+  boots canonical_ids= [240] duplicate_ids= [95]
+  boxers canonical_ids= [234] duplicate_ids= []
+  briefs canonical_ids= [233] duplicate_ids= []
+  cargo pants canonical_ids= [217] duplicate_ids= [6]
+  casual shoes canonical_ids= [] duplicate_ids= [20]
+  casual trousers canonical_ids= [230] duplicate_ids= []
+  casual wear canonical_ids= [] duplicate_ids= [88]
+  chinos canonical_ids= [231] duplicate_ids= []
+  denim jackets canonical_ids= [213] duplicate_ids= []
+  denim jeans canonical_ids= [212] duplicate_ids= []
+  denim shirts canonical_ids= [214] duplicate_ids= []
+  denim shorts canonical_ids= [215] duplicate_ids= []
+  dhoti sets canonical_ids= [204] duplicate_ids= []
+  dress shirts canonical_ids= [] duplicate_ids= [91]
+  dress shoes canonical_ids= [237] duplicate_ids= [96]
+  dress trousers canonical_ids= [197] duplicate_ids= [92]
+  dresses canonical_ids= [] duplicate_ids= [154]
+  ethnic dresses canonical_ids= [] duplicate_ids= [159]
+  ethnic wear canonical_ids= [176] duplicate_ids= [156]
+  footwear canonical_ids= [177] duplicate_ids= [19]
+  formal shirts canonical_ids= [194] duplicate_ids= [155]
+  formal shoes canonical_ids= [] duplicate_ids= [21]
+  formal trousers canonical_ids= [229] duplicate_ids= []
+  formal wear canonical_ids= [175] duplicate_ids= [90]
+  graphic t-shirts canonical_ids= [216] duplicate_ids= []
+  gym t-shirts canonical_ids= [220] duplicate_ids= []
+  hoodies & sweatshirts canonical_ids= [193] duplicate_ids= [8]
+  innerwear canonical_ids= [] duplicate_ids= [12]
+  jackets & coats canonical_ids= [] duplicate_ids= [9]
+  jeans canonical_ids= [191] duplicate_ids= [4]
+  joggers canonical_ids= [218] duplicate_ids= []
+  kurta sets canonical_ids= [] duplicate_ids= [17]
+  kurtas canonical_ids= [202] duplicate_ids= [16]
+  lehengas canonical_ids= [] duplicate_ids= [158]
+  loafers canonical_ids= [238] duplicate_ids= [97]
+  men's casual wear canonical_ids= [174] duplicate_ids= []
+  nehru jackets canonical_ids= [203] duplicate_ids= []
+  nightwear canonical_ids= [] duplicate_ids= [13]
+  outerwear canonical_ids= [] duplicate_ids= [98]
+  overcoats canonical_ids= [225] duplicate_ids= [99]
+  oversized hoodies canonical_ids= [219] duplicate_ids= []
+  party accessories canonical_ids= [208] duplicate_ids= []
+  party blazers canonical_ids= [206] duplicate_ids= []
+  party shirts canonical_ids= [205] duplicate_ids= []
+  party trousers canonical_ids= [207] duplicate_ids= []
+  polo shirts canonical_ids= [190] duplicate_ids= [89]
+  polos canonical_ids= [] duplicate_ids= [3]
+  puffer jackets canonical_ids= [] duplicate_ids= [101]
+  sandals canonical_ids= [239] duplicate_ids= [160]
+  sandals & floaters canonical_ids= [] duplicate_ids= [23]
+  sarees canonical_ids= [] duplicate_ids= [157]
+  sherwanis canonical_ids= [200] duplicate_ids= [18]
+  shirts canonical_ids= [] duplicate_ids= [2]
+  shorts canonical_ids= [192] duplicate_ids= [7]
+  slippers canonical_ids= [] duplicate_ids= [24]
+  sneakers canonical_ids= [236] duplicate_ids= [94]
+  sports jackets canonical_ids= [228] duplicate_ids= []
+  sports shoes canonical_ids= [] duplicate_ids= [22]
+  sports shorts canonical_ids= [227] duplicate_ids= []
+  sports t-shirts canonical_ids= [226] duplicate_ids= []
+  suits canonical_ids= [196] duplicate_ids= [11]
+  sunglasses canonical_ids= [245] duplicate_ids= [105]
+  sweaters canonical_ids= [224] duplicate_ids= []
+  t-shirts canonical_ids= [189] duplicate_ids= [1]
+  thermal wear canonical_ids= [235] duplicate_ids= []
+  three-piece suits canonical_ids= [210] duplicate_ids= []
+  toys canonical_ids= [] duplicate_ids= [161]
+  track pants canonical_ids= [221] duplicate_ids= []
+  traditional wear canonical_ids= [] duplicate_ids= [15]
+  training shorts canonical_ids= [222] duplicate_ids= []
+  trench coats canonical_ids= [] duplicate_ids= [100]
+  trousers canonical_ids= [] duplicate_ids= [5]
+  tuxedos canonical_ids= [211] duplicate_ids= [93]
+  two-piece suits canonical_ids= [209] duplicate_ids= []
+  vests canonical_ids= [232] duplicate_ids= []
+  wallets canonical_ids= [244] duplicate_ids= [106]
+  watches canonical_ids= [243] duplicate_ids= [104]
+  wedding accessories canonical_ids= [201] duplicate_ids= []
+  wedding shirts canonical_ids= [198] duplicate_ids= []
+  wedding suits canonical_ids= [199] duplicate_ids= []
+  winter jackets canonical_ids= [223] duplicate_ids= []
+PAIR 2 TO 6
+  accessories canonical_ids= [183] duplicate_ids= [123]
+  activewear canonical_ids= [] duplicate_ids= [43]
+  bags canonical_ids= [] duplicate_ids= [124]
+  bags & accessories canonical_ids= [] duplicate_ids= [51]
+  belts canonical_ids= [] duplicate_ids= [125]
+  blazers canonical_ids= [] duplicate_ids= [114]
+  boots canonical_ids= [] duplicate_ids= [50]
+  casual wear canonical_ids= [179] duplicate_ids= [107]
+  dress shirts canonical_ids= [] duplicate_ids= [113]
+  dress shoes canonical_ids= [] duplicate_ids= [117]
+  dress trousers canonical_ids= [] duplicate_ids= [115]
+  dresses canonical_ids= [] duplicate_ids= [36]
+  dupattas canonical_ids= [] duplicate_ids= [31]
+  ethnic dresses canonical_ids= [] duplicate_ids= [166]
+  ethnic wear canonical_ids= [181] duplicate_ids= [26]
+  flats canonical_ids= [] duplicate_ids= [47]
+  footwear canonical_ids= [182] duplicate_ids= [45]
+  formal shirts canonical_ids= [] duplicate_ids= [162]
+  formal wear canonical_ids= [180] duplicate_ids= [111]
+  heels canonical_ids= [] duplicate_ids= [46]
+  hoodies & sweatshirts canonical_ids= [] duplicate_ids= [109]
+  jeans canonical_ids= [] duplicate_ids= [39]
+  jumpsuits canonical_ids= [] duplicate_ids= [37]
+  kurtas canonical_ids= [] duplicate_ids= [163]
+  kurtas & kurtis canonical_ids= [] duplicate_ids= [28]
+  lehenga cholis canonical_ids= [] duplicate_ids= [30]
+  lehengas canonical_ids= [] duplicate_ids= [164]
+  lingerie & sleepwear canonical_ids= [] duplicate_ids= [41]
+  loafers canonical_ids= [] duplicate_ids= [118]
+  maternity wear canonical_ids= [] duplicate_ids= [42]
+  outerwear canonical_ids= [] duplicate_ids= [119]
+  overcoats canonical_ids= [] duplicate_ids= [120]
+  polo shirts canonical_ids= [] duplicate_ids= [108]
+  puffer jackets canonical_ids= [] duplicate_ids= [122]
+  salwar suits canonical_ids= [] duplicate_ids= [29]
+  sandals canonical_ids= [] duplicate_ids= [48]
+  sarees canonical_ids= [] duplicate_ids= [27]
+  sherwanis canonical_ids= [] duplicate_ids= [165]
+  shirts canonical_ids= [] duplicate_ids= [35]
+  shorts canonical_ids= [] duplicate_ids= [110]
+  skirts canonical_ids= [] duplicate_ids= [38]
+  sneakers canonical_ids= [] duplicate_ids= [49]
+  suits canonical_ids= [] duplicate_ids= [112]
+  sunglasses canonical_ids= [] duplicate_ids= [127]
+  t-shirts canonical_ids= [] duplicate_ids= [34]
+  tops canonical_ids= [] duplicate_ids= [33]
+  toys canonical_ids= [] duplicate_ids= [167]
+  trench coats canonical_ids= [] duplicate_ids= [121]
+  trousers canonical_ids= [] duplicate_ids= [40]
+  tuxedos canonical_ids= [] duplicate_ids= [116]
+  wallets canonical_ids= [] duplicate_ids= [128]
+  watches canonical_ids= [] duplicate_ids= [126]
+  western wear canonical_ids= [] duplicate_ids= [32]
+  winter wear canonical_ids= [] duplicate_ids= [44]
+PAIR 3 TO 7
+  accessories canonical_ids= [188] duplicate_ids= [146]
+  baby care canonical_ids= [186] duplicate_ids= [67]
+  baby essentials canonical_ids= [] duplicate_ids= [71]
+  baby sets canonical_ids= [] duplicate_ids= [70]
+  bags canonical_ids= [] duplicate_ids= [147]
+  belts canonical_ids= [] duplicate_ids= [148]
+  blazers canonical_ids= [] duplicate_ids= [135]
+  boots canonical_ids= [] duplicate_ids= [139]
+  boys canonical_ids= [] duplicate_ids= [52]
+  boys wear canonical_ids= [184] duplicate_ids= []
+  casual shoes canonical_ids= [] duplicate_ids= [75]
+  casual wear canonical_ids= [] duplicate_ids= [129]
+  dress shirts canonical_ids= [] duplicate_ids= [134]
+  dress shoes canonical_ids= [] duplicate_ids= [140]
+  dress trousers canonical_ids= [] duplicate_ids= [136]
+  dresses canonical_ids= [] duplicate_ids= [62]
+  ethnic dresses canonical_ids= [] duplicate_ids= [173]
+  ethnic wear canonical_ids= [] duplicate_ids= [58]
+  footwear canonical_ids= [187] duplicate_ids= [73]
+  formal shirts canonical_ids= [] duplicate_ids= [168]
+  formal wear canonical_ids= [] duplicate_ids= [132]
+  frocks canonical_ids= [] duplicate_ids= [63]
+  girls canonical_ids= [] duplicate_ids= [61]
+  girls wear canonical_ids= [185] duplicate_ids= []
+  hoodies & sweatshirts canonical_ids= [] duplicate_ids= [131]
+  jeans canonical_ids= [] duplicate_ids= [55]
+  kurtas canonical_ids= [] duplicate_ids= [169]
+  leggings canonical_ids= [] duplicate_ids= [66]
+  lehengas canonical_ids= [] duplicate_ids= [171]
+  loafers canonical_ids= [] duplicate_ids= [141]
+  newborn clothing canonical_ids= [] duplicate_ids= [68]
+  nightwear canonical_ids= [] duplicate_ids= [59]
+  outerwear canonical_ids= [] duplicate_ids= [142]
+  overcoats canonical_ids= [] duplicate_ids= [143]
+  polo shirts canonical_ids= [] duplicate_ids= [130]
+  puffer jackets canonical_ids= [] duplicate_ids= [145]
+  rompers canonical_ids= [] duplicate_ids= [69]
+  sandals canonical_ids= [] duplicate_ids= [76]
+  sarees canonical_ids= [] duplicate_ids= [170]
+  school shoes canonical_ids= [] duplicate_ids= [74]
+  sherwanis canonical_ids= [] duplicate_ids= [172]
+  shirts canonical_ids= [] duplicate_ids= [54]
+  shorts canonical_ids= [] duplicate_ids= [56]
+  skirts canonical_ids= [] duplicate_ids= [65]
+  slippers canonical_ids= [] duplicate_ids= [77]
+  sneakers canonical_ids= [] duplicate_ids= [138]
+  suits canonical_ids= [] duplicate_ids= [133]
+  sunglasses canonical_ids= [] duplicate_ids= [150]
+  t-shirts canonical_ids= [] duplicate_ids= [53]
+  tops & t-shirts canonical_ids= [] duplicate_ids= [64]
+  toys canonical_ids= [] duplicate_ids= [72]
+  trench coats canonical_ids= [] duplicate_ids= [144]
+  trousers canonical_ids= [] duplicate_ids= [57]
+  tuxedos canonical_ids= [] duplicate_ids= [137]
+  wallets canonical_ids= [] duplicate_ids= [151]
+  watches canonical_ids= [] duplicate_ids= [149]
+  winter wear canonical_ids= [] duplicate_ids= [60]
+DONE

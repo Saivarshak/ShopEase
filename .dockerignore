@@ -1,18 +1,46 @@
-.git
+# Source-control metadata and local secrets
+.git/
 .gitignore
 .env
-.venv
-venv
-__pycache__
+.env.*
+!.env.example
+
+# Python and Django runtime output
+__pycache__/
 *.py[cod]
 *.sqlite3
+*.sqlite3-*
 *.log
-media
-staticfiles
-backup
-data
-*.json
-*.csv
-*.jpg
-*.jpeg
-*.png
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Generated or persistent runtime directories. Source assets under static/ are
+# deliberately included: product and category images are served from there.
+media/
+staticfiles/
+backup/
+
+# Local exports, diagnostics, and audit artefacts that do not belong in a
+# deployable application image.
+data/production-export.json
+data/neon_migration_fixture.json
+database_backup_verified.sqlite3
+db.sqlite3.integrity-backup-*
+codex_runserver_*.log
+codex_runserver_*.err.log
+codex_runserver_*.out.log
+runserver-verification.*
+server.log
+audit_category_relationships_output.txt
+diagnose_shopease_output.txt
+image-contact-sheet-*.jpg
+image-audit*.csv
+image-audit*.json
+image-repair-changes.json
+local-image-audit.*
+local-bandwidth-errors.txt
+tmp_audit_images.*
+webp-bandwidth-report.csv

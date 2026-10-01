@@ -1,0 +1,39 @@
+ENGINE: sqlite
+DATABASES_DEFAULT_ENGINE: django.db.backends.sqlite3
+DATABASES_DEFAULT_NAME: C:\Users\saiva\OneDrive\Desktop\Live project Online shoping\db.sqlite3
+DATABASE_URL_PRESENT: False
+DB_TABLES: auth_group, auth_group_permissions, auth_permission, auth_user, auth_user_groups, auth_user_user_permissions, cart_items, categories, django_admin_log, django_content_type, django_migrations, django_session, fashion_categories, home_content, kids_categories, men_categories, order_items, orders, page_assets, product_variants, products, site_assets, social_auth_association, social_auth_code, social_auth_nonce, social_auth_partial, social_auth_usersocialauth, subcategories, uploaded_images, user_addresses, wishlist_items, women_categories
+PENDING_MIGRATIONS: 1
+PENDING: store 0023_republish_mens_accessories
+Category: 7
+SubCategory: 245
+FashionCategory: 246
+Product: 226
+ProductVariant: 352
+UploadedImage: 0
+User: 0
+CATEGORY_ROWS:
+{'category_id': 7, 'category_name': 'Kids', 'image': 'images/kids.jpg'} subcategories= 5 products= 64 fashion_categories= 28 men_rows= 0 women_rows= 0 kids_rows= 0
+{'category_id': 5, 'category_name': 'Mens', 'image': 'images/mens.jpg'} subcategories= 62 products= 70 fashion_categories= 52 men_rows= 0 women_rows= 0 kids_rows= 0
+{'category_id': 6, 'category_name': 'Womens', 'image': 'images/womens.jpg'} subcategories= 5 products= 92 fashion_categories= 29 men_rows= 0 women_rows= 0 kids_rows= 0
+{'category_id': 4, 'category_name': 'accessories', 'image': None} subcategories= 12 products= 0 fashion_categories= 17 men_rows= 0 women_rows= 0 kids_rows= 0
+{'category_id': 3, 'category_name': 'kids', 'image': None} subcategories= 55 products= 0 fashion_categories= 63 men_rows= 0 women_rows= 0 kids_rows= 0
+{'category_id': 1, 'category_name': 'mens', 'image': None} subcategories= 52 products= 0 fashion_categories= 0 men_rows= 0 women_rows= 0 kids_rows= 0
+{'category_id': 2, 'category_name': 'womens', 'image': None} subcategories= 54 products= 0 fashion_categories= 57 men_rows= 0 women_rows= 0 kids_rows= 0
+CASE_INSENSITIVE_DUPLICATES:
+kids [{'category_id': 7, 'category_name': 'Kids'}, {'category_id': 3, 'category_name': 'kids'}]
+mens [{'category_id': 5, 'category_name': 'Mens'}, {'category_id': 1, 'category_name': 'mens'}]
+womens [{'category_id': 6, 'category_name': 'Womens'}, {'category_id': 2, 'category_name': 'womens'}]
+FASHION_ROOTS:
+199 Kids kids root_id= 7 root_name= Kids active= True maintenance= False
+197 Mens mens root_id= 5 root_name= Mens active= True maintenance= False
+198 Womens womens root_id= 6 root_name= Womens active= True maintenance= False
+84 Accessories accessories root_id= 4 root_name= accessories active= True maintenance= True
+54 Kids kids root_id= 3 root_name= kids active= True maintenance= False
+27 Women women root_id= 2 root_name= womens active= True maintenance= False
+PRODUCT_CATEGORY_MISMATCHES:
+STATIC_DIRS: ['C:\\Users\\saiva\\OneDrive\\Desktop\\Live project Online shoping\\static']
+STATIC_ROOT: C:\Users\saiva\OneDrive\Desktop\Live project Online shoping\staticfiles
+MEDIA_ROOT: C:\Users\saiva\OneDrive\Desktop\Live project Online shoping\media
+UPLOADED_IMAGES: 0
+DONE

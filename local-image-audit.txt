@@ -1,0 +1,302 @@
+{
+  "products": 226,
+  "products_with_images": 70,
+  "missing_files": 0,
+  "audit": "C:\\Users\\saiva\\OneDrive\\Desktop\\Live project Online shoping\\local-image-audit.json"
+}
+PRODUCT 1 | Nike T-Shirts | MN-205-001
+  nike-t-shirts.jpg | exists=True | tokens=nike,shirts | size=[800, 800]
+PRODUCT 5 | Allen Solly Polo Shirts | MN-206-001
+  allen-solly-polo-shirts.jpg | exists=True | tokens=allen,polo,shirts,solly | size=[800, 800]
+PRODUCT 21 | Van Heusen Formal Shirts | MN-210-101
+  allen-solly-formal-shirts.jpg | exists=True | tokens=formal,shirts | size=[800, 800]
+PRODUCT 25 | Blackberrys Blazers | MN-211-101
+  allen-solly-blazers.jpg | exists=True | tokens=blazers | size=[800, 800]
+PRODUCT 37 | Manyavar Kurtas | MN-214-201
+  aurelia-kurtas.jpg | exists=True | tokens=kurtas | size=[800, 800]
+PRODUCT 41 | Manyavar Sherwanis | MN-215-201
+  fabindia-sherwanis.jpg | exists=True | tokens=sherwanis | size=[800, 800]
+PRODUCT 45 | Nike Sneakers | MN-216-300
+  nike-t-shirts.jpg | exists=True | tokens=nike | size=[800, 800]
+PRODUCT 49 | Bata Dress Shoes | MN-217-300
+  bata-dress-shoes.jpg | exists=True | tokens=bata,dress,shoes | size=[800, 800]
+PRODUCT 65 | Wildcraft Bags | MN-221-500
+  bags-accessories.jpg | exists=True | tokens=bags | size=[800, 800]
+PRODUCT 66 | Skybags Bags | MN-221-501
+  bags-accessories.jpg | exists=True | tokens=bags | size=[800, 800]
+PRODUCT 67 | American Tourister Bags | MN-221-502
+  american-tourister-bags.jpg | exists=True | tokens=american,bags,tourister | size=[800, 800]
+PRODUCT 68 | Safari Bags | MN-221-503
+  bags-accessories.jpg | exists=True | tokens=bags | size=[800, 800]
+PRODUCT 69 | Levis Belts | MN-222-500
+  levis-belts.jpg | exists=True | tokens=belts,levis | size=[800, 800]
+PRODUCT 70 | Allen Solly Belts | MN-222-501
+  allen-solly-belts.jpg | exists=True | tokens=allen,belts,solly | size=[800, 800]
+PRODUCT 71 | Van Heusen Belts | MN-222-502
+  allen-solly-belts.jpg | exists=True | tokens=belts | size=[800, 800]
+PRODUCT 72 | Woodland Belts | MN-222-503
+  allen-solly-belts.jpg | exists=True | tokens=belts | size=[800, 800]
+PRODUCT 73 | Titan Watches | MN-223-500
+  casio-watches.jpg | exists=True | tokens=watches | size=[800, 800]
+PRODUCT 74 | Casio Watches | MN-223-501
+  casio-watches.jpg | exists=True | tokens=casio,watches | size=[800, 800]
+PRODUCT 75 | Fastrack Watches | MN-223-502
+  fastrack-watches.jpg | exists=True | tokens=fastrack,watches | size=[800, 800]
+PRODUCT 76 | Timex Watches | MN-223-503
+  casio-watches.jpg | exists=True | tokens=watches | size=[800, 800]
+PRODUCT 77 | Woodland Wallets | MN-224-500
+  baggit-wallets.jpg | exists=True | tokens=wallets | size=[800, 800]
+PRODUCT 78 | Levis Wallets | MN-224-501
+  levis-wallets.jpg | exists=True | tokens=levis,wallets | size=[800, 800]
+PRODUCT 79 | Tommy Hilfiger Wallets | MN-224-502
+  baggit-wallets.jpg | exists=True | tokens=wallets | size=[800, 800]
+PRODUCT 80 | Fossil Wallets | MN-224-503
+  fossil-wallets.jpg | exists=True | tokens=fossil,wallets | size=[800, 800]
+PRODUCT 81 | Ray-Ban Sunglasses | MN-225-500
+  idee-sunglasses.jpg | exists=True | tokens=sunglasses | size=[800, 800]
+PRODUCT 82 | IDEE Sunglasses | MN-225-501
+  idee-sunglasses.jpg | exists=True | tokens=idee,sunglasses | size=[800, 800]
+PRODUCT 83 | Vincent Chase Sunglasses | MN-225-502
+  idee-sunglasses.jpg | exists=True | tokens=sunglasses | size=[800, 800]
+PRODUCT 84 | Polaroid Sunglasses | MN-225-503
+  polaroid-sunglasses.jpg | exists=True | tokens=polaroid,sunglasses | size=[800, 800]
+PRODUCT 85 | ONLY T-Shirts | WM-231-001
+PRODUCT 86 | Zara T-Shirts | WM-231-002
+PRODUCT 87 | H&M T-Shirts | WM-231-003
+PRODUCT 88 | Forever 21 T-Shirts | WM-231-004
+PRODUCT 89 | Biba Tops | WM-232-001
+PRODUCT 90 | AND Tops | WM-232-002
+PRODUCT 91 | Global Desi Tops | WM-232-003
+PRODUCT 92 | W Tops | WM-232-004
+PRODUCT 93 | Levis Jeans | WM-233-001
+PRODUCT 94 | Pepe Jeans Jeans | WM-233-002
+PRODUCT 95 | Lee Jeans | WM-233-003
+PRODUCT 96 | Wrangler Jeans | WM-233-004
+PRODUCT 97 | Zara Dresses | WM-234-001
+PRODUCT 98 | H&M Dresses | WM-234-002
+PRODUCT 99 | ONLY Dresses | WM-234-003
+PRODUCT 100 | Vero Moda Dresses | WM-234-004
+PRODUCT 101 | Puma Hoodies & Sweatshirts | WM-235-001
+PRODUCT 102 | Nike Hoodies & Sweatshirts | WM-235-002
+PRODUCT 103 | Adidas Hoodies & Sweatshirts | WM-235-003
+PRODUCT 104 | HRX Hoodies & Sweatshirts | WM-235-004
+PRODUCT 105 | Van Heusen Formal Shirts | WM-236-100
+PRODUCT 106 | Allen Solly Formal Shirts | WM-236-101
+PRODUCT 107 | Arrow Formal Shirts | WM-236-102
+PRODUCT 108 | Louis Philippe Formal Shirts | WM-236-103
+PRODUCT 109 | Zara Blazers | WM-237-100
+PRODUCT 110 | Van Heusen Blazers | WM-237-101
+PRODUCT 111 | Allen Solly Blazers | WM-237-102
+PRODUCT 112 | Blackberrys Blazers | WM-237-103
+PRODUCT 113 | Zara Suits | WM-238-100
+PRODUCT 114 | Allen Solly Suits | WM-238-101
+PRODUCT 115 | Van Heusen Suits | WM-238-102
+PRODUCT 116 | Louis Philippe Suits | WM-238-103
+PRODUCT 117 | Arrow Dress Trousers | WM-239-100
+PRODUCT 118 | Allen Solly Dress Trousers | WM-239-101
+PRODUCT 119 | Van Heusen Dress Trousers | WM-239-102
+PRODUCT 120 | Zara Dress Trousers | WM-239-103
+PRODUCT 121 | Biba Kurtas | WM-240-200
+PRODUCT 122 | W Kurtas | WM-240-201
+PRODUCT 123 | Libas Kurtas | WM-240-202
+PRODUCT 124 | Aurelia Kurtas | WM-240-203
+PRODUCT 125 | Sangria Sarees | WM-241-200
+PRODUCT 126 | Libas Sarees | WM-241-201
+PRODUCT 127 | Kalanjali Sarees | WM-241-202
+PRODUCT 128 | Pothys Sarees | WM-241-203
+PRODUCT 129 | Manyavar Mohey Lehengas | WM-242-200
+PRODUCT 130 | Biba Lehengas | WM-242-201
+PRODUCT 131 | Libas Lehengas | WM-242-202
+PRODUCT 132 | Kalki Lehengas | WM-242-203
+PRODUCT 133 | Aurelia Salwar Suits | WM-243-200
+PRODUCT 134 | Biba Salwar Suits | WM-243-201
+PRODUCT 135 | W Salwar Suits | WM-243-202
+PRODUCT 136 | Libas Salwar Suits | WM-243-203
+PRODUCT 137 | Metro Heels | WM-244-300
+PRODUCT 138 | Mochi Heels | WM-244-301
+PRODUCT 139 | Catwalk Heels | WM-244-302
+PRODUCT 140 | Inc.5 Heels | WM-244-303
+PRODUCT 141 | Bata Flats | WM-245-300
+PRODUCT 142 | Metro Flats | WM-245-301
+PRODUCT 143 | Mochi Flats | WM-245-302
+PRODUCT 144 | Inc.5 Flats | WM-245-303
+PRODUCT 145 | Bata Sandals | WM-246-300
+PRODUCT 146 | Metro Sandals | WM-246-301
+PRODUCT 147 | Paragon Sandals | WM-246-302
+PRODUCT 148 | Liberty Sandals | WM-246-303
+PRODUCT 149 | Nike Sneakers | WM-247-300
+PRODUCT 150 | Adidas Sneakers | WM-247-301
+PRODUCT 151 | Puma Sneakers | WM-247-302
+PRODUCT 152 | Skechers Sneakers | WM-247-303
+PRODUCT 153 | Woodland Boots | WM-248-300
+PRODUCT 154 | Hush Puppies Boots | WM-248-301
+PRODUCT 155 | Red Tape Boots | WM-248-302
+PRODUCT 156 | Clarks Boots | WM-248-303
+PRODUCT 157 | Caprese Handbags | WM-249-500
+PRODUCT 158 | Lavie Handbags | WM-249-501
+PRODUCT 159 | Baggit Handbags | WM-249-502
+PRODUCT 160 | Allen Solly Handbags | WM-249-503
+PRODUCT 161 | Allen Solly Belts | WM-250-500
+PRODUCT 162 | Van Heusen Belts | WM-250-501
+PRODUCT 163 | Baggit Belts | WM-250-502
+PRODUCT 164 | Levis Belts | WM-250-503
+PRODUCT 165 | Titan Watches | WM-251-500
+PRODUCT 166 | Fastrack Watches | WM-251-501
+PRODUCT 167 | Casio Watches | WM-251-502
+PRODUCT 168 | Timex Watches | WM-251-503
+PRODUCT 169 | Lavie Wallets | WM-252-500
+PRODUCT 170 | Caprese Wallets | WM-252-501
+PRODUCT 171 | Baggit Wallets | WM-252-502
+PRODUCT 172 | Tommy Hilfiger Wallets | WM-252-503
+PRODUCT 173 | Ray-Ban Sunglasses | WM-253-500
+PRODUCT 174 | IDEE Sunglasses | WM-253-501
+PRODUCT 175 | Vincent Chase Sunglasses | WM-253-502
+PRODUCT 176 | Polaroid Sunglasses | WM-253-503
+PRODUCT 177 | Puma Kids T-Shirts | KD-259-001
+PRODUCT 178 | Nike Kids T-Shirts | KD-259-002
+PRODUCT 179 | US Polo Kids T-Shirts | KD-259-003
+PRODUCT 180 | Allen Solly Kids T-Shirts | KD-259-004
+PRODUCT 181 | Allen Solly Kids Shirts | KD-260-001
+PRODUCT 182 | US Polo Kids Shirts | KD-260-002
+PRODUCT 183 | Levis Kids Shirts | KD-260-003
+PRODUCT 184 | Gini & Jony Shirts | KD-260-004
+PRODUCT 185 | Levis Kids Jeans | KD-261-001
+PRODUCT 186 | Lee Cooper Kids Jeans | KD-261-002
+PRODUCT 187 | US Polo Kids Jeans | KD-261-003
+PRODUCT 188 | Pepe Kids Jeans | KD-261-004
+PRODUCT 189 | Nike Kids Shorts | KD-262-001
+PRODUCT 190 | Puma Kids Shorts | KD-262-002
+PRODUCT 191 | Adidas Kids Shorts | KD-262-003
+PRODUCT 192 | HRX Kids Shorts | KD-262-004
+PRODUCT 213 | Manyavar Kids Ethnic Wear | KD-ETH-1
+PRODUCT 214 | Biba Kids Ethnic Wear | KD-ETH-2
+PRODUCT 215 | Sojanya Kids Ethnic Wear | KD-ETH-3
+PRODUCT 216 | FabIndia Kids Ethnic Wear | KD-ETH-4
+PRODUCT 217 | Hopscotch Frocks | KD-G-264-1
+PRODUCT 218 | Babyhug Frocks | KD-G-264-2
+PRODUCT 219 | Peppermint Frocks | KD-G-264-3
+PRODUCT 220 | US Polo Kids Frocks | KD-G-264-4
+PRODUCT 221 | Hopscotch Dresses | KD-G-265-1
+PRODUCT 222 | Babyhug Dresses | KD-G-265-2
+PRODUCT 223 | Peppermint Dresses | KD-G-265-3
+PRODUCT 224 | Gini & Jony Dresses | KD-G-265-4
+PRODUCT 225 | US Polo Kids Tops | KD-G-266-1
+PRODUCT 226 | Allen Solly Kids Tops | KD-G-266-2
+PRODUCT 227 | Peppermint Tops | KD-G-266-3
+PRODUCT 228 | Hopscotch Tops | KD-G-266-4
+PRODUCT 229 | Peppermint Skirts | KD-G-267-1
+PRODUCT 230 | Babyhug Skirts | KD-G-267-2
+PRODUCT 231 | Hopscotch Skirts | KD-G-267-3
+PRODUCT 232 | US Polo Kids Skirts | KD-G-267-4
+PRODUCT 233 | Soch Kids Ethnic Wear | KD-G-268-3
+PRODUCT 234 | Ramraj Kids Ethnic Wear | KD-B-ETH-1
+PRODUCT 235 | Peter England Kids Ethnic Wear | KD-B-ETH-2
+PRODUCT 236 | Max Kids Ethnic Wear | KD-B-ETH-3
+PRODUCT 237 | Babyhug Newborn Clothing | BC-269-1
+PRODUCT 238 | Mothercare Newborn Clothing | BC-269-2
+PRODUCT 239 | Mee Mee Newborn Clothing | BC-269-3
+PRODUCT 240 | Carter's Newborn Clothing | BC-269-4
+PRODUCT 241 | Babyhug Rompers | BC-270-1
+PRODUCT 242 | Carter's Rompers | BC-270-2
+PRODUCT 243 | Mothercare Rompers | BC-270-3
+PRODUCT 244 | Mee Mee Rompers | BC-270-4
+PRODUCT 245 | Babyhug Baby Sets | BC-271-1
+PRODUCT 246 | Mee Mee Baby Sets | BC-271-2
+PRODUCT 247 | Mothercare Baby Sets | BC-271-3
+PRODUCT 248 | FirstCry Baby Sets | BC-271-4
+PRODUCT 249 | Mee Mee Baby Essentials | BC-272-1
+PRODUCT 250 | Johnson's Baby Essentials | BC-272-2
+PRODUCT 251 | Himalaya Baby Baby Essentials | BC-272-3
+PRODUCT 252 | Sebamed Baby Baby Essentials | BC-272-4
+PRODUCT 253 | Puma Kids Casual Shoes | KF-274-1
+PRODUCT 254 | Nike Kids Casual Shoes | KF-274-2
+PRODUCT 255 | Adidas Kids Casual Shoes | KF-274-3
+PRODUCT 256 | Sparx Kids Casual Shoes | KF-274-4
+PRODUCT 257 | Bata Kids School Shoes | KF-273-1
+PRODUCT 258 | Liberty Kids School Shoes | KF-273-2
+PRODUCT 259 | Campus Kids School Shoes | KF-273-3
+PRODUCT 260 | Paragon Kids School Shoes | KF-273-4
+PRODUCT 297 | ShopEase Wedding Wear Wedding Shirts 1 | MN-FC292-01
+  adidas-t-shirts.jpg | exists=True | tokens=shirts | size=[800, 800]
+PRODUCT 301 | ShopEase Wedding Wear Wedding Suits 1 | MN-FC293-01
+  suits.jpg | exists=True | tokens=suits | size=[800, 800]
+PRODUCT 329 | ShopEase Party Wear Party Shirts 1 | MN-FC298-01
+  adidas-t-shirts.jpg | exists=True | tokens=shirts | size=[800, 800]
+PRODUCT 333 | ShopEase Party Wear Party Blazers 1 | MN-FC299-01
+  allen-solly-blazers.jpg | exists=True | tokens=blazers | size=[800, 800]
+PRODUCT 345 | ShopEase Traditional Wear Kurtas 1 | MN-FC302-01
+  aurelia-kurtas.jpg | exists=True | tokens=kurtas | size=[800, 800]
+PRODUCT 349 | ShopEase Traditional Wear Sherwanis 1 | MN-FC303-01
+  fabindia-sherwanis.jpg | exists=True | tokens=sherwanis | size=[800, 800]
+PRODUCT 361 | ShopEase Suits & Blazers Two-Piece Suits 1 | MN-FC306-01
+  suits.jpg | exists=True | tokens=suits | size=[800, 800]
+PRODUCT 365 | ShopEase Suits & Blazers Three-Piece Suits 1 | MN-FC307-01
+  suits.jpg | exists=True | tokens=suits | size=[800, 800]
+PRODUCT 377 | ShopEase Denim Wear Denim Jeans 1 | MN-FC310-01
+  biba-kids-ethnic-wear.jpg | exists=True | tokens=wear | size=[800, 800]
+PRODUCT 381 | ShopEase Denim Wear Denim Jackets 1 | MN-FC311-01
+  biba-kids-ethnic-wear.jpg | exists=True | tokens=wear | size=[800, 800]
+PRODUCT 393 | ShopEase Streetwear Graphic T-Shirts 1 | MN-FC314-01
+  adidas-t-shirts.jpg | exists=True | tokens=shirts | size=[800, 800]
+PRODUCT 397 | ShopEase Streetwear Cargo Pants 1 | MN-FC315-01
+  cargo-pants.jpg | exists=True | tokens=cargo,pants | size=[800, 800]
+PRODUCT 409 | ShopEase Activewear Gym T-Shirts 1 | MN-FC318-01
+  adidas-t-shirts.jpg | exists=True | tokens=shirts | size=[800, 800]
+PRODUCT 413 | ShopEase Activewear Track Pants 1 | MN-FC319-01
+  cargo-pants.jpg | exists=True | tokens=pants | size=[800, 800]
+PRODUCT 425 | ShopEase Winter Wear Winter Jackets 1 | MN-FC322-01
+  biba-kids-ethnic-wear.jpg | exists=True | tokens=wear | size=[800, 800]
+PRODUCT 429 | ShopEase Winter Wear Sweaters 1 | MN-FC323-01
+  biba-kids-ethnic-wear.jpg | exists=True | tokens=wear | size=[800, 800]
+PRODUCT 441 | ShopEase Sportswear Sports T-Shirts 1 | MN-FC326-01
+  adidas-t-shirts.jpg | exists=True | tokens=shirts | size=[800, 800]
+PRODUCT 445 | ShopEase Sportswear Sports Shorts 1 | MN-FC327-01
+  adidas-sneakers.jpg | exists=True | tokens= | size=[800, 800]
+PRODUCT 457 | ShopEase Pants & Trousers Formal Trousers 1 | MN-FC330-01
+  allen-solly-formal-shirts.jpg | exists=True | tokens=formal | size=[800, 800]
+PRODUCT 461 | ShopEase Pants & Trousers Casual Trousers 1 | MN-FC331-01
+  cargo-pants.jpg | exists=True | tokens=pants | size=[800, 800]
+PRODUCT 473 | ShopEase Innerwear Vests 1 | MN-FC334-01
+  tank_tops_vests.jpg | exists=True | tokens=vests | size=[960, 1200]
+PRODUCT 477 | ShopEase Innerwear Briefs 1 | MN-FC335-01
+  adidas-sneakers.jpg | exists=True | tokens= | size=[800, 800]
+PRODUCT 509 | ShopEase Accessories Bags 1 | MN-FC221-01
+  bags-accessories.jpg | exists=True | tokens=accessories,bags | size=[800, 800]
+PRODUCT 510 | ShopEase Accessories Bags 2 | MN-FC221-02
+  bags-accessories.jpg | exists=True | tokens=accessories,bags | size=[800, 800]
+PRODUCT 511 | ShopEase Accessories Bags 3 | MN-FC221-03
+  bags-accessories.jpg | exists=True | tokens=accessories,bags | size=[800, 800]
+PRODUCT 512 | ShopEase Accessories Bags 4 | MN-FC221-04
+  bags-accessories.jpg | exists=True | tokens=accessories,bags | size=[800, 800]
+PRODUCT 513 | ShopEase Accessories Belts 1 | MN-FC222-01
+  allen-solly-belts.jpg | exists=True | tokens=belts | size=[800, 800]
+PRODUCT 514 | ShopEase Accessories Belts 2 | MN-FC222-02
+  allen-solly-belts.jpg | exists=True | tokens=belts | size=[800, 800]
+PRODUCT 515 | ShopEase Accessories Belts 3 | MN-FC222-03
+  allen-solly-belts.jpg | exists=True | tokens=belts | size=[800, 800]
+PRODUCT 516 | ShopEase Accessories Belts 4 | MN-FC222-04
+  allen-solly-belts.jpg | exists=True | tokens=belts | size=[800, 800]
+PRODUCT 517 | ShopEase Accessories Watches 1 | MN-FC223-01
+  casio-watches.jpg | exists=True | tokens=watches | size=[800, 800]
+PRODUCT 518 | ShopEase Accessories Watches 2 | MN-FC223-02
+  casio-watches.jpg | exists=True | tokens=watches | size=[800, 800]
+PRODUCT 519 | ShopEase Accessories Watches 3 | MN-FC223-03
+  casio-watches.jpg | exists=True | tokens=watches | size=[800, 800]
+PRODUCT 520 | ShopEase Accessories Watches 4 | MN-FC223-04
+  casio-watches.jpg | exists=True | tokens=watches | size=[800, 800]
+PRODUCT 521 | ShopEase Accessories Wallets 1 | MN-FC224-01
+  baggit-wallets.jpg | exists=True | tokens=wallets | size=[800, 800]
+PRODUCT 522 | ShopEase Accessories Wallets 2 | MN-FC224-02
+  baggit-wallets.jpg | exists=True | tokens=wallets | size=[800, 800]
+PRODUCT 523 | ShopEase Accessories Wallets 3 | MN-FC224-03
+  baggit-wallets.jpg | exists=True | tokens=wallets | size=[800, 800]
+PRODUCT 524 | ShopEase Accessories Wallets 4 | MN-FC224-04
+  baggit-wallets.jpg | exists=True | tokens=wallets | size=[800, 800]
+PRODUCT 525 | ShopEase Accessories Sunglasses 1 | MN-FC225-01
+  idee-sunglasses.jpg | exists=True | tokens=sunglasses | size=[800, 800]
+PRODUCT 526 | ShopEase Accessories Sunglasses 2 | MN-FC225-02
+  idee-sunglasses.jpg | exists=True | tokens=sunglasses | size=[800, 800]
+PRODUCT 527 | ShopEase Accessories Sunglasses 3 | MN-FC225-03
+  idee-sunglasses.jpg | exists=True | tokens=sunglasses | size=[800, 800]
+PRODUCT 528 | ShopEase Accessories Sunglasses 4 | MN-FC225-04
+  idee-sunglasses.jpg | exists=True | tokens=sunglasses | size=[800, 800]

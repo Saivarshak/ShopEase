@@ -1,0 +1,274 @@
+BASE_DIR= C:\Users\saiva\OneDrive\Desktop\Live project Online shoping
+STATIC= C:\Users\saiva\OneDrive\Desktop\Live project Online shoping\static
+MEDIA= C:\Users\saiva\OneDrive\Desktop\Live project Online shoping\media
+
+PRODUCTS
+
+CATEGORIES
+Category 1 mens None
+Category 2 womens None
+Category 3 kids None
+Category 4 accessories None
+SubCategory 1 T-Shirts None
+SubCategory 2 Shirts None
+SubCategory 3 Polos None
+SubCategory 4 Jeans None
+SubCategory 5 Trousers None
+SubCategory 6 Cargo Pants None
+SubCategory 7 Shorts None
+SubCategory 8 Hoodies & Sweatshirts None
+SubCategory 9 Jackets & Coats None
+SubCategory 10 Blazers None
+SubCategory 11 Suits None
+SubCategory 12 Innerwear None
+SubCategory 13 Nightwear None
+SubCategory 14 Activewear None
+SubCategory 15 Traditional Wear None
+SubCategory 16 Kurtas None
+SubCategory 17 Kurta Sets None
+SubCategory 18 Sherwanis None
+SubCategory 19 Footwear None
+SubCategory 20 Casual Shoes None
+SubCategory 21 Formal Shoes None
+SubCategory 22 Sports Shoes None
+SubCategory 23 Sandals & Floaters None
+SubCategory 24 Slippers None
+SubCategory 25 Accessories None
+SubCategory 26 Ethnic Wear None
+SubCategory 27 Sarees None
+SubCategory 28 Kurtas & Kurtis None
+SubCategory 29 Salwar Suits None
+SubCategory 30 Lehenga Cholis None
+SubCategory 31 Dupattas None
+SubCategory 32 Western Wear None
+SubCategory 33 Tops None
+SubCategory 34 T-Shirts None
+SubCategory 35 Shirts None
+SubCategory 36 Dresses None
+SubCategory 37 Jumpsuits None
+SubCategory 38 Skirts None
+SubCategory 39 Jeans None
+SubCategory 40 Trousers None
+SubCategory 41 Lingerie & Sleepwear None
+SubCategory 42 Maternity Wear None
+SubCategory 43 Activewear None
+SubCategory 44 Winter Wear None
+SubCategory 45 Footwear None
+SubCategory 46 Heels None
+SubCategory 47 Flats None
+SubCategory 48 Sandals None
+SubCategory 49 Sneakers None
+SubCategory 50 Boots None
+SubCategory 51 Bags & Accessories None
+SubCategory 52 Boys None
+SubCategory 53 T-Shirts None
+SubCategory 54 Shirts None
+SubCategory 55 Jeans None
+SubCategory 56 Shorts None
+SubCategory 57 Trousers None
+SubCategory 58 Ethnic Wear None
+SubCategory 59 Nightwear None
+SubCategory 60 Winter Wear None
+SubCategory 61 Girls None
+SubCategory 62 Dresses None
+SubCategory 63 Frocks None
+SubCategory 64 Tops & T-Shirts None
+SubCategory 65 Skirts None
+SubCategory 66 Leggings None
+SubCategory 67 Baby Care None
+SubCategory 68 Newborn Clothing None
+SubCategory 69 Rompers None
+SubCategory 70 Baby Sets None
+SubCategory 71 Baby Essentials None
+SubCategory 72 Toys None
+SubCategory 73 Footwear None
+SubCategory 74 School Shoes None
+SubCategory 75 Casual Shoes None
+SubCategory 76 Sandals None
+SubCategory 77 Slippers None
+SubCategory 78 Men's Accessories None
+SubCategory 79 Women's Accessories None
+SubCategory 80 Kids Accessories None
+SubCategory 81 Watches None
+SubCategory 82 Bags None
+SubCategory 83 Jewelry None
+SubCategory 84 Sunglasses None
+SubCategory 85 Wallets None
+SubCategory 86 Belts None
+SubCategory 87 Caps & Hats None
+SubCategory 88 Casual Wear None
+SubCategory 89 Polo Shirts None
+SubCategory 90 Formal Wear None
+SubCategory 91 Dress Shirts None
+SubCategory 92 Dress Trousers None
+SubCategory 93 Tuxedos None
+SubCategory 94 Sneakers None
+SubCategory 95 Boots None
+SubCategory 96 Dress Shoes None
+SubCategory 97 Loafers None
+SubCategory 98 Outerwear None
+SubCategory 99 Overcoats None
+SubCategory 100 Trench Coats None
+SubCategory 101 Puffer Jackets None
+SubCategory 102 Bags None
+SubCategory 103 Belts None
+SubCategory 104 Watches None
+SubCategory 105 Sunglasses None
+SubCategory 106 Wallets None
+SubCategory 107 Casual Wear None
+SubCategory 108 Polo Shirts None
+SubCategory 109 Hoodies & Sweatshirts None
+SubCategory 110 Shorts None
+SubCategory 111 Formal Wear None
+SubCategory 112 Suits None
+SubCategory 113 Dress Shirts None
+SubCategory 114 Blazers None
+SubCategory 115 Dress Trousers None
+SubCategory 116 Tuxedos None
+SubCategory 117 Dress Shoes None
+SubCategory 118 Loafers None
+SubCategory 119 Outerwear None
+SubCategory 120 Overcoats None
+SubCategory 121 Trench Coats None
+SubCategory 122 Puffer Jackets None
+SubCategory 123 Accessories None
+SubCategory 124 Bags None
+SubCategory 125 Belts None
+SubCategory 126 Watches None
+SubCategory 127 Sunglasses None
+SubCategory 128 Wallets None
+SubCategory 129 Casual Wear None
+SubCategory 130 Polo Shirts None
+SubCategory 131 Hoodies & Sweatshirts None
+SubCategory 132 Formal Wear None
+SubCategory 133 Suits None
+SubCategory 134 Dress Shirts None
+SubCategory 135 Blazers None
+SubCategory 136 Dress Trousers None
+SubCategory 137 Tuxedos None
+SubCategory 138 Sneakers None
+SubCategory 139 Boots None
+SubCategory 140 Dress Shoes None
+SubCategory 141 Loafers None
+SubCategory 142 Outerwear None
+SubCategory 143 Overcoats None
+SubCategory 144 Trench Coats None
+SubCategory 145 Puffer Jackets None
+SubCategory 146 Accessories None
+SubCategory 147 Bags None
+SubCategory 148 Belts None
+SubCategory 149 Watches None
+SubCategory 150 Sunglasses None
+SubCategory 151 Wallets None
+SubCategory 152 Common For All Genders None
+SubCategory 153 Other Future Accessories None
+SubCategory 154 Dresses None
+SubCategory 155 Formal Shirts None
+SubCategory 156 Ethnic Wear None
+SubCategory 157 Sarees None
+SubCategory 158 Lehengas None
+SubCategory 159 Ethnic Dresses None
+SubCategory 160 Sandals None
+SubCategory 161 Toys None
+SubCategory 162 Formal Shirts None
+SubCategory 163 Kurtas None
+SubCategory 164 Lehengas None
+SubCategory 165 Sherwanis None
+SubCategory 166 Ethnic Dresses None
+SubCategory 167 Toys None
+SubCategory 168 Formal Shirts None
+SubCategory 169 Kurtas None
+SubCategory 170 Sarees None
+SubCategory 171 Lehengas None
+SubCategory 172 Sherwanis None
+SubCategory 173 Ethnic Dresses None
+
+SITE_ASSETS
+
+PAGE_ASSETS
+
+UPLOADED_IMAGES
+
+STATIC_IMAGES
+images/adidas-sneakers.jpg
+images/adidas-sneakers.webp
+images/adidas-t-shirts.jpg
+images/adidas-t-shirts.webp
+images/allen-solly-belts.jpg
+images/allen-solly-belts.webp
+images/allen-solly-blazers.jpg
+images/allen-solly-blazers.webp
+images/allen-solly-formal-shirts.jpg
+images/allen-solly-formal-shirts.webp
+images/allen-solly-polo-shirts.jpg
+images/allen-solly-polo-shirts.webp
+images/american-tourister-bags.jpg
+images/american-tourister-bags.webp
+images/aurelia-kurtas.jpg
+images/aurelia-kurtas.webp
+images/baggit-belts.jpg
+images/baggit-belts.webp
+images/baggit-wallets.jpg
+images/baggit-wallets.webp
+images/bags-accessories.jpg
+images/bags-accessories.webp
+images/bata-dress-shoes.jpg
+images/bata-dress-shoes.webp
+images/belts.jpg
+images/belts.webp
+images/biba-kids-ethnic-wear.jpg
+images/biba-kids-ethnic-wear.webp
+images/cargo-pants.jpg
+images/cargo-pants.webp
+images/casio-watches.jpg
+images/casio-watches.webp
+images/fabindia-sherwanis.jpg
+images/fabindia-sherwanis.webp
+images/fastrack-watches.jpg
+images/fastrack-watches.webp
+images/fossil-wallets.jpg
+images/fossil-wallets.webp
+images/homebg.svg
+images/idee-sunglasses.jpg
+images/idee-sunglasses.webp
+images/kids.png
+images/kids.webp
+images/kisah-sherwanis.jpg
+images/kisah-sherwanis.webp
+images/levis-belts.jpg
+images/levis-belts.webp
+images/levis-wallets.jpg
+images/levis-wallets.webp
+images/loginbg.jpg
+images/loginbg.webp
+images/logo1.png
+images/logo1.webp
+images/men-s-accessories.jpg
+images/men-s-accessories.webp
+images/men_shirt_black_front.jpg
+images/men_shirt_black_front.webp
+images/mens_accessories.png
+images/mens_accessories.webp
+images/mens_shoes.png
+images/mens_shoes.webp
+images/menstshirts.jpg
+images/menstshirts.webp
+images/nike-t-shirts.jpg
+images/nike-t-shirts.webp
+images/placeholder.svg
+images/polaroid-sunglasses.jpg
+images/polaroid-sunglasses.webp
+images/shirt.jpg
+images/shirt.webp
+images/suits.jpg
+images/suits.webp
+images/sunglasses.jpg
+images/sunglasses.webp
+images/sweatshirts.jpg
+images/sweatshirts.webp
+images/tank_tops_vests.jpg
+images/tank_tops_vests.webp
+images/wallets.jpg
+images/wallets.webp
+images/women.png
+images/women.webp

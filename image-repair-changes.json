@@ -1,0 +1,550 @@
+[
+  {
+    "variant_id": 73,
+    "product_id": 297,
+    "product": "ShopEase Wedding Wear Wedding Shirts 1",
+    "old": "weddingwear.jpg",
+    "new": "adidas-t-shirts.jpg",
+    "score": 18,
+    "overlap": [
+      "shirts"
+    ]
+  },
+  {
+    "variant_id": 77,
+    "product_id": 301,
+    "product": "ShopEase Wedding Wear Wedding Suits 1",
+    "old": "weddingwear.jpg",
+    "new": "suits.jpg",
+    "score": 18,
+    "overlap": [
+      "suits"
+    ]
+  },
+  {
+    "variant_id": 97,
+    "product_id": 41,
+    "product": "Manyavar Sherwanis",
+    "old": "kisah-sherwanis.jpg",
+    "new": "fabindia-sherwanis.jpg",
+    "score": 18,
+    "overlap": [
+      "sherwanis"
+    ]
+  },
+  {
+    "variant_id": 113,
+    "product_id": 329,
+    "product": "ShopEase Party Wear Party Shirts 1",
+    "old": "party_wear.jpeg",
+    "new": "adidas-t-shirts.jpg",
+    "score": 18,
+    "overlap": [
+      "shirts"
+    ]
+  },
+  {
+    "variant_id": 117,
+    "product_id": 333,
+    "product": "ShopEase Party Wear Party Blazers 1",
+    "old": "party_wear.jpeg",
+    "new": "allen-solly-blazers.jpg",
+    "score": 18,
+    "overlap": [
+      "blazers"
+    ]
+  },
+  {
+    "variant_id": 133,
+    "product_id": 349,
+    "product": "ShopEase Traditional Wear Sherwanis 1",
+    "old": "kisah-sherwanis.jpg",
+    "new": "fabindia-sherwanis.jpg",
+    "score": 18,
+    "overlap": [
+      "sherwanis"
+    ]
+  },
+  {
+    "variant_id": 161,
+    "product_id": 377,
+    "product": "ShopEase Denim Wear Denim Jeans 1",
+    "old": "denim-wear.jpg",
+    "new": "biba-kids-ethnic-wear.jpg",
+    "score": 10,
+    "overlap": [
+      "wear"
+    ]
+  },
+  {
+    "variant_id": 165,
+    "product_id": 381,
+    "product": "ShopEase Denim Wear Denim Jackets 1",
+    "old": "denim-wear.jpg",
+    "new": "biba-kids-ethnic-wear.jpg",
+    "score": 10,
+    "overlap": [
+      "wear"
+    ]
+  },
+  {
+    "variant_id": 177,
+    "product_id": 393,
+    "product": "ShopEase Streetwear Graphic T-Shirts 1",
+    "old": "Street-wear.jpg",
+    "new": "adidas-t-shirts.jpg",
+    "score": 18,
+    "overlap": [
+      "shirts"
+    ]
+  },
+  {
+    "variant_id": 181,
+    "product_id": 397,
+    "product": "ShopEase Streetwear Cargo Pants 1",
+    "old": "Street-wear.jpg",
+    "new": "cargo-pants.jpg",
+    "score": 28,
+    "overlap": [
+      "cargo",
+      "pants"
+    ]
+  },
+  {
+    "variant_id": 193,
+    "product_id": 409,
+    "product": "ShopEase Activewear Gym T-Shirts 1",
+    "old": "activewear.jpg",
+    "new": "adidas-t-shirts.jpg",
+    "score": 18,
+    "overlap": [
+      "shirts"
+    ]
+  },
+  {
+    "variant_id": 197,
+    "product_id": 413,
+    "product": "ShopEase Activewear Track Pants 1",
+    "old": "activewear.jpg",
+    "new": "cargo-pants.jpg",
+    "score": 18,
+    "overlap": [
+      "pants"
+    ]
+  },
+  {
+    "variant_id": 209,
+    "product_id": 425,
+    "product": "ShopEase Winter Wear Winter Jackets 1",
+    "old": "winter-wear.jpg",
+    "new": "biba-kids-ethnic-wear.jpg",
+    "score": 10,
+    "overlap": [
+      "wear"
+    ]
+  },
+  {
+    "variant_id": 213,
+    "product_id": 429,
+    "product": "ShopEase Winter Wear Sweaters 1",
+    "old": "winter-wear.jpg",
+    "new": "biba-kids-ethnic-wear.jpg",
+    "score": 10,
+    "overlap": [
+      "wear"
+    ]
+  },
+  {
+    "variant_id": 225,
+    "product_id": 441,
+    "product": "ShopEase Sportswear Sports T-Shirts 1",
+    "old": "sports_wear.jpeg",
+    "new": "adidas-t-shirts.jpg",
+    "score": 18,
+    "overlap": [
+      "shirts"
+    ]
+  },
+  {
+    "variant_id": 229,
+    "product_id": 445,
+    "product": "ShopEase Sportswear Sports Shorts 1",
+    "old": "sports_wear.jpeg",
+    "new": "adidas-sneakers.jpg",
+    "score": 0,
+    "overlap": []
+  },
+  {
+    "variant_id": 241,
+    "product_id": 457,
+    "product": "ShopEase Pants & Trousers Formal Trousers 1",
+    "old": "Pants & Trousers.jpg",
+    "new": "allen-solly-formal-shirts.jpg",
+    "score": 18,
+    "overlap": [
+      "formal"
+    ]
+  },
+  {
+    "variant_id": 245,
+    "product_id": 461,
+    "product": "ShopEase Pants & Trousers Casual Trousers 1",
+    "old": "Pants & Trousers.jpg",
+    "new": "cargo-pants.jpg",
+    "score": 10,
+    "overlap": [
+      "pants"
+    ]
+  },
+  {
+    "variant_id": 257,
+    "product_id": 473,
+    "product": "ShopEase Innerwear Vests 1",
+    "old": "Mens_Innerwear.jpg",
+    "new": "tank_tops_vests.jpg",
+    "score": 18,
+    "overlap": [
+      "vests"
+    ]
+  },
+  {
+    "variant_id": 261,
+    "product_id": 477,
+    "product": "ShopEase Innerwear Briefs 1",
+    "old": "Mens_Innerwear.jpg",
+    "new": "adidas-sneakers.jpg",
+    "score": 0,
+    "overlap": []
+  },
+  {
+    "variant_id": 273,
+    "product_id": 45,
+    "product": "Nike Sneakers",
+    "old": "adidas-sneakers.jpg",
+    "new": "nike-t-shirts.jpg",
+    "score": 22,
+    "overlap": [
+      "nike"
+    ]
+  },
+  {
+    "variant_id": 313,
+    "product_id": 65,
+    "product": "Wildcraft Bags",
+    "old": "bags.jpg",
+    "new": "bags-accessories.jpg",
+    "score": 20,
+    "overlap": [
+      "bags"
+    ]
+  },
+  {
+    "variant_id": 316,
+    "product_id": 68,
+    "product": "Safari Bags",
+    "old": "men-s-accessories.jpg",
+    "new": "bags-accessories.jpg",
+    "score": 20,
+    "overlap": [
+      "bags"
+    ]
+  },
+  {
+    "variant_id": 317,
+    "product_id": 509,
+    "product": "ShopEase Accessories Bags 1",
+    "old": "bags.jpg",
+    "new": "bags-accessories.jpg",
+    "score": 30,
+    "overlap": [
+      "accessories",
+      "bags"
+    ]
+  },
+  {
+    "variant_id": 319,
+    "product_id": 511,
+    "product": "ShopEase Accessories Bags 3",
+    "old": "american-tourister-bags.jpg",
+    "new": "bags-accessories.jpg",
+    "score": 30,
+    "overlap": [
+      "accessories",
+      "bags"
+    ]
+  },
+  {
+    "variant_id": 320,
+    "product_id": 512,
+    "product": "ShopEase Accessories Bags 4",
+    "old": "men-s-accessories.jpg",
+    "new": "bags-accessories.jpg",
+    "score": 30,
+    "overlap": [
+      "accessories",
+      "bags"
+    ]
+  },
+  {
+    "variant_id": 321,
+    "product_id": 69,
+    "product": "Levis Belts",
+    "old": "allen-solly-belts.jpg",
+    "new": "levis-belts.jpg",
+    "score": 40,
+    "overlap": [
+      "belts",
+      "levis"
+    ]
+  },
+  {
+    "variant_id": 322,
+    "product_id": 70,
+    "product": "Allen Solly Belts",
+    "old": "baggit-belts.jpg",
+    "new": "allen-solly-belts.jpg",
+    "score": 50,
+    "overlap": [
+      "allen",
+      "belts",
+      "solly"
+    ]
+  },
+  {
+    "variant_id": 323,
+    "product_id": 71,
+    "product": "Van Heusen Belts",
+    "old": "levis-belts.jpg",
+    "new": "allen-solly-belts.jpg",
+    "score": 18,
+    "overlap": [
+      "belts"
+    ]
+  },
+  {
+    "variant_id": 324,
+    "product_id": 72,
+    "product": "Woodland Belts",
+    "old": "belts.jpg",
+    "new": "allen-solly-belts.jpg",
+    "score": 18,
+    "overlap": [
+      "belts"
+    ]
+  },
+  {
+    "variant_id": 326,
+    "product_id": 514,
+    "product": "ShopEase Accessories Belts 2",
+    "old": "baggit-belts.jpg",
+    "new": "allen-solly-belts.jpg",
+    "score": 18,
+    "overlap": [
+      "belts"
+    ]
+  },
+  {
+    "variant_id": 327,
+    "product_id": 515,
+    "product": "ShopEase Accessories Belts 3",
+    "old": "levis-belts.jpg",
+    "new": "allen-solly-belts.jpg",
+    "score": 18,
+    "overlap": [
+      "belts"
+    ]
+  },
+  {
+    "variant_id": 328,
+    "product_id": 516,
+    "product": "ShopEase Accessories Belts 4",
+    "old": "belts.jpg",
+    "new": "allen-solly-belts.jpg",
+    "score": 18,
+    "overlap": [
+      "belts"
+    ]
+  },
+  {
+    "variant_id": 330,
+    "product_id": 74,
+    "product": "Casio Watches",
+    "old": "fastrack-watches.jpg",
+    "new": "casio-watches.jpg",
+    "score": 40,
+    "overlap": [
+      "casio",
+      "watches"
+    ]
+  },
+  {
+    "variant_id": 331,
+    "product_id": 75,
+    "product": "Fastrack Watches",
+    "old": "watches.jpg",
+    "new": "fastrack-watches.jpg",
+    "score": 40,
+    "overlap": [
+      "fastrack",
+      "watches"
+    ]
+  },
+  {
+    "variant_id": 334,
+    "product_id": 518,
+    "product": "ShopEase Accessories Watches 2",
+    "old": "fastrack-watches.jpg",
+    "new": "casio-watches.jpg",
+    "score": 18,
+    "overlap": [
+      "watches"
+    ]
+  },
+  {
+    "variant_id": 335,
+    "product_id": 519,
+    "product": "ShopEase Accessories Watches 3",
+    "old": "watches.jpg",
+    "new": "casio-watches.jpg",
+    "score": 18,
+    "overlap": [
+      "watches"
+    ]
+  },
+  {
+    "variant_id": 337,
+    "product_id": 77,
+    "product": "Woodland Wallets",
+    "old": "fossil-wallets.jpg",
+    "new": "baggit-wallets.jpg",
+    "score": 18,
+    "overlap": [
+      "wallets"
+    ]
+  },
+  {
+    "variant_id": 338,
+    "product_id": 78,
+    "product": "Levis Wallets",
+    "old": "baggit-wallets.jpg",
+    "new": "levis-wallets.jpg",
+    "score": 40,
+    "overlap": [
+      "levis",
+      "wallets"
+    ]
+  },
+  {
+    "variant_id": 339,
+    "product_id": 79,
+    "product": "Tommy Hilfiger Wallets",
+    "old": "levis-wallets.jpg",
+    "new": "baggit-wallets.jpg",
+    "score": 18,
+    "overlap": [
+      "wallets"
+    ]
+  },
+  {
+    "variant_id": 340,
+    "product_id": 80,
+    "product": "Fossil Wallets",
+    "old": "wallets.jpg",
+    "new": "fossil-wallets.jpg",
+    "score": 40,
+    "overlap": [
+      "fossil",
+      "wallets"
+    ]
+  },
+  {
+    "variant_id": 341,
+    "product_id": 521,
+    "product": "ShopEase Accessories Wallets 1",
+    "old": "fossil-wallets.jpg",
+    "new": "baggit-wallets.jpg",
+    "score": 18,
+    "overlap": [
+      "wallets"
+    ]
+  },
+  {
+    "variant_id": 343,
+    "product_id": 523,
+    "product": "ShopEase Accessories Wallets 3",
+    "old": "levis-wallets.jpg",
+    "new": "baggit-wallets.jpg",
+    "score": 18,
+    "overlap": [
+      "wallets"
+    ]
+  },
+  {
+    "variant_id": 344,
+    "product_id": 524,
+    "product": "ShopEase Accessories Wallets 4",
+    "old": "wallets.jpg",
+    "new": "baggit-wallets.jpg",
+    "score": 18,
+    "overlap": [
+      "wallets"
+    ]
+  },
+  {
+    "variant_id": 346,
+    "product_id": 82,
+    "product": "IDEE Sunglasses",
+    "old": "polaroid-sunglasses.jpg",
+    "new": "idee-sunglasses.jpg",
+    "score": 40,
+    "overlap": [
+      "idee",
+      "sunglasses"
+    ]
+  },
+  {
+    "variant_id": 347,
+    "product_id": 83,
+    "product": "Vincent Chase Sunglasses",
+    "old": "sunglasses.jpg",
+    "new": "idee-sunglasses.jpg",
+    "score": 18,
+    "overlap": [
+      "sunglasses"
+    ]
+  },
+  {
+    "variant_id": 348,
+    "product_id": 84,
+    "product": "Polaroid Sunglasses",
+    "old": "idee-sunglasses.jpg",
+    "new": "polaroid-sunglasses.jpg",
+    "score": 40,
+    "overlap": [
+      "polaroid",
+      "sunglasses"
+    ]
+  },
+  {
+    "variant_id": 350,
+    "product_id": 526,
+    "product": "ShopEase Accessories Sunglasses 2",
+    "old": "polaroid-sunglasses.jpg",
+    "new": "idee-sunglasses.jpg",
+    "score": 18,
+    "overlap": [
+      "sunglasses"
+    ]
+  },
+  {
+    "variant_id": 351,
+    "product_id": 527,
+    "product": "ShopEase Accessories Sunglasses 3",
+    "old": "sunglasses.jpg",
+    "new": "idee-sunglasses.jpg",
+    "score": 18,
+    "overlap": [
+      "sunglasses"
+    ]
+  }
+]
